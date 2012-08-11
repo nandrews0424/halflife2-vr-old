@@ -216,6 +216,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
     <ClCompile Include="achievement_notification_panel.cpp" />
     <ClCompile Include="..\shared\achievement_saverestore.cpp" />
     <ClCompile Include="..\shared\achievementmgr.cpp" />
@@ -279,6 +280,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
     <ClCompile Include="c_func_conveyor.cpp" />
     <ClCompile Include="c_func_dust.cpp" />
     <ClCompile Include="c_func_lod.cpp" />
+    <ClCompile Include="FreespaceMovementController.cpp" />
     <ClCompile Include="hl2\C_Func_Monitor.cpp" />
     <ClCompile Include="c_func_occluder.cpp" />
     <ClCompile Include="c_func_reflective_glass.cpp" />
@@ -853,6 +855,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
     <ClInclude Include="..\shared\achievement_saverestore.h" />
     <ClInclude Include="..\shared\achievementmgr.h" />
     <ClInclude Include="..\shared\baseachievement.h" />
+    <ClInclude Include="CppInterfaces2.h" />
     <ClInclude Include="c_props.h" />
     <ClInclude Include="c_slideshow_display.h" />
     <ClInclude Include="c_team_objectiveresource.h" />
@@ -862,6 +865,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
     <ClInclude Include="..\shared\particle_parse.h" />
     <ClInclude Include="..\shared\particle_property.h" />
     <ClInclude Include="..\shared\point_bonusmaps_accessor.h" />
+    <ClInclude Include="FreespaceMovementController.h" />
     <ClInclude Include="vgui_avatarimage.h" />
     <ClInclude Include="viewdebug.h" />
     <ClInclude Include="viewpostprocess.h" />
@@ -1436,6 +1440,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
     <ClInclude Include="game_controls\vguitextwindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="..\..\libfreespace\lib\libfreespace.lib" />
     <Library Include="..\..\lib\public\bitmap.lib" />
     <Library Include="..\..\lib\public\choreoobjects.lib" />
     <Library Include="..\..\lib\public\dmxloader.lib" />

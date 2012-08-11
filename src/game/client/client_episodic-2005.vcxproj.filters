@@ -1491,6 +1491,12 @@
     <ClCompile Include="toolframework_client.cpp">
       <Filter>Tool Framework</Filter>
     </ClCompile>
+    <ClCompile Include="FreespaceMovementController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="achievement_notification_panel.h">
@@ -3248,6 +3254,12 @@
     <ClInclude Include="game_controls\vguitextwindow.h">
       <Filter>game_controls Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FreespaceMovementController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CppInterfaces2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\lib\public\bitmap.lib">
@@ -3287,6 +3299,9 @@
       <Filter>Link Libraries</Filter>
     </Library>
     <Library Include="..\..\lib\public\vstdlib.lib">
+      <Filter>Link Libraries</Filter>
+    </Library>
+    <Library Include="..\..\libfreespace\lib\libfreespace.lib">
       <Filter>Link Libraries</Filter>
     </Library>
   </ItemGroup>
