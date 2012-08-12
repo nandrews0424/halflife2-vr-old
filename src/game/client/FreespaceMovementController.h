@@ -27,6 +27,6 @@ protected:
 	bool _intialized;
 	FreespaceDeviceId _device;
 	struct freespace_UserFrame _userFrame;  // conveys device position and orientation in quaernion
-	struct Vec3f _eulerAngles;
-	struct Vec3f _previousAngles; 
+	struct Vec3f _angle;
+	CUtlVector<QAngle> _recentAngles;
 };

@@ -49,6 +49,12 @@ static int in_cancel = 0;
 static bool useTracking = true;
 IMovementController* motionTracker;
 
+static void in_headtracking_OnChange(IConVar *var, const char *poldvalue, float flOldValue)
+{
+	useTracking = ((ConVar*)var)->GetBool();
+}
+ConVar in_headtracking("head_tracking", "true", 0, "Toggles headtracking module", in_headtracking_OnChange);
+
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
 ConVar cl_pitchspeed( "cl_pitchspeed", "225", 0 );

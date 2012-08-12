@@ -17,7 +17,7 @@ static void receiveMessageCallback(FreespaceDeviceId id,
 	}
 }
 
-static void getEulerAnglesFromUserFrame(const struct freespace_UserFrame* user,
+static void getAnglesFromUserFrame(const struct freespace_UserFrame* user,
                                         struct Vec3f* eulerAngles) {
     struct FS_Quaternion q;
     q_quatFromUserFrame(&q, user);
@@ -42,8 +42,7 @@ FreespaceMovementController::FreespaceMovementController() {
 
 	memset(&cachedUserFrame, 0, sizeof(cachedUserFrame));
 	memset(&_userFrame, 0, sizeof(_userFrame));
-	memset(&_previousAngles, 0, sizeof(_previousAngles));
-
+	
 	rc = freespace_init();
 	if (rc != FREESPACE_SUCCESS) {
 		Msg("Freespace initialization error.  rc=%d", rc);
@@ -122,14 +121,38 @@ FreespaceMovementController::~FreespaceMovementController(){
 	}
 	 _userFrame = cachedUserFrame;
 
-	getEulerAnglesFromUserFrame(&_userFrame, &_eulerAngles);
-	roll = 0;
-	pitch = 0;
-	yaw = 0;
+	getAnglesFromUserFrame(&_userFrame, &_angle);
+	
+	QAngle angle(RADIANS_TO_DEGREES(_angle.x), RADIANS_TO_DEGREES(_angle.y), RADIANS_TO_DEGREES(_angle.z));
+	_recentAngles.AddToTail(angle);
+	
+	
+	// todo: make convar
+	if (_recentAngles.Size() > 5) {
+		_recentAngles.Remove(0);
+	}
 
-	roll = RADIANS_TO_DEGREES(_eulerAngles.x);
-	pitch = RADIANS_TO_DEGREES(_eulerAngles.y) * -1;
-	yaw = RADIANS_TO_DEGREES(_eulerAngles.z) * -1;
+	// Get average over a series of frames
+	QAngle avg(0,0,0);
+	int size = _recentAngles.Size();
+	for (int i = 0; i < size; i++)
+	{
+		avg.x += _recentAngles[i].x;
+		avg.y += _recentAngles[i].y;
+		avg.z += _recentAngles[i].z;
+	}
+	
+	avg.x /= size;
+	avg.y /= size;
+	avg.z /= size;
+
+	Msg("roll: (%2f,%2f) pitch: (%2f,%2f) yaw: (%2f,%2f)", angle.x, avg.x, angle.y, avg.y, angle.z, avg.z);
+
+	roll = avg.x;
+	pitch = avg.y * -1;
+	yaw = angle.z * -1;  // yaw smoothing is causing odd behavior so ignoring for now
+	
+
 
 	return 0;
 }
