@@ -1,17 +1,9 @@
-/****************************************************************************
-*  Sample shell for specific tracker instance
-*
-*  This is very dependent on what tracker and API you are using
-* 
-*  This example is a conceptual template of how it would look
-*
-******************************************************************************/
 #include "cbase.h"
 #include "FreespaceMovementController.h"
 
-
 #define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / M_PI))
 #define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (M_PI / 180.0))
+
 struct freespace_UserFrame cachedUserFrame;
 static  bool test = false;
 static void receiveMessageCallback(FreespaceDeviceId id,
@@ -19,8 +11,10 @@ static void receiveMessageCallback(FreespaceDeviceId id,
                             void* cookie,
                             int result) {
     if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_USERFRAME) {
-        cachedUserFrame = message->userFrame;
-    }
+   		cachedUserFrame = message->userFrame;
+    } else if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_BODYFRAME) {
+		Msg("A Bodyframe callback was recieved with linear acceleration Callback received: %d", message->messageType);
+	}
 }
 
 static void getEulerAnglesFromUserFrame(const struct freespace_UserFrame* user,
@@ -77,9 +71,9 @@ FreespaceMovementController::FreespaceMovementController() {
 	
 	//allocate space for structs
    
-	 if (FREESPACE_SUCCESS == freespace_isNewDevice(device)) {
+	 if (freespace_isNewDevice(device)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
-        message.dataModeControlV2Request.packetSelect = 2;
+        message.dataModeControlV2Request.packetSelect = 3;
         message.dataModeControlV2Request.modeAndStatus |= 0 << 1;
     } else {
         message.messageType = FREESPACE_MESSAGE_DATAMODEREQUEST;
@@ -103,7 +97,7 @@ FreespaceMovementController::~FreespaceMovementController(){
 
     printf("\n\nfreespaceInputThread: Cleaning up...\n");
     memset(&message, 0, sizeof(message));
-    if (FREESPACE_SUCCESS == freespace_isNewDevice(_device)) {
+    if (freespace_isNewDevice(_device)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
         message.dataModeControlV2Request.packetSelect = 1;
     } else {
@@ -122,9 +116,16 @@ FreespaceMovementController::~FreespaceMovementController(){
 }
  
  int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
-	_userFrame = cachedUserFrame;
-	
+	if (!_intialized) {
+		Msg("Can't read orientation, not initialized");
+		return -1;
+	}
+	 _userFrame = cachedUserFrame;
+
 	getEulerAnglesFromUserFrame(&_userFrame, &_eulerAngles);
+	roll = 0;
+	pitch = 0;
+	yaw = 0;
 
 	roll = RADIANS_TO_DEGREES(_eulerAngles.x);
 	pitch = RADIANS_TO_DEGREES(_eulerAngles.y) * -1;

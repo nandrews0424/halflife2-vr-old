@@ -19,6 +19,8 @@
 #include "bitbuf.h"
 #include "checksum_md5.h"
 #include "hltvcamera.h"
+#include "IMovementController.h"
+#include "FreespaceMovementController.h"
 #include <ctype.h> // isalnum()
 #include <voice_status.h>
 
@@ -43,6 +45,9 @@ float anglemod( float a );
 // FIXME void V_Init( void );
 static int in_impulse = 0;
 static int in_cancel = 0;
+
+static bool useTracking = true;
+IMovementController* motionTracker;
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -129,15 +134,17 @@ IN_CenterView_f
 */
 void IN_CenterView_f (void)
 {
-	QAngle viewangles;
+	if(!motionTracker->isTrackerInitialized() || !useTracking) {
+		QAngle viewangles;
 
-	if ( UsingMouselook() == false )
-	{
-		if ( !::input->CAM_InterceptingMouse() )
+		if ( UsingMouselook() == false )
 		{
-			engine->GetViewAngles( viewangles );
-			viewangles[PITCH] = 0;
-			engine->SetViewAngles( viewangles );
+			if ( !::input->CAM_InterceptingMouse() )
+			{
+				engine->GetViewAngles( viewangles );
+				viewangles[PITCH] = 0;
+				engine->SetViewAngles( viewangles );
+			}
 		}
 	}
 }
@@ -373,6 +380,7 @@ KeyUp
 */
 void KeyUp( kbutton_t *b, const char *c )
 {	
+
 	if ( !c || !c[0] )
 	{
 		b->down[0] = b->down[1] = 0;
@@ -731,6 +739,26 @@ void CInput::ClampAngles( QAngle& viewangles )
 #endif
 }
 
+
+/* Gets camera angles from motion trackers */
+QAngle getCameraAngles() {
+ 
+	QAngle viewangles;
+ 
+	//pitch, yaw, roll
+	float pitch, yaw, roll;
+ 
+	motionTracker->getOrientation(pitch, yaw, roll);
+ 
+	//Note: the mapping of angles to your tracker might be different
+	viewangles.x = pitch;
+	viewangles.y = yaw;
+	viewangles.z = roll;
+ 
+	return viewangles;
+}
+
+
 /*
 ================
 AdjustAngles
@@ -753,15 +781,18 @@ void CInput::AdjustAngles ( float frametime )
 	// Retrieve latest view direction from engine
 	engine->GetViewAngles( viewangles );
 
-	// Adjust YAW
-	AdjustYaw( speed, viewangles );
-
-	// Adjust PITCH if keyboard looking
-	AdjustPitch( speed, viewangles );
 	
-	// Make sure values are legitimate
-	ClampAngles( viewangles );
-
+	if(motionTracker->isTrackerInitialized() && useTracking) {
+		motionTracker->update();
+		viewangles = getCameraAngles();
+	} else {
+		// Adjust YAW
+		AdjustYaw( speed, viewangles );
+		// Adjust PITCH if keyboard looking
+		AdjustPitch( speed, viewangles );
+		// Make sure values are legitimate
+		ClampAngles( viewangles );
+	}
 	// Store new view angles into engine view direction
 	engine->SetViewAngles( viewangles );
 }
@@ -912,15 +943,17 @@ ControllerMove
 */
 void CInput::ControllerMove( float frametime, CUserCmd *cmd )
 {
-	if ( IsPC() )
-	{
-		if ( !m_fCameraInterceptingMouse && m_fMouseActive )
+	if(!motionTracker->isTrackerInitialized() || !useTracking) {
+		if ( IsPC() )
 		{
-			MouseMove( cmd);
+			if ( !m_fCameraInterceptingMouse && m_fMouseActive )
+			{
+				MouseMove( cmd);
+			}
 		}
-	}
 
-	JoyStickMove( frametime, cmd);
+		JoyStickMove( frametime, cmd);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -944,59 +977,64 @@ if active == 1 then we are 1) not playing back demos ( where our commands are ig
 
 void CInput::ExtraMouseSample( float frametime, bool active )
 {
-	CUserCmd dummy;
-	CUserCmd *cmd = &dummy;
+	
+	if (!motionTracker->isTrackerInitialized() || !useTracking) {
 
-	cmd->Reset();
+		CUserCmd dummy;
+		CUserCmd *cmd = &dummy;
+
+		cmd->Reset();
 
 
-	QAngle viewangles;
+		QAngle viewangles;
 
-	if ( active )
-	{
-		// Determine view angles
-		AdjustAngles ( frametime );
+		if ( active )
+		{
+			// Determine view angles
+			AdjustAngles ( frametime );
 
-		// Determine sideways movement
-		ComputeSideMove( cmd );
+			// Determine sideways movement
+			ComputeSideMove( cmd );
 
-		// Determine vertical movement
-		ComputeUpwardMove( cmd );
+			// Determine vertical movement
+			ComputeUpwardMove( cmd );
 
-		// Determine forward movement
-		ComputeForwardMove( cmd );
+			// Determine forward movement
+			ComputeForwardMove( cmd );
 
-		// Scale based on holding speed key or having too fast of a velocity based on client maximum
-		//  speed.
-		ScaleMovements( cmd );
+			// Scale based on holding speed key or having too fast of a velocity based on client maximum
+			//  speed.
+			ScaleMovements( cmd );
 
-		// Allow mice and other controllers to add their inputs
-		ControllerMove( frametime, cmd );
-	}
+			// Allow mice and other controllers to add their inputs
+			ControllerMove( frametime, cmd );
+		}
 
-	// Retreive view angles from engine ( could have been set in IN_AdjustAngles above )
-	engine->GetViewAngles( viewangles );
+		// Retreive view angles from engine ( could have been set in IN_AdjustAngles above )
+		engine->GetViewAngles( viewangles );
 
-	// Set button and flag bits, don't blow away state
-	cmd->buttons = GetButtonBits( 0 );
+		// Set button and flag bits, don't blow away state
+		cmd->buttons = GetButtonBits( 0 );
 
-	// Use new view angles if alive, otherwise user last angles we stored off.
-	if ( g_iAlive )
-	{
-		VectorCopy( viewangles, cmd->viewangles );
-		VectorCopy( viewangles, m_angPreviousViewAngles );
-	}
-	else
-	{
-		VectorCopy( m_angPreviousViewAngles, cmd->viewangles );
-	}
+		// Use new view angles if alive, otherwise user last angles we stored off.
+		if ( g_iAlive )
+		{
+			VectorCopy( viewangles, cmd->viewangles );
+			VectorCopy( viewangles, m_angPreviousViewAngles );
+		}
+		else
+		{
+			VectorCopy( m_angPreviousViewAngles, cmd->viewangles );
+		}
 
-	// Let the move manager override anything it wants to.
-	if ( g_pClientMode->CreateMove( frametime, cmd ) )
-	{
-		// Get current view angles after the client mode tweaks with it
-		engine->SetViewAngles( cmd->viewangles );
-		prediction->SetLocalViewAngles( cmd->viewangles );
+		// Let the move manager override anything it wants to.
+		if ( g_pClientMode->CreateMove( frametime, cmd ) )
+		{
+			// Get current view angles after the client mode tweaks with it
+			engine->SetViewAngles( cmd->viewangles );
+			prediction->SetLocalViewAngles( cmd->viewangles );
+		}
+
 	}
 }
 
@@ -1499,6 +1537,7 @@ void CInput::Init_All (void)
 		
 	// Initialize third person camera controls.
 	Init_Camera();
+	motionTracker = new FreespaceMovementController();
 }
 
 /*
@@ -1516,6 +1555,8 @@ void CInput::Shutdown_All(void)
 
 	delete[] m_pVerifiedCommands;
 	m_pVerifiedCommands = NULL;
+
+	delete motionTracker;
 }
 
 void CInput::LevelInit( void )
