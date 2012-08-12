@@ -146,14 +146,12 @@ FreespaceMovementController::~FreespaceMovementController(){
 	avg.y /= size;
 	avg.z /= size;
 
-	Msg("roll: (%2f,%2f) pitch: (%2f,%2f) yaw: (%2f,%2f)", angle.x, avg.x, angle.y, avg.y, angle.z, avg.z);
+	//Msg("roll: (%2f,%2f) pitch: (%2f,%2f) yaw: (%2f,%2f)", angle.x, avg.x, angle.y, avg.y, angle.z, avg.z);
 
 	roll = avg.x;
 	pitch = avg.y * -1;
 	yaw = angle.z * -1;  // yaw smoothing is causing odd behavior so ignoring for now
 	
-
-
 	return 0;
 }
   

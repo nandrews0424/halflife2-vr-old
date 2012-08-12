@@ -403,6 +403,24 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	}
 #endif
 
+	float leanFactor = vmangles.z / 90;
+	
+	//vmorigin x is up/down, y is forward/backward &  is left/right
+	
+	vmorigin.z += 5 * leanFactor;
+
+	//adjustments based on head roll direction
+	if (vmangles.z < 0) //leaning left 
+	{ 
+		vmorigin.y += 3 * leanFactor;
+	} 
+	else //leaning right
+	{
+		vmorigin.y -= 3 * leanFactor;
+	}
+
+	vmangles.z *= 1.1;
+	
 	SetLocalOrigin( vmorigin );
 	SetLocalAngles( vmangles );
 
