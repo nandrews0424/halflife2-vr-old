@@ -81,6 +81,8 @@ protected:
 
 	virtual void	WaterMove( void );
 
+	void			ApplyHeadMovements( void );
+
 	void			WaterJump( void );
 
 	// Handles both ground friction and water friction

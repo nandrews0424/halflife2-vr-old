@@ -17,10 +17,6 @@ public:
  	bool	hasPositionTracking(void);
  	bool	hasOrientationTracking(void);
  	bool	isTrackerInitialized() { return _intialized; }
- 
-	/**
-	* Tells the tracker that its time/safe to update.
-	*/
 	void	update(void);
 
 protected: 

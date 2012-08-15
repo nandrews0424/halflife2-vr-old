@@ -5,7 +5,8 @@
 #define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (M_PI / 180.0))
 
 struct freespace_UserFrame cachedUserFrame;
-static  bool test = false;
+FreespaceMovementController* freespace;
+
 static void receiveMessageCallback(FreespaceDeviceId id,
                             struct freespace_message* message,
                             void* cookie,
@@ -116,8 +117,10 @@ FreespaceMovementController::~FreespaceMovementController(){
  
  int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
 	if (!_intialized) {
-		Msg("Can't read orientation, not initialized");
-		return -1;
+		pitch = 0;
+		roll = 0;
+		yaw = 0;
+		return 0;
 	}
 	 _userFrame = cachedUserFrame;
 
@@ -132,7 +135,7 @@ FreespaceMovementController::~FreespaceMovementController(){
 		_recentAngles.Remove(0);
 	}
 
-	// Get average over a series of frames
+	// Should you sum of unit vectors of each angle to allow averaging on yaw where there exits the wrap around point 180 to -180
 	QAngle avg(0,0,0);
 	int size = _recentAngles.Size();
 	for (int i = 0; i < size; i++)
@@ -169,4 +172,11 @@ bool FreespaceMovementController::hasOrientationTracking() {
   
 bool FreespaceMovementController::hasPositionTracking() {
 	return false;
+}
+
+//static helper methods for external libs
+static void Util_getOrientation(float &pitch, float& yaw, float& roll)
+{
+	if (freespace == null) return;
+	freespace->getOrientation(pitch, yaw, roll);	
 }

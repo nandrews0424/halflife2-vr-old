@@ -4529,8 +4529,32 @@ void CGameMovement::PlayerMove( void )
 			DevMsg( 1, "Bogus pmove player movetype %i on (%i) 0=cl 1=sv\n", player->GetMoveType(), player->IsServer());
 			break;
 	}
+	ApplyHeadMovements();
+
 }
 
+
+// ---------------------------------------------
+// Freespace: Applies View Offsets For a neck -> Eye translation model
+// ---------------------------------------------
+void CGameMovement::ApplyHeadMovements()
+{
+	Vector offset = player->GetViewOffset();
+
+	//reset these as we'll recalculate them 
+	//this will remove some bob effects but I think we want that anyway
+	//otherwise use prev angle calculation to undo previous neck model offset
+	float neckLength = 10;
+	offset.x = 0; 
+	offset.y = 0;
+	offset.z -= neckLength;
+
+	QAngle angles = mv->m_vecAngles;
+	Vector up;
+	AngleVectors(angles, NULL, NULL, &up);
+	up *= neckLength;
+	player->SetViewOffset(offset + up);
+}
 
 //-----------------------------------------------------------------------------
 // Performs the collision resolution for fliers.
