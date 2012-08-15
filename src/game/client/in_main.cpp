@@ -20,7 +20,7 @@
 #include "checksum_md5.h"
 #include "hltvcamera.h"
 #include "IMovementController.h"
-#include "FreespaceMovementController.h"
+#include "freespace/FreespaceMovementController.h"
 #include <ctype.h> // isalnum()
 #include <voice_status.h>
 

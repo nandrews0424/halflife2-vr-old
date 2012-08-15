@@ -1491,10 +1491,10 @@
     <ClCompile Include="toolframework_client.cpp">
       <Filter>Tool Framework</Filter>
     </ClCompile>
-    <ClCompile Include="FreespaceMovementController.cpp">
+    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c">
+    <ClCompile Include="..\shared\freespace\FreespaceMovementController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -3254,10 +3254,10 @@
     <ClInclude Include="game_controls\vguitextwindow.h">
       <Filter>game_controls Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FreespaceMovementController.h">
+    <ClInclude Include="CppInterfaces2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CppInterfaces2.h">
+    <ClInclude Include="..\shared\freespace\FreespaceMovementController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

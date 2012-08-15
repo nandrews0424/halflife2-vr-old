@@ -35,7 +35,7 @@ static void getAnglesFromUserFrame(const struct freespace_UserFrame* user,
 
 //todo: move to init so it can be call from a console command later to reinitialize
 FreespaceMovementController::FreespaceMovementController() {
-	
+	_intialized = false;
 	struct freespace_message message;
 	FreespaceDeviceId device;
 	int numIds;
@@ -47,6 +47,7 @@ FreespaceMovementController::FreespaceMovementController() {
 	rc = freespace_init();
 	if (rc != FREESPACE_SUCCESS) {
 		Msg("Freespace initialization error.  rc=%d", rc);
+		return;
 	}
 	
 	rc = freespace_getDeviceList(&device, 1, &numIds);
@@ -163,11 +164,13 @@ int FreespaceMovementController::getPosition(float &x, float &y, float &z){
 }
  
 void FreespaceMovementController::update() {
-	freespace_perform();
+	if (_intialized) {
+		freespace_perform();
+	}
 }
  
 bool FreespaceMovementController::hasOrientationTracking() {
-	return true; 
+	return _intialized; 
 }
   
 bool FreespaceMovementController::hasPositionTracking() {
