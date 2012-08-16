@@ -1,5 +1,5 @@
 #include "cbase.h"
-#include "FreespaceMovementController.h"
+#include "freespace/FreespaceMovementController.h"
 
 #define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / M_PI))
 #define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (M_PI / 180.0))
@@ -22,13 +22,7 @@ static void getAnglesFromUserFrame(const struct freespace_UserFrame* user,
                                         struct Vec3f* eulerAngles) {
     struct FS_Quaternion q;
     q_quatFromUserFrame(&q, user);
-
-    // The Freespace quaternion gives the rotation in terms of
-    // rotating the world around the object. We take the conjugate to
-    // get the rotation in the object's reference frame.
     q_conjugate(&q, &q);
-
-    // Convert quaternion to Euler angles
     q_toEulerAngles(eulerAngles, &q);
 }
 
@@ -178,8 +172,8 @@ bool FreespaceMovementController::hasPositionTracking() {
 }
 
 //static helper methods for external libs
-static void Util_getOrientation(float &pitch, float& yaw, float& roll)
+static void UTIL_getHeadOrientation(float &pitch, float& yaw, float& roll)
 {
-	if (freespace == null) return;
+	if (freespace == NULL) return;
 	freespace->getOrientation(pitch, yaw, roll);	
 }

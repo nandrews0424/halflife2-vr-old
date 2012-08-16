@@ -403,25 +403,31 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	}
 #endif
 
-	float leanFactor = vmangles.z / 90;
-	
-	//vmorigin x is up/down, y is forward/backward &  is left/right
-	
-	vmorigin.z += 5 * leanFactor;
+	//freespace -- shift the view models to match HeadOffsetModel applied later
 
-	//adjustments based on head roll direction
-	if (vmangles.z < 0) //leaning left 
-	{ 
-		vmorigin.y += 3 * leanFactor;
-	} 
-	else //leaning right
-	{
-		vmorigin.y -= 3 * leanFactor;
+	Vector playerOrigin = owner->GetAbsOrigin();
+	vmorigin.z -= 12; //neck length (need to abstract)
+
+	// get eye direction angles
+	Vector forward, right, up; 
+	AngleVectors(eyeAngles, &forward, &right, &up);
+	vmorigin += up*12;
+	
+	float roll = vmangles.z;
+	float rightScale, forwardScale = 1;
+	
+	if(roll > 0) {
+		roll += roll*.15; //just dabbling
+		rightScale = 3*(roll/90);
+		forwardScale = -1*(roll/90);
+	}else if (roll < 0) {
+		roll += roll*.3;
+		rightScale = 3*(roll/90);
+		forwardScale = -1.5*(roll/90);
 	}
-
-	vmangles.z *= 1.1;
-	
-	SetLocalOrigin( vmorigin );
+	vmangles.z = roll;
+	//translate to the left regardless of direction
+	SetLocalOrigin(vmorigin + (rightScale*right) + (forwardScale*forward));
 	SetLocalAngles( vmangles );
 
 #endif

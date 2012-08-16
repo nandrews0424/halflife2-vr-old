@@ -218,6 +218,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
   <ItemGroup>
     <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
     <ClCompile Include="..\shared\freespace\FreespaceMovementController.cpp" />
+    <ClCompile Include="..\shared\freespace\HeadOffsetModel.cpp" />
     <ClCompile Include="achievement_notification_panel.cpp" />
     <ClCompile Include="..\shared\achievement_saverestore.cpp" />
     <ClCompile Include="..\shared\achievementmgr.cpp" />
@@ -852,6 +853,7 @@ if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "d:\steam\steama
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\freespace\FreespaceMovementController.h" />
+    <ClInclude Include="..\shared\IMovementController.h" />
     <ClInclude Include="achievement_notification_panel.h" />
     <ClInclude Include="..\shared\achievement_saverestore.h" />
     <ClInclude Include="..\shared\achievementmgr.h" />

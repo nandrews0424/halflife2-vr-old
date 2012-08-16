@@ -493,6 +493,9 @@ private:
 
 	bool			m_bTakeFreezeFrame;
 	float			m_flFreezeFrameUntil;
+
+private:
+	void			ApplyHeadOffset(CViewSetup *view); //freespace
 };
 
 #endif // VIEWRENDER_H

@@ -849,6 +849,7 @@ void CViewRender::Render( vrect_t *rect )
 		}
 	}
 
+	ApplyHeadOffset(&m_View);
 	render->SetMainView( m_View.origin, m_View.angles );
 
 	int flags = RENDERVIEW_DRAWHUD;

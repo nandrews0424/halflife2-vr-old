@@ -26,3 +26,5 @@ protected:
 	struct Vec3f _angle;
 	CUtlVector<QAngle> _recentAngles;
 };
+
+void UTIL_getHeadOrientation(float &pitch, float &yaw, float &roll);
