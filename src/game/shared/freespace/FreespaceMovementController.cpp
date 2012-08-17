@@ -1,8 +1,23 @@
 #include "cbase.h"
 #include "freespace/FreespaceMovementController.h"
 
-#define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / M_PI))
-#define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (M_PI / 180.0))
+#define PI 3.141592654f
+#define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
+#define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (PI / 180.0))
+#define SMOOTHING_WINDOW_SIZE 5
+
+const float MAX_ANGLE_ACCEL = 3;
+const float MIN_ANGULAR_CHANGE = (PI / 180.f);
+
+//QANGLE INDICES
+const int PITCH_I = 1;
+const int ROLL_I = 0;
+const int YAW_I = 2;
+
+
+QAngle TrackedAngles[SMOOTHING_WINDOW_SIZE];
+int CurSample = -1;
+int NumSamples = 0;
 
 struct freespace_UserFrame cachedUserFrame;
 FreespaceMovementController* freespace;
@@ -17,15 +32,6 @@ static void receiveMessageCallback(FreespaceDeviceId id,
 		Msg("A Bodyframe callback was recieved with linear acceleration Callback received: %d", message->messageType);
 	}
 }
-
-static void getAnglesFromUserFrame(const struct freespace_UserFrame* user,
-                                        struct Vec3f* eulerAngles) {
-    struct FS_Quaternion q;
-    q_quatFromUserFrame(&q, user);
-    q_conjugate(&q, &q);
-    q_toEulerAngles(eulerAngles, &q);
-}
-
 
 //todo: move to init so it can be call from a console command later to reinitialize
 FreespaceMovementController::FreespaceMovementController() {
@@ -68,14 +74,15 @@ FreespaceMovementController::FreespaceMovementController() {
    
 	 if (freespace_isNewDevice(device)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
-        message.dataModeControlV2Request.packetSelect = 3;
-        message.dataModeControlV2Request.modeAndStatus |= 0 << 1;
+        message.dataModeControlV2Request.packetSelect = 3;  // User Frame (orientation)
+        message.dataModeControlV2Request.modeAndStatus = 0;
     } else {
         message.messageType = FREESPACE_MESSAGE_DATAMODEREQUEST;
         message.dataModeRequest.enableBodyMotion = 1;
         message.dataModeRequest.inhibitPowerManager = 1;
     }
-    rc = freespace_sendMessage(device, &message);
+    
+	rc = freespace_sendMessage(device, &message);
     if (rc != FREESPACE_SUCCESS) {
         Msg("freespace: Could not send message: %d.\n", rc);
     }
@@ -94,11 +101,14 @@ FreespaceMovementController::~FreespaceMovementController(){
     memset(&message, 0, sizeof(message));
     if (freespace_isNewDevice(_device)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
-        message.dataModeControlV2Request.packetSelect = 1;
+        message.dataModeControlV2Request.packetSelect = 0;
+		message.dataModeControlV2Request.modeAndStatus = 1 << 1;
     } else {
         message.messageType = FREESPACE_MESSAGE_DATAMODEREQUEST;
-        message.dataModeRequest.enableMouseMovement = 1;
-    }
+		message.dataModeRequest.enableUserPosition = 0;
+		message.dataModeRequest.inhibitPowerManager = 0;
+	}
+
     rc = freespace_sendMessage(_device, &message);
     if (rc != FREESPACE_SUCCESS) {
         printf("freespaceInputThread: Could not send message: %d.\n", rc);
@@ -111,44 +121,103 @@ FreespaceMovementController::~FreespaceMovementController(){
 }
  
  int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
+	
 	if (!_intialized) {
 		pitch = 0;
 		roll = 0;
 		yaw = 0;
 		return 0;
 	}
-	 _userFrame = cachedUserFrame;
+	
+	 // Get the quaternion vector
+    float w = cachedUserFrame.angularPosA;
+    float x = cachedUserFrame.angularPosB;
+    float y = cachedUserFrame.angularPosC;
+    float z = cachedUserFrame.angularPosD;
 
-	getAnglesFromUserFrame(&_userFrame, &_angle);
-	
-	QAngle angle(RADIANS_TO_DEGREES(_angle.x), RADIANS_TO_DEGREES(_angle.y), RADIANS_TO_DEGREES(_angle.z));
-	_recentAngles.AddToTail(angle);
-	
-	
-	// todo: make convar
-	if (_recentAngles.Size() > 5) {
-		_recentAngles.Remove(0);
+    // normalize the vector
+    float len = sqrtf((w*w) + (x*x) + (y*y) + (z*z));
+    w /= len;
+    x /= len;
+    y /= len;
+    z /= len;
+
+    // The Freespace quaternion gives the rotation in terms of
+    // rotating the world around the object. We take the conjugate to
+    // get the rotation in the object's reference frame.
+    w = w;
+    x = -x;
+    y = -y;
+    z = -z;
+
+    // Convert to angles in radians
+    float m11 = (2.0f * w * w) + (2.0f * x * x) - 1.0f;
+    float m12 = (2.0f * x * y) + (2.0f * w * z);
+    float m13 = (2.0f * x * z) - (2.0f * w * y);
+    float m23 = (2.0f * y * z) + (2.0f * w * x);
+    float m33 = (2.0f * w * w) + (2.0f * z * z) - 1.0f;
+
+	// Find the index into the rotating sample window
+    CurSample++;
+    if (CurSample >= SMOOTHING_WINDOW_SIZE)
+        CurSample = 0;
+
+	TrackedAngles[CurSample][ROLL_I] = atan2f(m23,m33);
+	TrackedAngles[CurSample][PITCH_I] = asinf(-m13);
+	TrackedAngles[CurSample][YAW_I] = atan2f(m12,m11);
+
+	if (NumSamples < SMOOTHING_WINDOW_SIZE) {
+		NumSamples++;
+		return 0;
 	}
 
-	// Should you sum of unit vectors of each angle to allow averaging on yaw where there exits the wrap around point 180 to -180
-	QAngle avg(0,0,0);
-	int size = _recentAngles.Size();
-	for (int i = 0; i < size; i++)
-	{
-		avg.x += _recentAngles[i].x;
-		avg.y += _recentAngles[i].y;
-		avg.z += _recentAngles[i].z;
-	}
+	int i = CurSample+1;
+	if(i >= SMOOTHING_WINDOW_SIZE)
+		i=0;
+
+	QAngle sum(TrackedAngles[CurSample]);
 	
-	avg.x /= size;
-	avg.y /= size;
-	avg.z /= size;
+	while (i != CurSample) {
+		sum[ROLL_I] += TrackedAngles[i][ROLL_I];
+		sum[PITCH_I] += TrackedAngles[i][PITCH_I];
 
-	//Msg("roll: (%2f,%2f) pitch: (%2f,%2f) yaw: (%2f,%2f)", angle.x, avg.x, angle.y, avg.y, angle.z, avg.z);
+		//Handle potential discontinuity from pos to neg on yaw averages
+		if(fabs(TrackedAngles[CurSample][YAW_I] - TrackedAngles[i][YAW_I]) > PI) {
+			if (TrackedAngles[CurSample][YAW_I] > 0)
+				sum[YAW_I] += TrackedAngles[i][YAW_I] + (2*PI);
+			else
+				sum[YAW_I] += TrackedAngles[i][YAW_I] + (-2*PI);
+		}
+		else {
+			sum[YAW_I]   += TrackedAngles[i][YAW_I];
+		}
 
-	roll = avg.x;
-	pitch = avg.y * -1;
-	yaw = angle.z * -1;  // yaw smoothing is causing odd behavior so ignoring for now
+		i++;
+		if (i >= SMOOTHING_WINDOW_SIZE) {
+			i = 0;
+		}
+	}
+
+	QAngle next(
+		sum[ROLL_I] / SMOOTHING_WINDOW_SIZE,
+		sum[PITCH_I] / SMOOTHING_WINDOW_SIZE,
+		sum[YAW_I] / SMOOTHING_WINDOW_SIZE
+	);
+
+    // correct YAW_I angles for earlier discontinuity fix
+    if (next.z > PI)
+        next.z -= (2 * PI);
+    else if (next.z < -PI)
+        next.z += (2 * PI);
+
+	//TODO: limit large changes in acceleration
+	
+	//Msg("Tracked(%d) x:%f y:%f z:%f\n", TrackedAngles[CurSample].x, TrackedAngles[CurSample].y, TrackedAngles[CurSample].z, CurSample);
+	//Msg("Next Avg    x:%f y:%f z:%f\n", next.x, next.y, next.z);
+	
+	roll = RADIANS_TO_DEGREES(next[ROLL_I]);
+	pitch = RADIANS_TO_DEGREES(next[PITCH_I]) * -1;
+	yaw = RADIANS_TO_DEGREES(next[YAW_I]) * -1;
 	
 	return 0;
 }
