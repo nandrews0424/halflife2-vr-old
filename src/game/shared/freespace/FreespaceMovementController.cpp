@@ -10,8 +10,8 @@ const float MAX_ANGLE_ACCEL = 3;
 const float MIN_ANGULAR_CHANGE = (PI / 180.f);
 
 //QANGLE INDICES
-const int PITCH_I = 1;
-const int ROLL_I = 0;
+const int PITCH_I = 0;
+const int ROLL_I = 1;
 const int YAW_I = 2;
 
 
@@ -176,7 +176,7 @@ FreespaceMovementController::~FreespaceMovementController(){
 		i=0;
 
 	QAngle sum(TrackedAngles[CurSample]);
-	
+	//Msg("Tracked pitch:%f roll:%f yaw:%f\n", sum[PITCH_I], sum[ROLL_I], sum[YAW_I]);
 	while (i != CurSample) {
 		sum[ROLL_I] += TrackedAngles[i][ROLL_I];
 		sum[PITCH_I] += TrackedAngles[i][PITCH_I];
@@ -205,18 +205,18 @@ FreespaceMovementController::~FreespaceMovementController(){
 	);
 
     // correct YAW_I angles for earlier discontinuity fix
-    if (next.z > PI)
-        next.z -= (2 * PI);
-    else if (next.z < -PI)
-        next.z += (2 * PI);
+    if (next[YAW_I] > PI)
+        next[YAW_I] -= (2 * PI);
+    else if (next[YAW_I] < -PI)
+        next[YAW_I] += (2 * PI);
 
 	//TODO: limit large changes in acceleration
 	
-	//Msg("Tracked(%d) x:%f y:%f z:%f\n", TrackedAngles[CurSample].x, TrackedAngles[CurSample].y, TrackedAngles[CurSample].z, CurSample);
-	//Msg("Next Avg    x:%f y:%f z:%f\n", next.x, next.y, next.z);
+	//Msg("Tracked(%d) pitch:%f roll:%f yaw:%f\n", TrackedAngles[CurSample][PITCH_I], TrackedAngles[CurSample][ROLL_I], TrackedAngles[CurSample][YAW_I], CurSample);
+	//Msg("Next Avg    pitch:%f roll:%f yaw:%f\n", next[PITCH_I], next[ROLL_I], next[YAW_I]);
 	
-	roll = RADIANS_TO_DEGREES(next[ROLL_I]);
-	pitch = RADIANS_TO_DEGREES(next[PITCH_I]) * -1;
+	roll = RADIANS_TO_DEGREES(next[ROLL_I]) * -1;
+	pitch = RADIANS_TO_DEGREES(next[PITCH_I]) * -1;  //inverting pitch
 	yaw = RADIANS_TO_DEGREES(next[YAW_I]) * -1;
 	
 	return 0;

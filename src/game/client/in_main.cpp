@@ -957,9 +957,9 @@ void CInput::ControllerMove( float frametime, CUserCmd *cmd )
 				MouseMove( cmd);
 			}
 		}
-
-		JoyStickMove( frametime, cmd);
 	}
+	
+	JoyStickMove( frametime, cmd);
 }
 
 //-----------------------------------------------------------------------------
