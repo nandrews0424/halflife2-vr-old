@@ -1,0 +1,40 @@
+// JOYSTICK 1 - NAVI
+// JOYSTICK 2 - MOVE
+
+var.LeftMouseButton = joystick2.button8
+var.RightMouseButton = joystick2.button7
+var.MiddleMouseButton = joystick1.button2
+
+var.HoldButton = joystick1.button7
+
+GlovePIE.FrameRate = 80hz
+
+lmb = joystick2.button8
+rmb = joystick2.button7
+
+/*
+// Translate navi joystick to key movements, only for games that don't accept gamepad inputs
+if joystick1.x >= 0.5 then key.d = true else key.d = false
+if joystick1.x <= -0.5 then key.a = true else key.a = false
+
+if joystick1.y >= 0.5 then key.s = true else key.s = false
+if joystick1.y <= -0.5 then key.w = true else key.w = false
+*/
+
+//Move Buttons
+Key.Ctrl = joystick2.button1  	//move triangle
+Key.Space = joystick2.button4   	        //move square
+Key.P = joystick2.button2      	    //move circle
+Key.B = joystick2.button3	        //move cross
+
+//  joystick2.button9		//move select
+//	joystick2.button10		//move start
+Key.Esc = joystick2.button13		//move ps
+
+//Navigator Button
+/*Key.E = joystick1.button3	//navi cross
+Key.F = joystick1.button7 	//navi L1, center view
+Key.C = joystick1.button14     	// navi L2 Crouch
+Key.Z = DoubleClicked(joystick1.button14) //double click navi L2 to prone	
+Key.Shift = joystick1.button11  //navi L3, Sprint
+*/

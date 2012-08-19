@@ -49,11 +49,37 @@ static int in_cancel = 0;
 static bool useTracking = true;
 IMovementController* motionTracker;
 
-static void in_headtracking_OnChange(IConVar *var, const char *poldvalue, float flOldValue)
-{
+static void in_headtracking_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
 	useTracking = ((ConVar*)var)->GetBool();
 }
+
+
+static void in_headpitchaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
+	motionTracker->setOrientationAxis(((ConVar*)var)->GetInt(), -1, -1);
+}
+
+static void in_headrollaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
+	motionTracker->setOrientationAxis(-1, ((ConVar*)var)->GetInt(), -1);
+}
+
+static void in_headyawaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
+	motionTracker->setOrientationAxis(-1, -1, ((ConVar*)var)->GetInt());
+}
+
+static void in_headrollenabled_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
+	motionTracker->setRollEnabled(((ConVar*)var)->GetBool());
+}
+
+
 ConVar in_headtracking("head_tracking", "true", 0, "Toggles headtracking module", in_headtracking_OnChange);
+ConVar in_headpitchaxis("head_pitchaxis", "0", 0, "Sets the axis index for the headtracking pitch",in_headpitchaxis_OnChange);
+ConVar in_headrollaxis("head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll",in_headrollaxis_OnChange);
+ConVar in_headyawaxis("head_yawaxis", "2", 0, "Sets the axis index for the headtracking yaw",in_headyawaxis_OnChange);
+ConVar in_headrollenabled("head_rollenabled", "true", 0, "Enables and disables head roll", in_headrollenabled_OnChange);
+
+
+
+
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -1543,6 +1569,7 @@ void CInput::Init_All (void)
 		
 	// Initialize third person camera controls.
 	Init_Camera();
+	
 	motionTracker = new FreespaceMovementController();
 }
 

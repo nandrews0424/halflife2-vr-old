@@ -3,19 +3,13 @@
 
 #define PI 3.141592654f
 #define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
+#define RTD(rad) ((float) rad * (float) (180.0 / PI))
 #define DEGREES_TO_RADIANS(deg) ((float) deg * (float) (PI / 180.0))
-#define SMOOTHING_WINDOW_SIZE 5
+#define DTR(deg) ((float) deg * (float) (PI / 180.0))
 
 const float MAX_ANGLE_ACCEL = 3;
 const float MIN_ANGULAR_CHANGE = (PI / 180.f);
 
-//QANGLE INDICES
-const int PITCH_I = 0;
-const int ROLL_I = 1;
-const int YAW_I = 2;
-
-
-QAngle TrackedAngles[SMOOTHING_WINDOW_SIZE];
 int CurSample = -1;
 int NumSamples = 0;
 
@@ -33,16 +27,35 @@ static void receiveMessageCallback(FreespaceDeviceId id,
 	}
 }
 
-//todo: move to init so it can be call from a console command later to reinitialize
+static float smoothAngle(float& cur, float& prev, float &lastChange, float max, float accelRate) {
+	//currently not taking into account change in direction
+	if (abs(lastChange) >= max) {
+		//Msg("LastChange %f already beyond max %f ... adjusting\n", RTD(lastChange), RTD(max));
+		max *= (abs(lastChange)/max) + accelRate;	
+	}
+
+	if (cur < prev) {
+		return max(cur, prev - max);	
+	} 
+	else if (cur > prev) {
+		return min(cur, prev + max);	
+	}
+	return cur;
+}
+
 FreespaceMovementController::FreespaceMovementController() {
 	_intialized = false;
+	PitchAxis = 0;
+	RollAxis = 1;
+	YawAxis = 2;
+	RollEnabled = true;
+	
 	struct freespace_message message;
 	FreespaceDeviceId device;
 	int numIds;
 	int rc;
 
 	memset(&cachedUserFrame, 0, sizeof(cachedUserFrame));
-	memset(&_userFrame, 0, sizeof(_userFrame));
 	
 	rc = freespace_init();
 	if (rc != FREESPACE_SUCCESS) {
@@ -70,9 +83,7 @@ FreespaceMovementController::FreespaceMovementController() {
         return;
     }
 	
-	//allocate space for structs
-   
-	 if (freespace_isNewDevice(device)) {
+	if (freespace_isNewDevice(device)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
         message.dataModeControlV2Request.packetSelect = 3;  // User Frame (orientation)
         message.dataModeControlV2Request.modeAndStatus = 0;
@@ -119,8 +130,18 @@ FreespaceMovementController::~FreespaceMovementController(){
     freespace_exit();
 	
 }
- 
- int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
+
+void FreespaceMovementController::setOrientationAxis(int pitch, int roll, int yaw) {
+	if(pitch >= 0) PitchAxis = pitch;
+	if(roll >= 0) RollAxis = roll;
+	if(yaw >= 0) YawAxis = yaw;
+}
+
+void FreespaceMovementController::setRollEnabled(bool enabled) {
+	RollEnabled = enabled;
+}
+
+int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
 	
 	if (!_intialized) {
 		pitch = 0;
@@ -162,12 +183,15 @@ FreespaceMovementController::~FreespaceMovementController(){
     if (CurSample >= SMOOTHING_WINDOW_SIZE)
         CurSample = 0;
 
-	TrackedAngles[CurSample][ROLL_I] = atan2f(m23,m33);
-	TrackedAngles[CurSample][PITCH_I] = asinf(-m13);
-	TrackedAngles[CurSample][YAW_I] = atan2f(m12,m11);
+	TrackedAngles[CurSample][RollAxis] = atan2f(m23,m33);
+	TrackedAngles[CurSample][PitchAxis] = asinf(-m13);
+	TrackedAngles[CurSample][YawAxis] = atan2f(m12,m11);
 
 	if (NumSamples < SMOOTHING_WINDOW_SIZE) {
 		NumSamples++;
+		CurAngle[RollAxis] = TrackedAngles[CurSample][RollAxis];
+		CurAngle[PitchAxis] = TrackedAngles[CurSample][PitchAxis];
+		CurAngle[YawAxis] = TrackedAngles[CurSample][YawAxis];
 		return 0;
 	}
 
@@ -176,20 +200,20 @@ FreespaceMovementController::~FreespaceMovementController(){
 		i=0;
 
 	QAngle sum(TrackedAngles[CurSample]);
-	//Msg("Tracked pitch:%f roll:%f yaw:%f\n", sum[PITCH_I], sum[ROLL_I], sum[YAW_I]);
+	//Msg("Tracked pitch:%f roll:%f yaw:%f\n", sum[PitchAxis], sum[RollAxis], sum[YawAxis]);
 	while (i != CurSample) {
-		sum[ROLL_I] += TrackedAngles[i][ROLL_I];
-		sum[PITCH_I] += TrackedAngles[i][PITCH_I];
+		sum[RollAxis] += TrackedAngles[i][RollAxis];
+		sum[PitchAxis] += TrackedAngles[i][PitchAxis];
 
 		//Handle potential discontinuity from pos to neg on yaw averages
-		if(fabs(TrackedAngles[CurSample][YAW_I] - TrackedAngles[i][YAW_I]) > PI) {
-			if (TrackedAngles[CurSample][YAW_I] > 0)
-				sum[YAW_I] += TrackedAngles[i][YAW_I] + (2*PI);
+		if(fabs(TrackedAngles[CurSample][YawAxis] - TrackedAngles[i][YawAxis]) > PI) {
+			if (TrackedAngles[CurSample][YawAxis] > 0)
+				sum[YawAxis] += TrackedAngles[i][YawAxis] + (2*PI);
 			else
-				sum[YAW_I] += TrackedAngles[i][YAW_I] + (-2*PI);
+				sum[YawAxis] += TrackedAngles[i][YawAxis] + (-2*PI);
 		}
 		else {
-			sum[YAW_I]   += TrackedAngles[i][YAW_I];
+			sum[YawAxis]   += TrackedAngles[i][YawAxis];
 		}
 
 		i++;
@@ -199,26 +223,54 @@ FreespaceMovementController::~FreespaceMovementController(){
 	}
 
 	QAngle next(
-		sum[ROLL_I] / SMOOTHING_WINDOW_SIZE,
-		sum[PITCH_I] / SMOOTHING_WINDOW_SIZE,
-		sum[YAW_I] / SMOOTHING_WINDOW_SIZE
+		sum[RollAxis] / SMOOTHING_WINDOW_SIZE,
+		sum[PitchAxis] / SMOOTHING_WINDOW_SIZE,
+		sum[YawAxis] / SMOOTHING_WINDOW_SIZE
 	);
 
-    // correct YAW_I angles for earlier discontinuity fix
-    if (next[YAW_I] > PI)
-        next[YAW_I] -= (2 * PI);
-    else if (next[YAW_I] < -PI)
-        next[YAW_I] += (2 * PI);
+    // correct YawAxis angles for earlier discontinuity fix
+    if (next[YawAxis] > PI)
+        next[YawAxis] -= (2 * PI);
+    else if (next[YawAxis] < -PI)
+        next[YawAxis] += (2 * PI);
 
-	//TODO: limit large changes in acceleration
-	
-	//Msg("Tracked(%d) pitch:%f roll:%f yaw:%f\n", TrackedAngles[CurSample][PITCH_I], TrackedAngles[CurSample][ROLL_I], TrackedAngles[CurSample][YAW_I], CurSample);
-	//Msg("Next Avg    pitch:%f roll:%f yaw:%f\n", next[PITCH_I], next[ROLL_I], next[YAW_I]);
-	
-	roll = RADIANS_TO_DEGREES(next[ROLL_I]) * -1;
-	pitch = RADIANS_TO_DEGREES(next[PITCH_I]) * -1;  //inverting pitch
-	yaw = RADIANS_TO_DEGREES(next[YAW_I]) * -1;
-	
+/*
+	SMOOTHING IS SUCH A TRADEOFF BETWEEN SMOOTH AND LAGGY
+
+	next[RollAxis] =  smoothAngle(next[RollAxis], CurAngle[RollAxis], LastChange[RollAxis], DTR(1.5f), .5f);
+	next[PitchAxis] = smoothAngle(next[PitchAxis], CurAngle[PitchAxis], LastChange[PitchAxis], DTR(1.f), .75f);
+
+
+	if (abs(lastChange) < PI/180*.5 && abs(curChange) > DTR(2.f)) {
+		Msg("Roll from low change %f to %f\n", RTD(lastChange), RTD(curChange));
+		
+		int sign = 1;
+		if (curChange < 0) sign=-1;
+		curChange = DTR(.75) * sign;
+		newRoll = TrackedAngles[prev][RollAxis] + curChange;
+		Msg("\tRoll adjusted from %f to %f = %f + %f\n\n", RTD(TrackedAngles[CurSample][RollAxis]), RTD(newRoll), RTD(TrackedAngles[prev][RollAxis]), RTD(curChange));
+	}
+*/
+
+	//track last change used in smoothing
+	LastChange[PitchAxis] = next[PitchAxis] - CurAngle[PitchAxis];
+	LastChange[RollAxis] = next[RollAxis] - CurAngle[RollAxis];
+	LastChange[YawAxis] = next[YawAxis] - CurAngle[YawAxis];
+
+	CurAngle[PitchAxis] = next[PitchAxis];
+	CurAngle[RollAxis] = next[RollAxis];
+	CurAngle[YawAxis] = next[YawAxis];
+
+	if (RollEnabled) {
+		roll = RTD(next[RollAxis]) * -1;
+	} else {
+		roll = false;
+	}
+	pitch = RTD(next[PitchAxis]) * -1;  //inverting pitch
+	yaw = RTD(next[YawAxis]) * -1;
+
+	Msg("angle: %f %f %f", pitch, roll, yaw);
+
 	return 0;
 }
   
@@ -241,7 +293,7 @@ bool FreespaceMovementController::hasPositionTracking() {
 }
 
 //static helper methods for external libs
-static void UTIL_getHeadOrientation(float &pitch, float& yaw, float& roll)
+extern void UTIL_getHeadOrientation(float &pitch, float& yaw, float& roll)
 {
 	if (freespace == NULL) return;
 	freespace->getOrientation(pitch, yaw, roll);	
