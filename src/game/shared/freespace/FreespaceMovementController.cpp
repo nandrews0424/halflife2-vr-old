@@ -13,18 +13,25 @@ const float MIN_ANGULAR_CHANGE = (PI / 180.f);
 int CurSample = -1;
 int NumSamples = 0;
 
-struct freespace_UserFrame cachedUserFrame;
 FreespaceMovementController* freespace;
 
-static void receiveMessageCallback(FreespaceDeviceId id,
-                            struct freespace_message* message,
-                            void* cookie,
-                            int result) {
-    if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_USERFRAME) {
-   		cachedUserFrame = message->userFrame;
-    } else if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_BODYFRAME) {
-		Msg("A Bodyframe callback was recieved with linear acceleration Callback received: %d", message->messageType);
+unsigned FreespaceInputThread(void *params) {
+	InputThreadState* state = (InputThreadState*)params;
+	struct freespace_message message;
+	memset(&message, 0, sizeof(message));
+	int r;
+
+	while(!state->_quit)
+	{
+		r = freespace_readMessage(state->deviceId, &message, 10);
+		if (r == FREESPACE_SUCCESS && message.messageType == FREESPACE_MESSAGE_USERFRAME) {
+           state->userFrame = message.userFrame;
+	    }
+		
+		freespace_perform();
 	}
+
+	return 0;
 }
 
 static float smoothAngle(float& cur, float& prev, float &lastChange, float max, float accelRate) {
@@ -44,7 +51,8 @@ static float smoothAngle(float& cur, float& prev, float &lastChange, float max, 
 }
 
 FreespaceMovementController::FreespaceMovementController() {
-	_intialized = false;
+	_state = new InputThreadState();
+	_state->_initialized = false;
 	PitchAxis = 0;
 	RollAxis = 1;
 	YawAxis = 2;
@@ -55,8 +63,6 @@ FreespaceMovementController::FreespaceMovementController() {
 	int numIds;
 	int rc;
 
-	memset(&cachedUserFrame, 0, sizeof(cachedUserFrame));
-	
 	rc = freespace_init();
 	if (rc != FREESPACE_SUCCESS) {
 		Msg("Freespace initialization error.  rc=%d", rc);
@@ -74,8 +80,6 @@ FreespaceMovementController::FreespaceMovementController() {
 		Msg("Freespace: Error opening device: %d", rc);
 		return;
 	}
-
-	freespace_setReceiveMessageCallback(device, receiveMessageCallback, NULL);
 
 	rc = freespace_flush(device);
     if (rc != FREESPACE_SUCCESS) {
@@ -98,19 +102,22 @@ FreespaceMovementController::FreespaceMovementController() {
         Msg("freespace: Could not send message: %d.\n", rc);
     }
    
-    _device = device;
-	_intialized = true;
+	_state->deviceId = device;
+	_state->_handle = CreateSimpleThread(FreespaceInputThread, _state);
+	_state->_initialized = true;
 	Msg("Freespace initialization complete");
 }
  
 FreespaceMovementController::~FreespaceMovementController(){
-
+	Msg("Shutting down Freespace api");
+	_state->_quit = true; //let the input thread run through
+ 	
 	struct freespace_message message;
     int rc;
 
     printf("\n\nfreespaceInputThread: Cleaning up...\n");
     memset(&message, 0, sizeof(message));
-    if (freespace_isNewDevice(_device)) {
+    if (freespace_isNewDevice(_state->deviceId)) {
         message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
         message.dataModeControlV2Request.packetSelect = 0;
 		message.dataModeControlV2Request.modeAndStatus = 1 << 1;
@@ -120,12 +127,12 @@ FreespaceMovementController::~FreespaceMovementController(){
 		message.dataModeRequest.inhibitPowerManager = 0;
 	}
 
-    rc = freespace_sendMessage(_device, &message);
+    rc = freespace_sendMessage(_state->deviceId, &message);
     if (rc != FREESPACE_SUCCESS) {
         printf("freespaceInputThread: Could not send message: %d.\n", rc);
     }
 
-    freespace_closeDevice(_device);
+    freespace_closeDevice(_state->deviceId);
     
     freespace_exit();
 	
@@ -143,7 +150,7 @@ void FreespaceMovementController::setRollEnabled(bool enabled) {
 
 int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll){
 	
-	if (!_intialized) {
+	if (!_state->_initialized) {
 		pitch = 0;
 		roll = 0;
 		yaw = 0;
@@ -151,10 +158,10 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	}
 	
 	 // Get the quaternion vector
-    float w = cachedUserFrame.angularPosA;
-    float x = cachedUserFrame.angularPosB;
-    float y = cachedUserFrame.angularPosC;
-    float z = cachedUserFrame.angularPosD;
+    float w = _state->userFrame.angularPosA;
+    float x = _state->userFrame.angularPosB;
+    float y = _state->userFrame.angularPosC;
+    float z = _state->userFrame.angularPosD;
 
     // normalize the vector
     float len = sqrtf((w*w) + (x*x) + (y*y) + (z*z));
@@ -268,9 +275,6 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	}
 	pitch = RTD(next[PitchAxis]) * -1;  //inverting pitch
 	yaw = RTD(next[YawAxis]) * -1;
-
-	Msg("angle: %f %f %f", pitch, roll, yaw);
-
 	return 0;
 }
   
@@ -279,13 +283,11 @@ int FreespaceMovementController::getPosition(float &x, float &y, float &z){
 }
  
 void FreespaceMovementController::update() {
-	if (_intialized) {
-		freespace_perform();
-	}
+
 }
  
 bool FreespaceMovementController::hasOrientationTracking() {
-	return _intialized; 
+	return _state->_initialized; 
 }
   
 bool FreespaceMovementController::hasPositionTracking() {

@@ -46,6 +46,8 @@ float anglemod( float a );
 static int in_impulse = 0;
 static int in_cancel = 0;
 
+
+/* MotionTracking */
 static bool useTracking = true;
 IMovementController* motionTracker;
 
@@ -71,15 +73,11 @@ static void in_headrollenabled_OnChange(IConVar *var, const char *poldvalue, flo
 }
 
 
-ConVar in_headtracking("head_tracking", "true", 0, "Toggles headtracking module", in_headtracking_OnChange);
+ConVar in_headtracking("head_tracking", "1", 0, "Toggles headtracking module", in_headtracking_OnChange);
 ConVar in_headpitchaxis("head_pitchaxis", "0", 0, "Sets the axis index for the headtracking pitch",in_headpitchaxis_OnChange);
 ConVar in_headrollaxis("head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll",in_headrollaxis_OnChange);
 ConVar in_headyawaxis("head_yawaxis", "2", 0, "Sets the axis index for the headtracking yaw",in_headyawaxis_OnChange);
-ConVar in_headrollenabled("head_rollenabled", "true", 0, "Enables and disables head roll", in_headrollenabled_OnChange);
-
-
-
-
+ConVar in_headrollenabled("head_rollenabled", "1", 0, "Enables and disables head roll", in_headrollenabled_OnChange);
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
