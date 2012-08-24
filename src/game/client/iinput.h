@@ -94,6 +94,10 @@ public:
 	virtual	bool		CAM_IsOrthographic() const = 0;
 	virtual	void		CAM_OrthographicSize( float& w, float& h ) const = 0;
 
+	// VR Source Changes
+	virtual void		const GetCamViewangles(QAngle &view) = 0;
+	virtual void		SetCamViewangles(QAngle const &view) = 0;
+
 #if defined( HL2_CLIENT_DLL )
 	// IK back channel info
 	virtual void		AddIKGroundContactInfo( int entindex, float minheight, float maxheight ) = 0;

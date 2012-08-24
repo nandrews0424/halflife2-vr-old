@@ -144,6 +144,11 @@ private:
 
 	void		ValidateUserCmd( CUserCmd *usercmd, int sequence_number );
 
+	// VR Source changes
+	virtual		void		const GetCamViewangles( QAngle &view ){ view = m_angViewAngle; };
+	virtual		void		SetCamViewangles( QAngle const &view );
+
+
 // Private Data
 private:
 	typedef struct
@@ -233,6 +238,9 @@ private:
 
 	float		m_flLastForwardMove;
 
+	// VR Source Changes
+	QAngle		m_angViewAngle;
+	void		CalcPlayerAngle( CUserCmd *cmd );
 
 	class CVerifiedUserCmd
 	{

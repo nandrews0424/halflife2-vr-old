@@ -314,6 +314,9 @@ void CommentarySystem_PePlayerRunCommand( CBasePlayer *player, CUserCmd *ucmd );
 void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
 	StartCommand( player, ucmd );
+	
+	// VR SOURCE - RETRIEVE NEW PROPS AND ADDED THEM TO PLAYER
+	player->Weapon_ShootDirection = ucmd->weaponangles;
 
 	// Set globals appropriately
 	gpGlobals->curtime		=  player->m_nTickBase * TICK_INTERVAL;

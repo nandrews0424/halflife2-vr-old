@@ -76,6 +76,43 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 		buf->WriteOneBit( 0 );
 	}
 
+	// Write weapon angles
+	if ( to->weaponangles[ 0 ] != from->weaponangles[ 0 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponangles[ 0 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+	if ( to->weaponangles[ 1 ] != from->weaponangles[ 1 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponangles[ 1 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+	if ( to->weaponangles[ 2 ] != from->weaponangles[ 2 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponangles[ 2 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+
+
+
+
+
+
 	if ( to->forwardmove != from->forwardmove )
 	{
 		buf->WriteOneBit( 1 );
@@ -236,6 +273,23 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 	{
 		move->viewangles[2] = buf->ReadFloat();
 	}
+
+	// Read weapon direction
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponangles[0] = buf->ReadFloat();
+	}
+
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponangles[1] = buf->ReadFloat();
+	}
+
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponangles[2] = buf->ReadFloat();
+	}
+
 
 	// Read movement
 	if ( buf->ReadOneBit() )

@@ -1830,6 +1830,8 @@ C_BaseCombatWeapon	*C_BasePlayer::GetActiveWeapon( void ) const
 //=========================================================
 Vector C_BasePlayer::GetAutoaimVector( float flScale )
 {
+	// VR SOURCE - IS THIS THE BEST PLACE TO UPDATE THE FIRING ANGLE????
+
 	// Never autoaim a predicted weapon (for now)
 	Vector	forward;
 	AngleVectors( GetAbsAngles() + m_Local.m_vecPunchAngle, &forward );

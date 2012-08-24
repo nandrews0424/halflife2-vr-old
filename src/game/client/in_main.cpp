@@ -23,6 +23,8 @@
 #include "freespace/FreespaceMovementController.h"
 #include <ctype.h> // isalnum()
 #include <voice_status.h>
+#include "view.h"
+#include "hud_macros.h"
 
 extern ConVar in_joystick;
 extern ConVar cam_idealpitch;
@@ -47,37 +49,32 @@ static int in_impulse = 0;
 static int in_cancel = 0;
 
 
-/* MotionTracking */
+/* VR Source Additions */
+
 static bool useTracking = true;
 IMovementController* motionTracker;
+ConVar in_headtracking("head_tracking", "1", 0, "Toggles headtracking module");
+ConVar in_headpitchaxis("head_pitchaxis", "0", 0, "Sets the axis index for the headtracking pitch");
+ConVar in_headrollaxis("head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll");
+ConVar in_headyawaxis("head_yawaxis", "2", 0, "Sets the axis index for the headtracking yaw");
+ConVar in_headrollenabled("head_rollenabled", "1", 0, "Enables and disables head roll");
 
-static void in_headtracking_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
-	useTracking = ((ConVar*)var)->GetBool();
+ConVar in_weapontracking("weapon_tracking", "1", 0, "Toggles  weapon tracking module");
+ConVar in_weaponpitchaxis("weapon_pitchaxis", "0", 0, "Sets the axis index for the weapon pitch");
+ConVar in_weaponrollaxis("weapon_rollaxis", "1", 0, "Sets the axis index for the weapon roll");
+ConVar in_weaponyawaxis("weapon_yawaxis", "2", 0, "Sets the axis index for the weapon yaw");
+
+static void in_vrCalibrate(const CCommand &args) {
+	useTracking = in_headtracking.GetBool();
+	motionTracker->setOrientationAxis(in_headpitchaxis.GetInt(), in_headrollaxis.GetInt(), in_headyawaxis.GetInt());
+	motionTracker->setRollEnabled(in_headrollenabled.GetBool());
+	//todo: add weapon tracking properly
 }
 
+ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Applies all updated settings & recalibrates vr devices");
 
-static void in_headpitchaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
-	motionTracker->setOrientationAxis(((ConVar*)var)->GetInt(), -1, -1);
-}
+/* End VR Source Additions */
 
-static void in_headrollaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
-	motionTracker->setOrientationAxis(-1, ((ConVar*)var)->GetInt(), -1);
-}
-
-static void in_headyawaxis_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
-	motionTracker->setOrientationAxis(-1, -1, ((ConVar*)var)->GetInt());
-}
-
-static void in_headrollenabled_OnChange(IConVar *var, const char *poldvalue, float flOldValue) {
-	motionTracker->setRollEnabled(((ConVar*)var)->GetBool());
-}
-
-
-ConVar in_headtracking("head_tracking", "1", 0, "Toggles headtracking module", in_headtracking_OnChange);
-ConVar in_headpitchaxis("head_pitchaxis", "0", 0, "Sets the axis index for the headtracking pitch",in_headpitchaxis_OnChange);
-ConVar in_headrollaxis("head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll",in_headrollaxis_OnChange);
-ConVar in_headyawaxis("head_yawaxis", "2", 0, "Sets the axis index for the headtracking yaw",in_headyawaxis_OnChange);
-ConVar in_headrollenabled("head_rollenabled", "1", 0, "Enables and disables head roll", in_headrollenabled_OnChange);
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -768,6 +765,20 @@ void CInput::ClampAngles( QAngle& viewangles )
 	}
 #endif
 }
+
+
+
+// Update the actual eyeangles of the player entity and translate the movement input
+void CInput::SetCamViewangles( QAngle const &view )
+{
+	m_angViewAngle = view;
+ 
+	if ( m_angViewAngle.x > 180.0f )
+		m_angViewAngle.x -= 360.0f;
+	if ( m_angViewAngle.x < -180.0f )
+		m_angViewAngle.x += 360.0f;
+}
+
 
 
 /* Gets camera angles from motion trackers */
@@ -1532,6 +1543,19 @@ static ConCommand toggle_duck( "toggle_duck", IN_DuckToggle );
 static ConCommand xboxmove("xmove", IN_XboxStub);
 static ConCommand xboxlook("xlook", IN_XboxStub);
 
+static void __MsgFunc_SetViewAngle( bf_read &msg )
+{
+	bool bFPOnly;
+	msg.ReadBits( &bFPOnly, 1 );
+	if ( bFPOnly && ::input->CAM_IsThirdPerson() )
+		return;
+ 
+	QAngle angAbs;
+	msg.ReadBitAngles( angAbs );
+	::input->SetCamViewangles( angAbs );
+}
+
+
 /*
 ============
 Init_All
@@ -1568,6 +1592,9 @@ void CInput::Init_All (void)
 	// Initialize third person camera controls.
 	Init_Camera();
 	
+	m_angViewAngle = vec3_angle;
+	HOOK_MESSAGE( SetViewAngle );
+
 	motionTracker = new FreespaceMovementController();
 }
 

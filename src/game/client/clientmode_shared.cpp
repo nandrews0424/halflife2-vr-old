@@ -261,6 +261,14 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 
 	pPlayer->OverrideView( pSetup );
 
+	// VR SOURCE -- OVERRIDE THE VIEW WHEN IN VR MODE
+	/*
+	if( ::input->CAM_IsVRMode())
+	{
+		::input->CAM_GetCamAngle();
+	}
+	*/
+
 	if( ::input->CAM_IsThirdPerson() )
 	{
 		Vector cam_ofs;

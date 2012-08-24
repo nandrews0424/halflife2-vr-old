@@ -2052,6 +2052,9 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
+
+	// VR SOURCE - RESET WEAPON POSITION AND SHOOTING VECTOR HERE
+
 	FireBulletsInfo_t info;
 	info.m_vecSrc	 = pPlayer->Weapon_ShootPosition( );
 	
