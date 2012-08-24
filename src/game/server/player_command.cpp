@@ -316,7 +316,7 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	StartCommand( player, ucmd );
 	
 	// VR SOURCE - RETRIEVE NEW PROPS AND ADDED THEM TO PLAYER
-	player->Weapon_ShootDirection = ucmd->weaponangles;
+	// player->Weapon_ShootDirection = ucmd->weaponangles;
 
 	// Set globals appropriately
 	gpGlobals->curtime		=  player->m_nTickBase * TICK_INTERVAL;
