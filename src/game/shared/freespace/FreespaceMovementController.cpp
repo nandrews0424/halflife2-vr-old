@@ -51,7 +51,11 @@ static void initDevice(FreespaceDeviceId id) {
             devices[idx].CurSample = 0;
             devices[idx].CurAngle.Init();
             devices[idx].LastChange.Init();
-            Msg("Added device %d to index %d\n", id, idx);
+            devices[idx].PitchAxis = 0;
+			devices[idx].RollAxis = 1;
+			devices[idx].YawAxis = 2;
+            devices[idx].RollEnabled = true;
+			Msg("Added device %d to index %d\n", id, idx);
             break;
         }
     }
@@ -90,10 +94,7 @@ static void cleanupDevice(FreespaceDeviceId id) {
     for (idx = 0; idx < MAX_TRACKERS; idx++) {
         if (devices[idx].id == id) {
             devices[idx].id = -1;
-			devices[idx].PitchAxis = 0;
-			devices[idx].RollAxis = 1;
-			devices[idx].YawAxis = 2;
-            break;
+			break;
         }
     }
     
@@ -240,16 +241,9 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	// Find the index into the rotating sample window
     t->CurSample++;
 
-	Msg("sample %d, window size %d\n", t->CurSample, SMOOTHING_WINDOW_SIZE);
-
     if (t->CurSample >= SMOOTHING_WINDOW_SIZE) {
         t->CurSample = 0;
-		Msg("resetting sample num");
 	}
-
-	//TODO: values aren't persisting properly on tracker objects.....
-	Msg("Current sample %d\n", t->CurSample);
-
 
 	t->TrackedAngles[t->CurSample][rollAxis] = atan2f(m23,m33);
 	t->TrackedAngles[t->CurSample][pitchAxis] = asinf(-m13);
@@ -260,7 +254,6 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 		t->CurAngle[rollAxis] = t->TrackedAngles[t->CurSample][rollAxis];
 		t->CurAngle[pitchAxis] = t->TrackedAngles[t->CurSample][pitchAxis];
 		t->CurAngle[yawAxis] = t->TrackedAngles[t->CurSample][yawAxis];
-		Msg("Tracked Sample %d/%d pitch:%f roll:%f yaw:%f\n", t->CurSample, t->NumSamples, t->CurAngle[pitchAxis], t->CurAngle[rollAxis], t->CurAngle[yawAxis]);
 		return 0;
 	}
 
@@ -268,8 +261,9 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	if(i >= SMOOTHING_WINDOW_SIZE)
 		i=0;
 
+	Msg("Axis pitch:%d roll:%d yaw:%d", pitchAxis, rollAxis, yawAxis);
 	QAngle sum(t->TrackedAngles[t->CurSample]);
-	Msg("Tracked Sample %d pitch:%f roll:%f yaw:%f\n", t->CurSample, sum[pitchAxis], sum[rollAxis], sum[yawAxis]);
+	Msg("Current Sample %d pitch:%f roll:%f yaw:%f\n", t->CurSample, sum[pitchAxis], sum[rollAxis], sum[yawAxis]);
 	while (i != t->CurSample) {
 		sum[rollAxis] += t->TrackedAngles[i][rollAxis];
 		sum[pitchAxis] += t->TrackedAngles[i][pitchAxis];
@@ -297,7 +291,7 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 		sum[yawAxis] / SMOOTHING_WINDOW_SIZE
 	);
 
-	Msg("Resample %d  pitch:%f roll:%f yaw:%f\n", t->CurSample, next[pitchAxis], next[rollAxis], next[yawAxis]);
+	Msg("Filtered Sample %d pitch:%f roll:%f yaw:%f\n", t->CurSample, next[pitchAxis], next[rollAxis], next[yawAxis]);
 
     // correct YawAxis angles for earlier discontinuity fix
     if (next[yawAxis] > PI)
@@ -321,7 +315,7 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 		newRoll = TrackedAngles[prev][RollAxis] + curChange;
 		Msg("\tRoll adjusted from %f to %f = %f + %f\n\n", RTD(TrackedAngles[CurSample][RollAxis]), RTD(newRoll), RTD(TrackedAngles[prev][RollAxis]), RTD(curChange));
 	}
-*/
+
 
 	//track last change used in smoothing
 	t->LastChange[pitchAxis] = next[pitchAxis] - t->CurAngle[pitchAxis];
@@ -331,12 +325,11 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	t->CurAngle[pitchAxis] = next[pitchAxis];
 	t->CurAngle[rollAxis] = next[rollAxis];
 	t->CurAngle[yawAxis] = next[yawAxis];
+	*/
 
 	if (t->RollEnabled) {
 		roll = RTD(next[rollAxis]) * -1;
-	} else {
-		roll = false;
-	}
+	} 
 	pitch = RTD(next[pitchAxis]) * -1;  //inverting pitch
 	yaw = RTD(next[yawAxis]) * -1;
 	
