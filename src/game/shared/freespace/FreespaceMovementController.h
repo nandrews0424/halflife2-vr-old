@@ -10,16 +10,15 @@ struct TrackerData {
 	QAngle TrackedAngles[SMOOTHING_WINDOW_SIZE];
 	QAngle CurAngle;
 	QAngle LastChange;
-	int RollAxis;
+	int RollAxis; 
 	int PitchAxis;
 	int YawAxis;
 	int CurSample;
 	int NumSamples;
 	bool RollEnabled;
-	FreespaceDeviceId deviceId;
+	FreespaceDeviceId id;
 	freespace_UserFrame userFrame;
 };
-
 
 class FreespaceMovementController : implements IMovementController {
  
@@ -40,8 +39,6 @@ public:
 protected:
 	void InitTrackers();
 	void Init(int pitchAxis, int rollAxis, int yawAxis, bool rollEnabled);
-	CUtlVector<TrackerData> trackers;
-
 	bool _initialized;
 	int _numTrackers;
 };
