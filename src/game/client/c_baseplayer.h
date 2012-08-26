@@ -111,6 +111,8 @@ public:
 	bool					IsPlayerUnderwater( void ) { return m_bPlayerUnderwater; }
 
 	virtual Vector			Weapon_ShootPosition();
+	virtual Vector			Weapon_ShootDirection();
+	virtual Vector			SetWeaponAngle(QAngle& angle);
 	virtual void			Weapon_DropPrimary( void ) {}
 
 	virtual Vector			GetAutoaimVector( float flScale );
@@ -426,6 +428,7 @@ protected:
 protected:
 	// Did we just enter a vehicle this frame?
 	bool			JustEnteredVehicle();
+	Vector			weaponangle;  //VR Source
 
 // DATA
 	int				m_iObserverMode;	// if in spectator mode != 0
@@ -465,7 +468,7 @@ private:
 	Vector			m_vecLadderNormal;
 	
 	QAngle			m_vecOldViewAngles;
-
+	
 	bool			m_bWasFrozen;
 	int				m_flPhysics;
 

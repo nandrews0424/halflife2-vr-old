@@ -18,14 +18,14 @@
 #ifndef IMOVEMENT_CONTROLLER_H
 #define IMOVEMENT_CONTROLLER_H
 DeclareInterface(IMovementController)
-	int	getOrientation(float &pitch, float &yaw, float &roll);
-	int	getPosition(float &x, float &y, float &z);
- 	bool isTrackerInitialized();
- 	void update();
- 	bool hasPositionTracking();
+	int		getOrientation(float &pitch, float &yaw, float &roll, int idx);
+	int		getPosition(float &x, float &y, float &z);
+ 	bool	isTrackerInitialized();
+ 	void	update();
+ 	bool	hasPositionTracking();
  	bool	hasOrientationTracking();
 	void	setOrientationAxis(int pitch, int roll, int yaw);
 	void	setRollEnabled(bool enabled);
-
+	void	calibrate();
 EndInterface(IMovementController)
 #endif //IMOVEMENT_CONTROLLER_H

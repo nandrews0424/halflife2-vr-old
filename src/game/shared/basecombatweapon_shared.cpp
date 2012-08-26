@@ -2053,12 +2053,11 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 
-	// VR SOURCE - RESET WEAPON POSITION AND SHOOTING VECTOR HERE
-
+	// VR SOURCE - using new ucmd data provided by trackers (or defaulted)
 	FireBulletsInfo_t info;
 	info.m_vecSrc	 = pPlayer->Weapon_ShootPosition( );
-	
-	info.m_vecDirShooting = pPlayer->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT );
+	info.m_vecDirShooting = pPlayer->GetAutoaimVector(AUTOAIM_SCALE_DEFAULT);// pPlayer->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT );
+	Msg("BaseWeapon shoot dir: pitch%f yaw:%f role:%f \n", info.m_vecDirShooting.x, info.m_vecDirShooting.y, info.m_vecDirShooting.z);
 
 	// To make the firing framerate independent, we may have to fire more than one bullet here on low-framerate systems, 
 	// especially if the weapon we're firing has a really fast rate of fire.

@@ -69,6 +69,8 @@ static void in_vrCalibrate(const CCommand &args) {
 	motionTracker->setOrientationAxis(in_headpitchaxis.GetInt(), in_headrollaxis.GetInt(), in_headyawaxis.GetInt());
 	motionTracker->setRollEnabled(in_headrollenabled.GetBool());
 	//todo: add weapon tracking properly
+
+	motionTracker->calibrate();
 }
 
 ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Applies all updated settings & recalibrates vr devices");
@@ -781,17 +783,14 @@ void CInput::SetCamViewangles( QAngle const &view )
 
 
 
-/* Gets camera angles from motion trackers */
+/* Gets the main view angles from motion trackers */
 QAngle getCameraAngles() {
  
 	QAngle viewangles;
  
-	//pitch, yaw, roll
 	float pitch, yaw, roll;
- 
-	motionTracker->getOrientation(pitch, yaw, roll);
- 
-	//Note: the mapping of angles to your tracker might be different
+ 	UTIL_getHeadOrientation(pitch,yaw,roll);
+	
 	viewangles.x = pitch;
 	viewangles.y = yaw;
 	viewangles.z = roll;
@@ -799,6 +798,20 @@ QAngle getCameraAngles() {
 	return viewangles;
 }
 
+QAngle getWeaponAngles() {
+	QAngle viewangles;
+ 
+	//pitch, yaw, roll
+	float pitch, yaw, roll;
+	UTIL_getWeaponOrientation(pitch, yaw, roll);
+ 
+	//Note: the mapping of angles to your tracker might be different
+	viewangles.x = pitch;
+	viewangles.y = yaw;
+	viewangles.z = roll;
+ 
+	return viewangles;	
+}
 
 /*
 ================
@@ -1089,13 +1102,16 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	cmd->command_number = sequence_number;
 	cmd->tick_count = gpGlobals->tickcount;
 
-	QAngle viewangles;
+	QAngle viewangles, weaponangles;
 
 	if ( active || sv_noclipduringpause.GetInt() )
 	{
 		// Determine view angles
 		AdjustAngles ( input_sample_frametime );
-
+		
+		// VR SOURCE TODO - THIS NEEDS TO BE CHECKED FOR WEAPON TRACKING - Weapon angle from tracker
+		
+		
 		// Determine sideways movement
 		ComputeSideMove( cmd );
 
@@ -1124,6 +1140,12 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	}
 	// Retreive view angles from engine ( could have been set in IN_AdjustAngles above )
 	engine->GetViewAngles( viewangles );
+
+	if (UTIL_hasWeaponOrientation()) {
+		weaponangles = getWeaponAngles();
+	} else {
+		VectorCopy(viewangles, weaponangles);
+	}
 
 	// Latch and clear impulse
 	cmd->impulse = in_impulse;
@@ -1162,6 +1184,8 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	{
 		VectorCopy( viewangles, cmd->viewangles );
 		VectorCopy( viewangles, m_angPreviousViewAngles );
+		VectorCopy( weaponangles, cmd->weaponangles ); // VR Source hook for weapon angle
+		//todo: add previous angles for dead case
 	}
 	else
 	{

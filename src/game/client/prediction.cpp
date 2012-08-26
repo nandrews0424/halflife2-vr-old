@@ -838,8 +838,11 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 
 	g_pGameMovement->StartTrackPredictionErrors( player );
 
-	// VR SOURCE - RETRIEVE NEW PROPS AND ADDED THEM TO PLAYER
-	// player->Weapon_ShootDirection = ucmd->weaponangles;
+	// VR SOURCE
+	player->SetWeaponAngle(ucmd->weaponangles);
+	#if defined (CLIENT_DLL)
+		Msg("Prediction::RunCommand weap angles x: %f y: %f z: %f\n", ucmd->weaponangles.x, ucmd->weaponangles.y, ucmd->weaponangles.z);
+	#endif
 
 // TODO
 // TODO:  Check for impulse predicted?

@@ -396,6 +396,8 @@ public:
 
 	// Weapon stuff
 	virtual Vector			Weapon_ShootPosition( );
+	virtual Vector			SetWeaponAngle(QAngle& angle);
+	virtual Vector			Weapon_ShootDirection( );
 	virtual bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	virtual void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
 	virtual	void			Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ );
@@ -836,6 +838,10 @@ protected:
 	Vector					m_vecAdditionalPVSOrigin; 
 	// Extra PVS origin if we are using a camera object
 	Vector					m_vecCameraPVSOrigin;
+
+	Vector					weaponangle; //VR Source
+
+
 
 	CNetworkHandle( CBaseEntity, m_hUseEntity );			// the player is currently controlling this entity because of +USE latched, NULL if no entity
 

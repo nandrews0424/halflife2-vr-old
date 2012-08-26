@@ -11,6 +11,7 @@
 #if defined( CLIENT_DLL )
 #include "iprediction.h"
 #include "prediction.h"
+#include "freespace/FreespaceMovementController.h"
 #else
 #include "vguiscreen.h"
 #endif
@@ -382,9 +383,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	//Allow weapon lagging
 	if ( pWeapon != NULL )
 	{
-#if defined( CLIENT_DLL )
 		if ( !prediction->InPrediction() )
-#endif
 		{
 			// add weapon-specific bob 
 			pWeapon->AddViewmodelBob( this, vmorigin, vmangles );
@@ -395,40 +394,37 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	// Add lag
 	CalcViewModelLag( vmorigin, vmangles, vmangoriginal );
 
-#if defined( CLIENT_DLL )
 	if ( !prediction->InPrediction() )
 	{
 		// Let the viewmodel shake at about 10% of the amplitude of the player's view
 		vieweffects->ApplyShake( vmorigin, vmangles, 0.1 );	
 	}
-#endif
 
-	//freespace -- shift the view models to match HeadOffsetModel applied later
-
+	//VR Source -- shift the view models to match HeadOffsetModel applied later
 	Vector playerOrigin = owner->GetAbsOrigin();
 	vmorigin.z -= 12; //neck length (need to abstract)
 
-	// get eye direction angles
+	// ISSUE: ViewModels pivot on a different origin
+	// will need to figure out the offset adjustments for roll etc
+	// to make it like the gun itself rolls but not the whole screen.
+
+	// weapon shifts based on angle
 	Vector forward, right, up; 
 	AngleVectors(eyeAngles, &forward, &right, &up);
 	vmorigin += up*12;
+
+	SetLocalOrigin(vmorigin);
 	
-	float roll = vmangles.z;
-	float rightScale, forwardScale = 1;
-	
-	if(roll > 0) {
-		roll += roll*.15; //just dabbling
-		rightScale = 3*(roll/90);
-		forwardScale = -1*(roll/90);
-	}else if (roll < 0) {
-		roll += roll*.3;
-		rightScale = 3*(roll/90);
-		forwardScale = -1.5*(roll/90);
+	if (UTIL_hasWeaponOrientation()) {
+		//get viewmodel angle from tracker
+		float p,r,y = 0;
+		UTIL_getWeaponOrientation(p, y, r);
+		QAngle weaponAngle = QAngle(p, y, r);
+		SetLocalAngles(weaponAngle);
+	} else {
+		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
+		SetLocalAngles(vmangles);
 	}
-	vmangles.z = roll;
-	//translate to the left regardless of direction
-	SetLocalOrigin(vmorigin + (rightScale*right) + (forwardScale*forward));
-	SetLocalAngles( vmangles );
 
 #endif
 }

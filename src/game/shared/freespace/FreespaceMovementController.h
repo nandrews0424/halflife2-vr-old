@@ -8,6 +8,7 @@
 
 struct TrackerData {
 	QAngle TrackedAngles[SMOOTHING_WINDOW_SIZE];
+	QAngle CalAngle;  //calibrated offset angle to match other trackers
 	QAngle CurAngle;
 	QAngle LastChange;
 	int RollAxis; 
@@ -27,7 +28,7 @@ public:
 	FreespaceMovementController();
 	~FreespaceMovementController();
  
- 	int		getOrientation(float &pitch, float &yaw, float &roll);
+ 	int		getOrientation(float &pitch, float &yaw, float &roll, int idx);
  	int		getPosition(float &x, float &y, float &z);
  	bool	hasPositionTracking(void);
  	bool	hasOrientationTracking(void);
@@ -35,6 +36,7 @@ public:
 	void	update(void);
 	void	setOrientationAxis(int pitch, int roll, int yaw);
 	void	setRollEnabled(bool enabled);
+	void	calibrate();
 
 protected:
 	void InitTrackers();
@@ -44,3 +46,5 @@ protected:
 };
 
 void UTIL_getHeadOrientation(float &pitch, float &yaw, float &roll);
+void UTIL_getWeaponOrientation(float &pitch, float &yaw, float &roll);
+bool UTIL_hasWeaponOrientation();
