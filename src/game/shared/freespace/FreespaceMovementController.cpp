@@ -216,8 +216,10 @@ void FreespaceMovementController::calibrate() {
 		angle[device->RollAxis] = roll;
 		angle[device->YawAxis] = yaw;
 		
-		//store of the difference between the two angles
-		device->CalAngle = calAngle - angle;
+		//store of the difference between the two angles (currently only care about the Yaw)
+		device->CalAngle.Init();
+		device->CalAngle[device->YawAxis] = calAngle[calDevice->YawAxis] - angle[device->YawAxis];
+		
 	}
 }
 

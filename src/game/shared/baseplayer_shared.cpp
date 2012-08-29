@@ -720,6 +720,7 @@ void CBasePlayer::SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalki
 
 Vector CBasePlayer::Weapon_ShootPosition( )
 {
+	//take into account the eye angles etc to correctly place this 
 	return EyePosition();  //VR SOURCE TODO - THIS WILL NEED TO ACTUALLY BE THE WEAPON'S MUZZLE POSITION
 }
 
@@ -730,7 +731,7 @@ Vector CBasePlayer::Weapon_ShootDirection( )
 
 Vector CBasePlayer::SetWeaponAngle(QAngle& angle) 
 {
-	weaponangle = Vector(angle.x, angle.y, angle.z);
+	AngleVectors(angle, &weaponangle);
 	return weaponangle;
 }
 

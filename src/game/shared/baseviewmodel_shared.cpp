@@ -402,16 +402,14 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 	//VR Source -- shift the view models to match HeadOffsetModel applied later
 	Vector playerOrigin = owner->GetAbsOrigin();
-	vmorigin.z -= 12; //neck length (need to abstract)
+	//vmorigin.z -= 12; //neck length (need to abstract)
 
 	// ISSUE: ViewModels pivot on a different origin
 	// will need to figure out the offset adjustments for roll etc
 	// to make it like the gun itself rolls but not the whole screen.
 
 	// weapon shifts based on angle
-	Vector forward, right, up; 
-	AngleVectors(eyeAngles, &forward, &right, &up);
-	vmorigin += up*12;
+	//vmorigin += up*12;
 
 	SetLocalOrigin(vmorigin);
 	
@@ -420,7 +418,34 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		float p,r,y = 0;
 		UTIL_getWeaponOrientation(p, y, r);
 		QAngle weaponAngle = QAngle(p, y, r);
+		Vector forward, right, up; 
+		AngleVectors(eyeAngles, &forward, &right, &up);
+		
+
+		//we need to unexaggerate the yaw within the screen
+		//pitch as well...
+
+		//adjust for height given that viewmodel roll happens offset from the weapon near center of the screen
+		float rollUpOffset =  7 * sin(DEG2RAD(weaponAngle.z));
+		float pitchUpOffset =  7 * sin(DEG2RAD(weaponAngle.x));
+		float pitchForwardOffset =  -5 - 5*cos(DEG2RAD(weaponAngle.x));
+		float yawRightOffset = 7 * sin(DEG2RAD(weaponAngle.y));
+		//aiming left of eye angle seems off... TODO: handle sign change
+		if (weaponAngle.y > eyeAngles.y){
+			weaponAngle.y = weaponAngle.y - (weaponAngle.y - eyeAngles.y)*.25;
+		}
+
+		//up aim seems way overstated
+		if (weaponAngle.x < 0) {
+			weaponAngle.x *= .66;
+		}
+
+		//3 is an arbitrary forward offset I think might make it feel less pulled back
+		SetLocalOrigin(vmorigin + (forward * (pitchForwardOffset + 4)) + (up * (rollUpOffset + pitchUpOffset)) + (right * (yawRightOffset)));
 		SetLocalAngles(weaponAngle);
+		
+		Msg("eye angle x:%f y:%f z:%f\n", eyeAngles.x, eyeAngles.y, eyeAngles.z);
+		Msg("weapon angle x:%f y:%f z:%f\n", weaponAngle.x, weaponAngle.y, weaponAngle.z);
 	} else {
 		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
 		SetLocalAngles(vmangles);

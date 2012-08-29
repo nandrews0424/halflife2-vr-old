@@ -6799,23 +6799,6 @@ Vector CBasePlayer::GetAutoaimVector( float flScale )
 		return params.m_vecAutoAimDir;
 	} else {
 		//VR SOURCE - fire in direction provided by trackers if availabe
-		
-	//  VRSOURCE CLIENT/SERVER COMMUNICATION IS BASICALLY BOTCHED
-	//	IT APPEARS THAT THE INPUT IS THERE BUT THE AXES ARE OFF.....
-	
-	// ROLL is PITCH
-	// PITCH is YAW
-	// YAW must be ROLL (it's not off center so shouldn't matter
-
-	#if defined (GAME_DLL)
-		DebugDrawLine(Weapon_ShootPosition(), Weapon_ShootPosition() + (Weapon_ShootDirection()*20), 0, 240, 0, true, .25);
-	#endif
-	#if defined (CLIENT_DLL)
-		DebugDrawLine(Weapon_ShootPosition(), Weapon_ShootPosition() + (Weapon_ShootDirection()*20), 240, 0, 0, true, .1);
-	#endif
-
-		Vector v = Weapon_ShootDirection();	
-		//remap these
 		return Weapon_ShootDirection();
 	}
 }
