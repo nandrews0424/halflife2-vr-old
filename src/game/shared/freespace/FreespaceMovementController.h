@@ -3,7 +3,7 @@
 #include <math.h>
 #include "freespace.h"
 
-#define SMOOTHING_WINDOW_SIZE 3
+#define SMOOTHING_WINDOW_SIZE 4
 #define MAX_TRACKERS 3
 
 struct TrackerData {
@@ -11,9 +11,12 @@ struct TrackerData {
 	QAngle CalAngle;  //calibrated offset angle to match other trackers
 	QAngle CurAngle;
 	QAngle LastChange;
-	int RollAxis; 
+	int RollAxis;
 	int PitchAxis;
 	int YawAxis;
+	bool invertPitch;
+	bool invertRoll;
+	bool invertYaw;
 	int CurSample;
 	int NumSamples;
 	bool RollEnabled;
@@ -48,3 +51,4 @@ protected:
 void UTIL_getHeadOrientation(float &pitch, float &yaw, float &roll);
 void UTIL_getWeaponOrientation(float &pitch, float &yaw, float &roll);
 bool UTIL_hasWeaponOrientation();
+bool UTIL_isHeadTrackerInitialized();

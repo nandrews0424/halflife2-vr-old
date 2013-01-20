@@ -429,10 +429,30 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		float rollUpOffset =  7 * sin(DEG2RAD(weaponAngle.z));
 		float pitchUpOffset =  7 * sin(DEG2RAD(weaponAngle.x));
 		float pitchForwardOffset =  -5 - 5*cos(DEG2RAD(weaponAngle.x));
-		float yawRightOffset = 7 * sin(DEG2RAD(weaponAngle.y));
+		
+		//again with the sign changes
+		float yawRightOffset = 7 * sin(DEG2RAD(weaponAngle.y - eyeAngles.y));
+
 		//aiming left of eye angle seems off... TODO: handle sign change
-		if (weaponAngle.y > eyeAngles.y){
-			weaponAngle.y = weaponAngle.y - (weaponAngle.y - eyeAngles.y)*.25;
+		bool yawWrapped = weaponAngle.y < eyeAngles.y && weaponAngle.y < 0 && eyeAngles.y > 0;
+
+		//get yaw offset taking into account differences in sign,
+		//yawDelta = degrees between weapon and eye angles
+		float yawDelta = 0;
+		if(fabs(weaponAngle.y - eyeAngles.y) > 180.f) {
+			if (weaponAngle.y > 0) {
+				yawDelta = weaponAngle.y - (eyeAngles.y + 360.f);
+			} else {
+				yawDelta = weaponAngle.y - (eyeAngles.y - 360.f);
+			}
+		}
+		else {
+			yawDelta = weaponAngle.y - eyeAngles.y;
+		}
+
+		//left aim seems overstated
+		if (yawDelta > 0){
+			weaponAngle.y = eyeAngles.y + (yawDelta)*.75;
 		}
 
 		//up aim seems way overstated

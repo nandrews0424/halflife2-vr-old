@@ -28,6 +28,8 @@
 #include "inputsystem/iinputsystem.h"
 #include "inputsystem/ButtonCode.h"
 #include "math.h"
+#include "IMovementController.h"
+#include "freespace/FreespaceMovementController.h"
 #include "tier1/convar_serverbounded.h"
 
 
@@ -125,6 +127,10 @@ extern ConVar cam_idealpitch;
 extern ConVar cam_idealyaw;
 extern ConVar thirdperson_platformer;
 extern ConVar thirdperson_screenspace;
+
+// VR hack
+static float prevHeadtrackedYaw = 0.f;
+
 
 //-----------------------------------------------
 // Response curve function for the move axes
@@ -720,7 +726,9 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 
 	float forward	= ScaleAxisValue( gameAxes[GAME_AXIS_FORWARD].value, MAX_BUTTONSAMPLE * joy_forwardthreshold.GetFloat() );
 	float side		= ScaleAxisValue( gameAxes[GAME_AXIS_SIDE].value, MAX_BUTTONSAMPLE * joy_sidethreshold.GetFloat()  );
+
 	float pitch		= ScaleAxisValue( gameAxes[GAME_AXIS_PITCH].value, MAX_BUTTONSAMPLE * joy_pitchthreshold.GetFloat()  );
+	
 	float yaw		= ScaleAxisValue( gameAxes[GAME_AXIS_YAW].value, MAX_BUTTONSAMPLE * joy_yawthreshold.GetFloat()  );
 
 	// If we're inverting our joystick, do so
@@ -787,21 +795,31 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 
 	// apply turn control
 	float angle = 0.f;
+	
+	// THIS IS CURRENTLY IN IN_MAIN.CPP ... If headtracking is active, the baseline to apply joystick movement to is the 
+	/*if (UTIL_isHeadTrackerInitialized()) 
+	{
+		float headTrackedYaw, tmp;
+		UTIL_getHeadOrientation(tmp, headTrackedYaw, tmp);
+		angle = headTrackedYaw - prevHeadtrackedYaw;
+		prevHeadtrackedYaw = headTrackedYaw;
+	}*/
 
-	if ( JOY_ABSOLUTE_AXIS == gameAxes[GAME_AXIS_YAW].controlType )
+	if (JOY_ABSOLUTE_AXIS == gameAxes[GAME_AXIS_YAW].controlType )
 	{
 		float fAxisValue = ResponseCurveLook( joy_response_look.GetInt(), yaw, YAW, pitch, dist, frametime );
-		angle = fAxisValue * joy_yawsensitivity.GetFloat() * aspeed * cl_yawspeed.GetFloat();
+		angle += fAxisValue * joy_yawsensitivity.GetFloat() * aspeed * cl_yawspeed.GetFloat();
 	}
 	else
 	{
-		angle = yaw * joy_yawsensitivity.GetFloat() * aspeed * 180.0;
+		angle += yaw * joy_yawsensitivity.GetFloat() * aspeed * 180.0;
 	}
+
 	viewangles[YAW] += angle;
 	cmd->mousedx = angle;
 
 	// apply look control
-	if ( IsX360() || in_jlook.state & 1 )
+	if (!UTIL_isHeadTrackerInitialized() && (IsX360() || in_jlook.state & 1 ))
 	{
 		float angle = 0;
 		if ( JOY_ABSOLUTE_AXIS == gameAxes[GAME_AXIS_PITCH].controlType )

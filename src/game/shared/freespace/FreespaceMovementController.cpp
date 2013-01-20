@@ -210,25 +210,37 @@ void FreespaceMovementController::calibrate() {
 	TrackerData* device;
 	for (int idx=1; idx < activeDevices; idx++) {
 		device = &devices[idx];
+		
+		//this needs to be the uncalibrated version for subsequent recals
 		getOrientation(pitch,yaw,roll,idx);
 		QAngle angle;
 		angle[device->PitchAxis] = pitch;
 		angle[device->RollAxis] = roll;
 		angle[device->YawAxis] = yaw;
-		
+
 		//store of the difference between the two angles (currently only care about the Yaw)
 		device->CalAngle.Init();
-		device->CalAngle[device->YawAxis] = calAngle[calDevice->YawAxis] - angle[device->YawAxis];
-		
+		device->CalAngle[device->YawAxis] = calAngle[calDevice->YawAxis] - angle[device->YawAxis];		
 	}
 }
 
 
 void FreespaceMovementController::setOrientationAxis(int pitch, int roll, int yaw) {
 	int idx=0;
-	if(pitch >= 0) devices[idx].PitchAxis = pitch;
-	if(roll >= 0) devices[idx].RollAxis = roll;
-	if(yaw >= 0) devices[idx].YawAxis = yaw;
+	
+	Msg("Orientation inputs... (p r y):%i %i %i\n", pitch, roll, yaw);
+	// Had to make numbers start at 1 so I could do inverse for invert
+	devices[idx].PitchAxis = abs(pitch) - 1;
+	devices[idx].RollAxis = abs(roll) - 1;
+	devices[idx].YawAxis = abs(yaw) - 1;
+	devices[idx].invertPitch = pitch != abs(pitch);
+	devices[idx].invertRoll = roll != abs(roll);
+	devices[idx].invertYaw = yaw != abs(yaw);
+
+	Msg("Orientation axes modified... (p r y):%i %i %i\n", devices[idx].PitchAxis, devices[idx].RollAxis, devices[idx].YawAxis);
+	if (devices[idx].invertPitch) Msg("Pitch axis inverted");
+	if (devices[idx].invertYaw) Msg("Yaw axis inverted");
+	if (devices[idx].invertRoll) Msg("Roll axis inverted");
 }
 
 void FreespaceMovementController::setRollEnabled(bool enabled) {
@@ -250,8 +262,7 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 	int yawAxis = t->YawAxis;
 
 	/* add locks around userframe here */
-
-	 // Get the quaternion vector
+	// Get the quaternion vector
     float w = t->userFrame.angularPosA;
     float x = t->userFrame.angularPosB;
     float y = t->userFrame.angularPosC;
@@ -369,20 +380,21 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 
 
 	//reapply the calibration angles captured
-	if (t->RollEnabled) {
-		roll = RTD(next[rollAxis]) * -1;
-	} 
-	pitch = RTD(next[pitchAxis]) * -1;  //inverting pitch
-	yaw = RTD(next[yawAxis]) * -1;
 	
-	//Msg("%d> Precalibration pitch:%f roll:%f yaw:%f \n", idx, pitch, roll, yaw);
-
+	if (t->RollEnabled) {
+		roll = RTD(next[rollAxis]);
+		if (t->invertRoll) roll = -roll;
+	} 
+	pitch = RTD(next[pitchAxis]);
+	yaw = RTD(next[yawAxis]);
+	
+	if (t->invertPitch) pitch = -pitch;
+	if (t->invertYaw) yaw = -yaw;
+	
 	pitch += t->CalAngle[pitchAxis];
 	roll += t->CalAngle[rollAxis];
 	yaw += t->CalAngle[yawAxis];
-	//Msg("%d> calibration: pitch%f roll:%f yaw:% \n", idx, t->CalAngle[pitchAxis], t->CalAngle[rollAxis], t->CalAngle[yawAxis]);
-	//Msg("%d> Postcalibration pitch:%f roll:%f yaw:%f \n", idx, pitch, roll, yaw);
-
+	
 	return 0;
 }
   
@@ -417,4 +429,10 @@ extern void UTIL_getWeaponOrientation(float &pitch, float& yaw, float& roll)
 {
 	if (freespace == NULL) return;
 	freespace->getOrientation(pitch, yaw, roll, 1);	
+}
+
+extern bool UTIL_isHeadTrackerInitialized() 
+{
+	if (freespace == NULL) return false;
+	freespace->isTrackerInitialized();
 }

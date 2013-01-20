@@ -52,17 +52,19 @@ static int in_cancel = 0;
 /* VR Source Additions */
 
 static bool useTracking = true;
-IMovementController* motionTracker;
-ConVar in_headtracking("head_tracking", "1", 0, "Toggles headtracking module");
-ConVar in_headpitchaxis("head_pitchaxis", "0", 0, "Sets the axis index for the headtracking pitch");
-ConVar in_headrollaxis("head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll");
-ConVar in_headyawaxis("head_yawaxis", "2", 0, "Sets the axis index for the headtracking yaw");
-ConVar in_headrollenabled("head_rollenabled", "1", 0, "Enables and disables head roll");
+static float previousTrackedYaw = 0.f;
 
-ConVar in_weapontracking("weapon_tracking", "1", 0, "Toggles  weapon tracking module");
-ConVar in_weaponpitchaxis("weapon_pitchaxis", "0", 0, "Sets the axis index for the weapon pitch");
-ConVar in_weaponrollaxis("weapon_rollaxis", "1", 0, "Sets the axis index for the weapon roll");
-ConVar in_weaponyawaxis("weapon_yawaxis", "2", 0, "Sets the axis index for the weapon yaw");
+IMovementController* motionTracker;
+ConVar in_headtracking("vr_head_tracking", "1", 0, "Toggles headtracking module");
+ConVar in_headpitchaxis("vr_head_pitchaxis", "-2", 0, "Sets the axis index for the headtracking pitch");
+ConVar in_headrollaxis("vr_head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll");
+ConVar in_headyawaxis("vr_head_yawaxis", "-3", 0, "Sets the axis index for the headtracking yaw");
+ConVar in_headrollenabled("vr_head_rollenabled", "1", 0, "Enables and disables head roll");
+
+ConVar in_weapontracking("vr_weapon_tracking", "1", 0, "Toggles  weapon tracking module");
+ConVar in_weaponpitchaxis("vr_weapon_pitchaxis", "-2", 0, "Sets the axis index for the weapon pitch");
+ConVar in_weaponrollaxis("vr_weapon_rollaxis", "1", 0, "Sets the axis index for the weapon roll");
+ConVar in_weaponyawaxis("vr_weapon_yawaxis", "-3", 0, "Sets the axis index for the weapon yaw");
 
 static void in_vrCalibrate(const CCommand &args) {
 	useTracking = in_headtracking.GetBool();
@@ -781,20 +783,26 @@ void CInput::SetCamViewangles( QAngle const &view )
 		m_angViewAngle.x += 360.0f;
 }
 
-
-
 /* Gets the main view angles from motion trackers */
-QAngle getCameraAngles() {
+QAngle getCameraAngles(QAngle engineViewAngle) {
  
 	QAngle viewangles;
  
 	float pitch, yaw, roll;
  	UTIL_getHeadOrientation(pitch,yaw,roll);
 	
+	// absolute pitch and roll
 	viewangles.x = pitch;
-	viewangles.y = yaw;
 	viewangles.z = roll;
- 
+	
+	//setting yaw in game in_joystick.cpp JoystickMove()
+
+	viewangles.y = yaw;
+	//viewangles.y = 	engineViewAngle.y + (yaw - previousTrackedYaw);
+	//Msg("Yaw values are ..\n engine: %2f\nraw in: %2f\nprev: %2f\nfinal: %2f\n", engineViewAngle.y, yaw, previousTrackedYaw, viewangles.y);
+
+	//previousTrackedYaw = yaw; 
+
 	return viewangles;
 }
 
@@ -838,7 +846,10 @@ void CInput::AdjustAngles ( float frametime )
 	
 	if(motionTracker->isTrackerInitialized() && useTracking) {
 		motionTracker->update();
-		viewangles = getCameraAngles();
+				
+		viewangles = getCameraAngles(viewangles);
+		//todo: trying this here....
+		AdjustYaw( speed, viewangles );
 	} else {
 		// Adjust YAW
 		AdjustYaw( speed, viewangles );
@@ -1620,6 +1631,7 @@ void CInput::Init_All (void)
 	HOOK_MESSAGE( SetViewAngle );
 
 	motionTracker = new FreespaceMovementController();
+	motionTracker->setOrientationAxis(in_headpitchaxis.GetInt(), in_headrollaxis.GetInt(), in_headyawaxis.GetInt());
 }
 
 /*
