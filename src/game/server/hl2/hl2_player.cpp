@@ -1208,6 +1208,8 @@ void CHL2_Player::StartSprinting( void )
 
 	SetMaxSpeed( HL2_SPRINT_SPEED );
 	m_fIsSprinting = true;
+	Weapon_Lower();
+	Msg("Should be lowering weapon b/c of sprint");
 }
 
 
@@ -2147,6 +2149,7 @@ void CHL2_Player::SetPlayerUnderwater( bool state )
 	if ( state )
 	{
 		SuitPower_AddDevice( SuitDeviceBreather );
+		Weapon_Lower();
 	}
 	else
 	{
@@ -2783,6 +2786,8 @@ void CHL2_Player::PlayerUse ( void )
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;
 
+	Weapon_Lower();
+
 	if ( m_afButtonPressed & IN_USE )
 	{
 		// Currently using a latched entity?
@@ -2969,22 +2974,14 @@ void CHL2_Player::UpdateWeaponPosture( void )
 				}
 
 				//See if we hates it
-				if ( dis == D_LI  )
+				if ( dis != D_LI && dis != D_NU )
 				{
-					//We're over a friendly, drop our weapon
-					if ( Weapon_Lower() == false )
-					{
-						//FIXME: We couldn't lower our weapon!
-					}
-
+					Weapon_Ready();
 					return;
 				}
+			
+				Weapon_Lower();
 			}
-		}
-
-		if ( Weapon_Ready() == false )
-		{
-			//FIXME: We couldn't raise our weapon!
 		}
 	}
 
@@ -3123,6 +3120,7 @@ void CHL2_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
 	if ( pObject->HasNPCsOnIt() )
 		return;
 
+	Weapon_Lower();
 	PlayerPickupObject( this, pObject );
 }
 

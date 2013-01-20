@@ -795,13 +795,8 @@ QAngle getCameraAngles(QAngle engineViewAngle) {
 	viewangles.x = pitch;
 	viewangles.z = roll;
 	
-	//setting yaw in game in_joystick.cpp JoystickMove()
-
-	viewangles.y = yaw;
-	//viewangles.y = 	engineViewAngle.y + (yaw - previousTrackedYaw);
-	//Msg("Yaw values are ..\n engine: %2f\nraw in: %2f\nprev: %2f\nfinal: %2f\n", engineViewAngle.y, yaw, previousTrackedYaw, viewangles.y);
-
-	//previousTrackedYaw = yaw; 
+	viewangles.y = 	engineViewAngle.y + (yaw - previousTrackedYaw);
+	previousTrackedYaw = yaw; 
 
 	return viewangles;
 }

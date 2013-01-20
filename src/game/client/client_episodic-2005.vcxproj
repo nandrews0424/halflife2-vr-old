@@ -138,13 +138,13 @@ copy "$(TargetDir)"client.dll "d:\steam\steamapps\SourceMods\virtualhalf-life\bi
       </Command>
     </PreBuildEvent>
     <CustomBuildStep>
-      <Message>Copying to d:\steam\steamapps\SourceMods\virtualhalf-life\bin\</Message>
-      <Command>if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin\client.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin\client.dll"
-copy "$(TargetDir)"client.dll "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin"
-if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin\client.pdb" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin\client.pdb"
-if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life\bin\client.pdb"
+      <Message>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\</Message>
+      <Command>if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin\client.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin\client.dll"
+copy "$(TargetDir)"client.dll "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin"
+if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin\client.pdb" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin\client.pdb"
+if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life\bin\client.pdb"
 </Command>
-      <Outputs>d:\steam\steamapps\SourceMods\virtualhalf-life\bin\client.dll;d:\steam\steamapps\SourceMods\virtualhalf-life\bin\client.pdb;%(Outputs)</Outputs>
+      <Outputs>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.dll;C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.pdb;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>

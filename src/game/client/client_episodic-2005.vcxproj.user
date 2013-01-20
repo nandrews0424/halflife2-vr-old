@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>C:\Program Files (x86)\Steam\steamapps\killdog84\source sdk base 2007\hl2.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-allowdebug -novid -game "C:\Program Files (x86)\Steam\steamapps\sourcemods\vitualhalf-life"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-allowdebug -novid -game "C:\Program Files (x86)\Steam\steamapps\sourcemods\virtualhalf-life"</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

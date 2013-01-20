@@ -56,9 +56,11 @@ static void initDevice(FreespaceDeviceId id) {
             devices[idx].CurAngle.Init();
             devices[idx].LastChange.Init();
 			devices[idx].CalAngle.Init();
-            devices[idx].PitchAxis = 0;
-			devices[idx].RollAxis = 1;
+            devices[idx].PitchAxis = 1;
+			devices[idx].RollAxis = 0;
 			devices[idx].YawAxis = 2;
+			devices[idx].invertPitch = true;
+			devices[idx].invertYaw = true;
             devices[idx].RollEnabled = true;
 			devices[idx].userFrame.angularPosA = 0;
 			devices[idx].userFrame.angularPosB = 0;

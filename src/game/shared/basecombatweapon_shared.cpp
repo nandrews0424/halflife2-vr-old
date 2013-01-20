@@ -2030,6 +2030,9 @@ void CBaseCombatWeapon::AbortReload( void )
 //-----------------------------------------------------------------------------
 void CBaseCombatWeapon::PrimaryAttack( void )
 {
+
+	Ready();
+
 	// If my clip is empty (and I use clips) start reload
 	if ( UsesClipsForAmmo1() && !m_iClip1 ) 
 	{
@@ -2105,9 +2108,6 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 		// HEV suit - indicate out of ammo condition
 		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0); 
 	}
-
-	//Add our view kick in
-	AddViewKick();
 }
 
 //-----------------------------------------------------------------------------

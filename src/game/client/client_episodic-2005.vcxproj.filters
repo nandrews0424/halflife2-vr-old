@@ -37,11 +37,11 @@
     <Filter Include="Game Shared Header Files">
       <UniqueIdentifier>{9b8a9f3e-da04-4f1b-a385-acc27122d673}</UniqueIdentifier>
     </Filter>
-    <Filter Include="game_controls Header Files">
-      <UniqueIdentifier>{d3e87ba4-880f-4ede-b0dc-e1e597e45483}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\freespace">
       <UniqueIdentifier>{78f03471-5568-48c2-8874-accb7808e5a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Link Libraries\game_controls Header Files">
+      <UniqueIdentifier>{d3e87ba4-880f-4ede-b0dc-e1e597e45483}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -3225,40 +3225,40 @@
       <Filter>Game Shared Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\baseviewport.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\clientscoreboarddialog.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\commandmenu.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\IconPanel.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\imagemouseoverbutton.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\intromenu.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\mapoverview.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\mouseoverhtmlbutton.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\mouseoverpanelbutton.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\spectatorgui.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\teammenu.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game_controls\vguitextwindow.h">
-      <Filter>game_controls Header Files</Filter>
+      <Filter>Link Libraries\game_controls Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CppInterfaces2.h">
       <Filter>Header Files</Filter>
