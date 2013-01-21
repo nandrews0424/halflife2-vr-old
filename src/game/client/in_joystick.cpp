@@ -403,7 +403,7 @@ static float ResponseCurveLookAccelerated( float x, int axis, float otherAxis, f
 	}
 
 	if( bDoAcceleration )
-	{
+	{	
 		float flMax = joy_accelmax.GetFloat();
 		if( controlEnvelope.envelopeScale[axis] < flMax )
 		{
@@ -797,12 +797,18 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	float dist = move.Length();
 
 	// apply turn control
+
+	// VR SOURCE -- Trying not to have the jumpy joystick yaw.....
+
 	float angle = 0.f;
 	
 	if (JOY_ABSOLUTE_AXIS == gameAxes[GAME_AXIS_YAW].controlType )
 	{
 		float fAxisValue = ResponseCurveLook( joy_response_look.GetInt(), yaw, YAW, pitch, dist, frametime );
-		angle += fAxisValue * joy_yawsensitivity.GetFloat() * aspeed * cl_yawspeed.GetFloat();
+
+		//Msg("Calculating angle.. AxisVal=%f  aspeed=%f  cl_yawspeed=%f", fAxisValue, aspeed, cl_yawspeed.GetFloat());
+		//VR SOURCE Removed 'aspeed' and added static .01 below b/c of jerkiness that cropped up when using joystick w/ headtracking
+		angle += fAxisValue * joy_yawsensitivity.GetFloat() * .01 * cl_yawspeed.GetFloat();
 	}
 	else
 	{
@@ -811,6 +817,9 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 
 	viewangles[YAW] += angle;
 	cmd->mousedx = angle;
+
+	Msg("Joystick Yaw value %f translated to %f to total %f\n", yaw, angle, viewangles[YAW]);
+
 
 	// apply look control
 	if (IsX360() || in_jlook.state & 1)
@@ -870,7 +879,8 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// Bound pitch
-	viewangles[PITCH] = clamp( viewangles[ PITCH ], -cl_pitchup.GetFloat(), cl_pitchdown.GetFloat() );
+	if (!headTracking)
+		viewangles[PITCH] = clamp( viewangles[ PITCH ], -cl_pitchup.GetFloat(), cl_pitchdown.GetFloat() );
 
 	engine->SetViewAngles( viewangles );
 }
