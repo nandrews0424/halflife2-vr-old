@@ -794,10 +794,9 @@ QAngle getCameraAngles(QAngle engineViewAngle) {
 	// absolute pitch and roll
 	viewangles.x = pitch;
 	viewangles.z = roll;
-	
 	viewangles.y = 	engineViewAngle.y + (yaw - previousTrackedYaw);
 	previousTrackedYaw = yaw; 
-
+	
 	return viewangles;
 }
 
@@ -1003,15 +1002,14 @@ ControllerMove
 */
 void CInput::ControllerMove( float frametime, CUserCmd *cmd )
 {
-	if(!motionTracker->isTrackerInitialized() || !useTracking) {
-		if ( IsPC() )
+	if ( IsPC() )
+	{
+		if ( !m_fCameraInterceptingMouse && m_fMouseActive )
 		{
-			if ( !m_fCameraInterceptingMouse && m_fMouseActive )
-			{
-				MouseMove( cmd);
-			}
+			MouseMove( cmd);
 		}
 	}
+	
 	
 	JoyStickMove( frametime, cmd);
 }
