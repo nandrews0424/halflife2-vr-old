@@ -1468,10 +1468,11 @@ void CNPC_AntlionGuard::Shove( void )
 		if ( pHurt->IsPlayer() )
 		{
 			//Punch the view
-			pHurt->ViewPunch( QAngle(20,0,-20) );
+			// VR SOURCE
+			// pHurt->ViewPunch( QAngle(20,0,-20) );
 			
 			//Shake the screen
-			UTIL_ScreenShake( pHurt->GetAbsOrigin(), 100.0, 1.5, 1.0, 2, SHAKE_START );
+			// UTIL_ScreenShake( pHurt->GetAbsOrigin(), 100.0, 1.5, 1.0, 2, SHAKE_START );
 
 			//Red damage indicator
 			color32 red = {128,0,0,128};
@@ -4151,7 +4152,8 @@ void CNPC_AntlionGuard::ChargeDamage( CBaseEntity *pTarget )
 	if ( pPlayer != NULL )
 	{
 		//Kick the player angles
-		pPlayer->ViewPunch( QAngle( 20, 20, -30 ) );	
+		// VR SOURCE
+		//pPlayer->ViewPunch( QAngle( 20, 20, -30 ) );	
 
 		Vector	dir = pPlayer->WorldSpaceCenter() - WorldSpaceCenter();
 		VectorNormalize( dir );

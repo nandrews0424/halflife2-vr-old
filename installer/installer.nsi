@@ -13,14 +13,13 @@ InstallDir $PROGRAMFILES\Steam\
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "${NSISDIR}\Contrib\Graphics\Header\nsis.bmp" ; optional
   
-
-
 ;Welcome Page Settings
 !define MUI_WELCOMEFINISHPAGE_BITMAP ".\images\welcome.bmp"; 164x314 
 !define MUI_WELCOMEPAGE_TITLE 'Welcome to the installation for Half-Life 2 VR v${VERSION}'
 !define MUI_WELCOMEPAGE_TEXT 'Thanks for installing Half-Life 2 Virtual Reality Mod, this should only take a few seconds.  \
-Keep in mind this is a very early version so if you have any issues or ideas please send feedback so we can improve the mod.'
+Keep in mind this is a very early version so if you have any issues or ideas please send feedback so we can improve the mod'
 
+!define MUI_DIRECTORYPAGE_TEXT 'Please select the location of your Steam installation.'
 
 !define MUI_FINISHPAGE_TITLE 'Installation Completed Successfully.'
 !define MUI_FINISHPAGE_TEXT 'Restart steam to see the mod in your games list on Steam.'
@@ -34,10 +33,10 @@ Keep in mind this is a very early version so if you have any issues or ideas ple
 !insertmacro MUI_LANGUAGE "English"
 
 Section "" 
-	SetOutPath $INSTDIR
+	SetOutPath $INSTDIR\steamapps\sourcemods\virtualhalf-life
 	;TODO: add real files
 
-	File .\package\* 
+	File /r .\package\*
 
 	WriteUninstaller $INSTDIR\Uninstall.exe
 

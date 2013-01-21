@@ -98,7 +98,7 @@ void CHLMachineGun::PrimaryAttack( void )
 	FireBullets( info );
 
 	//Factor in the view kick
-	AddViewKick();
+	// VR Source no AddViewKick();
 
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2, pPlayer );
 	
@@ -173,7 +173,7 @@ void CHLMachineGun::DoMachineGunKick( CBasePlayer *pPlayer, float dampEasy, floa
 	//Apply this to the view angles as well
 	vecScratch.x = -( KICK_MIN_X + ( maxVerticleKickAngle * kickPerc ) );
 	vecScratch.y = -( KICK_MIN_Y + ( maxVerticleKickAngle * kickPerc ) ) / 3;
-	vecScratch.z = KICK_MIN_Z + ( maxVerticleKickAngle * kickPerc ) / 8;
+	vecScratch.z = KICK_MIN_Z + ( maxVerticleKickAngle * kickPerc ) / 8;  
 
 	//Wibble left and right
 	if ( random->RandomInt( -1, 1 ) >= 0 )
@@ -197,7 +197,8 @@ void CHLMachineGun::DoMachineGunKick( CBasePlayer *pPlayer, float dampEasy, floa
 
 	//Add it to the view punch
 	// NOTE: 0.5 is just tuned to match the old effect before the punch became simulated
-	pPlayer->ViewPunch( vecScratch * 0.5 );
+	// VR SOURCE
+	// pPlayer->ViewPunch( vecScratch * 0.5 );
 }
 
 //-----------------------------------------------------------------------------

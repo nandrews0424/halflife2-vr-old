@@ -818,9 +818,6 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	viewangles[YAW] += angle;
 	cmd->mousedx = angle;
 
-	Msg("Joystick Yaw value %f translated to %f to total %f\n", yaw, angle, viewangles[YAW]);
-
-
 	// apply look control
 	if (IsX360() || in_jlook.state & 1)
 	{

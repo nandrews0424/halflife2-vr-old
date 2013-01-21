@@ -464,6 +464,9 @@ void CWeaponCGuard::AddViewKick( void )
 	color32 white = {255, 255, 255, 64};
 	UTIL_ScreenFade( pPlayer, white, 0.1, 0, FFADE_IN  );
 
+	// VR SOURCE - This should disable view kick from guard baton attacks...
+	return;
+
 	//Disorient the player
 	QAngle angles = pPlayer->GetLocalAngles();
 

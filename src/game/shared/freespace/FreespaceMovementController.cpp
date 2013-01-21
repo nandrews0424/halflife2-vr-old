@@ -311,28 +311,36 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 		return 0;
 	}
 
+	int n = 0; //num samples (to skip over half for pitch/yaw)
 	int i = t->CurSample+1;
 	if(i >= SMOOTHING_WINDOW_SIZE)
 		i=0;
 
 	QAngle sum(t->TrackedAngles[t->CurSample]);
-	//Msg("Current Sample %d pitch:%f roll:%f yaw:%f\n", t->CurSample, sum[pitchAxis], sum[rollAxis], sum[yawAxis]);
+	
 	while (i != t->CurSample) {
 		sum[rollAxis] += t->TrackedAngles[i][rollAxis];
-		sum[pitchAxis] += t->TrackedAngles[i][pitchAxis];
+		
+		
+		// only doing half smoothing for pitch & yaw (b/c they aren't as terrible w/ hillcrest...
+		if (n >= SMOOTHING_WINDOW_SIZE/2) 
+		{
+			sum[pitchAxis] += t->TrackedAngles[i][pitchAxis];
 	
-		//Handle potential discontinuity from pos to neg on yaw averages
-		if(fabs(t->TrackedAngles[t->CurSample][yawAxis] - t->TrackedAngles[i][yawAxis]) > PI) {
-			if (t->TrackedAngles[t->CurSample][yawAxis] > 0)
-				sum[yawAxis] += t->TrackedAngles[i][yawAxis] + (2*PI);
-			else
-				sum[yawAxis] += t->TrackedAngles[i][yawAxis] + (-2*PI);
+			//Handle potential discontinuity from pos to neg on yaw averages
+			if(fabs(t->TrackedAngles[t->CurSample][yawAxis] - t->TrackedAngles[i][yawAxis]) > PI) {
+				if (t->TrackedAngles[t->CurSample][yawAxis] > 0)
+					sum[yawAxis] += t->TrackedAngles[i][yawAxis] + (2*PI);
+				else
+					sum[yawAxis] += t->TrackedAngles[i][yawAxis] + (-2*PI);
+			}
+			else {
+				sum[yawAxis]   += t->TrackedAngles[i][yawAxis];
+			}
 		}
-		else {
-			sum[yawAxis]   += t->TrackedAngles[i][yawAxis];
-		}
-
+		
 		i++;
+		n++;
 		if (i >= SMOOTHING_WINDOW_SIZE) {
 			i = 0;
 		}
@@ -340,8 +348,8 @@ int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float 
 
 	QAngle next(
 		sum[rollAxis] / SMOOTHING_WINDOW_SIZE,
-		sum[pitchAxis] / SMOOTHING_WINDOW_SIZE,
-		sum[yawAxis] / SMOOTHING_WINDOW_SIZE
+		sum[pitchAxis] / (SMOOTHING_WINDOW_SIZE/2),
+		sum[yawAxis] / (SMOOTHING_WINDOW_SIZE/2)
 	);
 
 	//Msg("Filtered Sample %d pitch:%f roll:%f yaw:%f\n", t->CurSample, next[pitchAxis], next[rollAxis], next[yawAxis]);

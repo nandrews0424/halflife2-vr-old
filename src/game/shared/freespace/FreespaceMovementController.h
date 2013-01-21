@@ -3,7 +3,7 @@
 #include <math.h>
 #include "freespace.h"
 
-#define SMOOTHING_WINDOW_SIZE 4
+#define SMOOTHING_WINDOW_SIZE 10
 #define MAX_TRACKERS 3
 
 struct TrackerData {

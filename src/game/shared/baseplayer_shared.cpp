@@ -1321,7 +1321,8 @@ ConVar	sv_suppress_viewpunch( "sv_suppress_viewpunch", "0", FCVAR_REPLICATED | F
 void CBasePlayer::ViewPunch( const QAngle &angleOffset )
 {
 	//See if we're suppressing the view punching
-	if ( sv_suppress_viewpunch.GetBool() )
+	//VR SOURCE - This would've been simpler than disabling it on every single use
+	if ( true || sv_suppress_viewpunch.GetBool() )
 		return;
 
 	// We don't allow view kicks in the vehicle

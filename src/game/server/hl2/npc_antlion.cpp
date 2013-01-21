@@ -672,7 +672,8 @@ void CNPC_Antlion::MeleeAttack( float distance, float damage, QAngle &viewPunch,
 			//Kick the player angles
 			if ( !(pPlayer->GetFlags() & FL_GODMODE ) && pPlayer->GetMoveType() != MOVETYPE_NOCLIP )
 			{
-				pPlayer->ViewPunch( viewPunch );
+				// VR SOURCE
+				//pPlayer->ViewPunch( viewPunch );
 
 				Vector	dir = pHurt->GetAbsOrigin() - GetAbsOrigin();
 				VectorNormalize(dir);
@@ -4096,7 +4097,7 @@ void CNPC_Antlion::Touch( CBaseEntity *pOther )
 		bool bIsPlayer = pOther->IsPlayer();
 		if ( bIsPlayer && !(pOther->GetFlags() & FL_GODMODE ) && pOther->GetMoveType() != MOVETYPE_NOCLIP )
 		{
-			pOther->ViewPunch( QAngle( 4.0f, 0.0f, 0.0f ) );
+			// VR SOURCE - No ViewKicks ... pOther->ViewPunch( QAngle( 4.0f, 0.0f, 0.0f ) );
 		}
 
 		// set my "I have already attacked someone" flag

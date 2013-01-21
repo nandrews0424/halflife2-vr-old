@@ -2786,8 +2786,6 @@ void CHL2_Player::PlayerUse ( void )
 	if ( ! ((m_nButtons | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;
 
-	Weapon_Lower();
-
 	if ( m_afButtonPressed & IN_USE )
 	{
 		// Currently using a latched entity?
@@ -2899,7 +2897,24 @@ void CHL2_Player::PlayerUse ( void )
 		// Signal that we want to play the deny sound, unless the user is +USEing on a ladder!
 		// The sound is emitted in ItemPostFrame, since that occurs after GameMovement::ProcessMove which
 		// lets the ladder code unset this flag.
-		m_bPlayUseDenySound = true;
+		//vr source - no deny sound as it's annoying when raising / lowering gun //	m_bPlayUseDenySound = true;
+	}
+
+	// VR SOURCE
+	// Lower if actual use, otherwise toggle raised/lowered state	
+	if (m_afButtonPressed) {
+		if ( usedSomething ) 
+		{
+			Weapon_Lower();
+		}
+		else if (m_HL2Local.m_bWeaponLowered)
+		{
+			Weapon_Ready();
+		}
+		else 
+		{
+			Weapon_Lower();
+		}
 	}
 
 	// Debounce the use key
@@ -2908,6 +2923,8 @@ void CHL2_Player::PlayerUse ( void )
 		m_Local.m_nOldButtons |= IN_USE;
 		m_afButtonPressed &= ~IN_USE;
 	}
+
+
 }
 
 ConVar	sv_show_crosshair_target( "sv_show_crosshair_target", "0" );
@@ -2917,11 +2934,13 @@ ConVar	sv_show_crosshair_target( "sv_show_crosshair_target", "0" );
 //-----------------------------------------------------------------------------
 void CHL2_Player::UpdateWeaponPosture( void )
 {
-	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon *>(GetActiveWeapon());
+	//VR SOURCE - Rewritten to raise or lower when aiming at friendly/enemy but primary driver for this is actions (shooting, using, etc..)
 
+	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon *>(GetActiveWeapon());
+	
 	if ( pWeapon && m_LowerWeaponTimer.Expired() && pWeapon->CanLower() )
 	{
-		m_LowerWeaponTimer.Set( .3 );
+		m_LowerWeaponTimer.Set( .5 );
 		VPROF( "CHL2_Player::UpdateWeaponPosture-CheckLower" );
 		Vector vecAim = BaseClass::GetAutoaimVector( AUTOAIM_SCALE_DIRECT_ONLY );
 
@@ -2937,50 +2956,12 @@ void CHL2_Player::UpdateWeaponPosture( void )
 			if ( !aimTarget->IsNPC() || aimTarget->MyNPCPointer()->GetState() != NPC_STATE_COMBAT )
 			{
 				Disposition_t dis = IRelationType( aimTarget );
-
-				//Debug info for seeing what an object "cons" as
-				if ( sv_show_crosshair_target.GetBool() )
-				{
-					int text_offset = BaseClass::DrawDebugTextOverlays();
-
-					char tempstr[255];	
-
-					switch ( dis )
-					{
-					case D_LI:
-						Q_snprintf( tempstr, sizeof(tempstr), "Disposition: Like" );
-						break;
-
-					case D_HT:
-						Q_snprintf( tempstr, sizeof(tempstr), "Disposition: Hate" );
-						break;
-
-					case D_FR:
-						Q_snprintf( tempstr, sizeof(tempstr), "Disposition: Fear" );
-						break;
-
-					case D_NU:
-						Q_snprintf( tempstr, sizeof(tempstr), "Disposition: Neutral" );
-						break;
-
-					default:
-					case D_ER:
-						Q_snprintf( tempstr, sizeof(tempstr), "Disposition: !!!ERROR!!!" );
-						break;
-					}
-
-					//Draw the text
-					NDebugOverlay::EntityText( aimTarget->entindex(), text_offset, tempstr, 0 );
-				}
-
-				//See if we hates it
-				if ( dis != D_LI && dis != D_NU )
-				{
-					Weapon_Ready();
-					return;
-				}
-			
-				Weapon_Lower();
+							
+				//See if we likes it
+				if ( dis == D_LI )
+					Weapon_Lower();
+				
+				return;
 			}
 		}
 	}
@@ -3002,7 +2983,7 @@ void CHL2_Player::UpdateWeaponPosture( void )
 		if( !m_AutoaimTimer.Expired() )
 			return;
 
-		m_AutoaimTimer.Set( .1 );
+		m_AutoaimTimer.Set( .3 );
 
 		VPROF( "hl2_x360_aiming" );
 
