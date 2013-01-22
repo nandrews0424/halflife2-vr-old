@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.6'
+!define VERSION '0.62'
 
 Name "Half-Life VR"
 
@@ -33,8 +33,9 @@ Keep in mind this is a very early version so if you have any issues or ideas ple
 !insertmacro MUI_LANGUAGE "English"
 
 Section "" 
-	SetOutPath $INSTDIR\steamapps\sourcemods\virtualhalf-life
-	;TODO: add real files
+	
+	SetOutPath $INSTDIR\steamapps\sourcemods\halflife-vr
+	RMDir /r $INSTDIR\steamapps\sourcemods\virtualhalf-life
 
 	File /r .\package\*
 
