@@ -1,0 +1,72 @@
+"lang" 
+{ 
+"Language" "English" 
+"Tokens" 
+{ 
+
+
+
+
+
+
+
+"episodic_Chapter1_Title"		"Undue Alarm"
+"episodic_Chapter2_Title"		"Direct Intervention"
+"episodic_Chapter3_Title"		"Lowlife"
+"episodic_Chapter4_Title"		"Urban Flight"
+"episodic_Chapter5_Title"		"Exit 17"
+"episodic_Chapter6_Title"		"Coming Soon"
+
+
+"ep2_Chapter0_Title"	"OUR STORY SO FAR..."
+"ep2_Chapter1_Title"	"TO THE WHITE FOREST"
+"ep2_Chapter2_Title"	"THIS VORTAL COIL"
+"ep2_Chapter3_Title"	"FREEMAN PONTIFEX"
+"ep2_Chapter4_Title"	"RIDING SHOTGUN"
+"ep2_Chapter5_Title"	"UNDER THE RADAR"
+"ep2_Chapter6_Title"	"OUR MUTUAL FIEND"
+"ep2_Chapter7_Title"	"T-MINUS ONE"
+"ep2_Chapter8_Title"	""
+"hl2_AmmoFull"			"FULL"
+
+"HL2_GameOver_Object"			"IT ENDS HERE\nTHE FREEMAN HAS FAILED TO PRESERVE RESOURCES\nDEEMED CRITICAL TO VICTORY\nINESCAPABLE GLIMPSES OF DOOM CLOUD THE VORTESSENCE"
+
+"HL2_GameOver_Ally"			"SO IT ENDS\nTHE FREEMAN HAS FAILED TO PRESERVE A LIFE REQUIRED FOR VICTORY\nSUCH ARE THE SHAPES WE SEE IN THE VORTESSENCE"
+
+"HL2_GameOver_Timer"			"ALL IS DONE\nTHE FREEMAN'S FAILURE TO SEIZE A SWIFT VICTORY\nLEADS TO OUR TOTAL DEFEAT"
+
+"HL2_GameOver_Stuck"			"ASSIGNMENT: TERMINATED\nSUBJECT: FREEMAN\nREASON: DEMONSTRATION OF EXCEEDINGLY POOR JUDGMENT"
+
+"Episodic_GameOver_AlyxDead"		"THE ALYX VANCE HAS DIED\nWITHOUT HER WE CANNOT PERSEVERE"
+
+"EP2_GameOver_AlyxLeft"			"THE FREEMAN MUST PROCEED WITH THE ALYX VANCE,\nELSE OUR STRUGGLE IS DOOMED TO FAILURE\nTHOSE WHO DO NOT LEARN FROM THEIR MISTAKES\nARE DOOMED TO AN ENDLESS VORTAL LOOP"
+
+"EP2_GameOver_RocketDestroyed"		"THE ROCKET HAS BEEN DESTROYED\nMAGNUSSON'S MISGIVINGS ABOUT THE FREEMAN\n ARE COMPLETELY JUSTIFIED.\nTHE GAME NOW ENDS"
+"HL2_357Handgun"	".357 MAGNUM"
+"HL2_Pulse_Rifle"	"OVERWATCH STANDARD ISSUE\n(PULSE-RIFLE)"
+"HL2_Bugbait"		"PHEROPOD\n(BUGBAIT)"
+"HL2_Crossbow"		"CROSSBOW"
+"HL2_Crowbar"		"CROWBAR"
+"HL2_Grenade"		"GRENADE"
+"HL2_GravityGun"	"ZERO-POINT ENERGY GUN\n(GRAVITY GUN)"
+"HL2_Pistol"		"9MM PISTOL"
+"HL2_RPG"		"RPG\n(ROCKET PROPELLED GRENADE)"
+"HL2_Shotgun"		"SHOTGUN"
+"HL2_SMG1"		"SMG\n(SUBMACHINE GUN)"
+
+"HL2_Saved"		"Saved..."
+"HL2_Enable_Commentary"	"Enable commentary track"
+
+"HL2_SAVING"						"Saving..."
+
+
+
+
+
+
+} 
+
+}
+
+
+
