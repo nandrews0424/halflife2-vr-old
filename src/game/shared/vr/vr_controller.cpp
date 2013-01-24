@@ -9,6 +9,7 @@ VrController::VrController()
 
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
+		_sensors[i] = new MotionSensor(i+1);
 		_previousYaw[i] = 0;
 		_totalAccumulatedYaw[i] = 0;
 	}
@@ -22,6 +23,9 @@ VrController::VrController()
 
 VrController::~VrController()
 {
+	for (int i=0; i<SENSOR_COUNT; i++){
+		delete _sensors[i];
+	}
 }
 
 QAngle	VrController::headOrientation( void )
@@ -47,38 +51,28 @@ QAngle	VrController::bodyOrientation( void )
 
 void	VrController::update()
 {
-	if (!_sensors[HEAD].initialized()) {
+	if (!_sensors[HEAD]->initialized()) {
 		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
 		return;
 	}
 
 	// HEAD ORIENTATION
-	_cachedAngles[HEAD] = _sensors[HEAD].getOrientation();
+	_cachedAngles[HEAD] = _sensors[HEAD]->getOrientation();
 	
 	float previousYaw = _previousYaw[HEAD];
 	float currentYaw = _cachedAngles[HEAD][YAW];
 	float deltaYaw = currentYaw - previousYaw;
 	
-	_previousYaw[HEAD] = currentYaw;
 	_cachedAngles[HEAD][YAW] = deltaYaw;
+	_previousYaw[HEAD] = currentYaw;
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
 
-	Msg("Subtracting calibration angles pitch: %f roll: %f yaw: %f\n", _calibrationAngles[HEAD][PITCH], _calibrationAngles[HEAD][ROLL], _calibrationAngles[HEAD][YAW]);
-	// _cachedAngles[HEAD] -= _calibrationAngles[HEAD];
-
 	// END HEAD ORIENTATION
-
-
+	Msg("Yaw change %f prev %f total %\n", deltaYaw, previousYaw, _totalAccumulatedYaw[HEAD]);
+	
 	//todo: weapon orientation will be relative to either head or the "baseline"
-	VectorCopy(_cachedAngles[HEAD], _cachedAngles[WEAPON]);
+	VectorCopy(_cachedAngles[HEAD], _cachedAngles[HEAD]);
 };
-
-
-void	VrController::calibrate()
-{
-	for (int i = 0; i < SENSOR_COUNT; i++)
-		VectorCopy(_cachedAngles[i], _calibrationAngles[i]);
-}
 
 extern VrController* VR_Controller()
 {

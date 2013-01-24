@@ -13,7 +13,7 @@ class MotionSensor {
 
 public:
 	
-	MotionSensor();
+	MotionSensor(int deviceNumber);
 	~MotionSensor();
  
 	QAngle	getOrientation( void );

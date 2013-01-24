@@ -28,21 +28,19 @@ public:
 	QAngle  headOrientation( void );
 	QAngle  weaponOrientation( void );
 	QAngle  bodyOrientation( void );
-	void	calibrate( void );
- 	void	update(void);
+	void	update(void);
 	bool	initialized() { return _initialized; }
 	
 protected:
-
-	MotionSensor _sensors[SENSOR_COUNT];
-	QAngle _cachedAngles[SENSOR_COUNT];
 	float _totalAccumulatedYaw[SENSOR_COUNT];
 	float _previousYaw[SENSOR_COUNT];
 	bool _initialized;
 	
-	// WTF @ this seems to pick up the item above it...
-	QAngle _calibrationAngles[SENSOR_COUNT];
+	MotionSensor* _sensors[SENSOR_COUNT];
+	QAngle _cachedAngles[SENSOR_COUNT];
+	float _fake[100];
 	
+
 };
 
 VrController* VR_Controller();

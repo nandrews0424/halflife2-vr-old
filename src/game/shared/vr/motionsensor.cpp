@@ -11,7 +11,9 @@ unsigned MotionSensor_Thread(void* params);
 QAngle MotionSensor::getOrientation()
 {
 	QAngle angle;
-	VectorCopy(_threadState->angle, angle);
+	angle[PITCH] = _threadState->angle[PITCH];
+	angle[ROLL] = _threadState->angle[ROLL];
+	angle[YAW] = _threadState->angle[YAW];
 	return angle;
 }
 
@@ -25,9 +27,8 @@ bool MotionSensor::hasOrientation()
 	return true;
 }
 
-MotionSensor::MotionSensor() 
+MotionSensor::MotionSensor(int deviceNumber) 
 {
-	int deviceNumber = 1;
 	Msg("Motion Sensor %i initializing", deviceNumber);
 			
 	_threadState = new InputThreadState();
