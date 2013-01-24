@@ -28,8 +28,7 @@
 #include "inputsystem/iinputsystem.h"
 #include "inputsystem/ButtonCode.h"
 #include "math.h"
-#include "IMovementController.h"
-#include "freespace/FreespaceMovementController.h"
+#include "vr/vr_controller.h"
 #include "tier1/convar_serverbounded.h"
 
 
@@ -127,10 +126,6 @@ extern ConVar cam_idealpitch;
 extern ConVar cam_idealyaw;
 extern ConVar thirdperson_platformer;
 extern ConVar thirdperson_screenspace;
-
-// VR hack
-static float prevHeadtrackedYaw = 0.f;
-
 
 //-----------------------------------------------
 // Response curve function for the move axes
@@ -724,15 +719,14 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 		gameAxes[GAME_AXIS_YAW].value = 0;
 	}
 
-	bool headTracking = UTIL_isHeadTrackerInitialized();
-
-
 	float forward	= ScaleAxisValue( gameAxes[GAME_AXIS_FORWARD].value, MAX_BUTTONSAMPLE * joy_forwardthreshold.GetFloat() );
 	float side		= ScaleAxisValue( gameAxes[GAME_AXIS_SIDE].value, MAX_BUTTONSAMPLE * joy_sidethreshold.GetFloat()  );
 	float pitch		= ScaleAxisValue( gameAxes[GAME_AXIS_PITCH].value, MAX_BUTTONSAMPLE * joy_pitchthreshold.GetFloat()  );
 	float yaw		= ScaleAxisValue( gameAxes[GAME_AXIS_YAW].value, MAX_BUTTONSAMPLE * joy_yawthreshold.GetFloat()  );
 
-	if (headTracking) pitch = 0;
+
+
+	if (VR_Controller()->initialized()) pitch = 0;
 
 	// If we're inverting our joystick, do so
 	if ( joy_inverty.GetBool() )
@@ -797,8 +791,6 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	float dist = move.Length();
 
 	// apply turn control
-
-	// VR SOURCE -- Trying not to have the jumpy joystick yaw.....
 
 	float angle = 0.f;
 	
@@ -876,7 +868,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// Bound pitch
-	if (!headTracking)
+	if (!VR_Controller()->initialized())
 		viewangles[PITCH] = clamp( viewangles[ PITCH ], -cl_pitchup.GetFloat(), cl_pitchdown.GetFloat() );
 
 	engine->SetViewAngles( viewangles );

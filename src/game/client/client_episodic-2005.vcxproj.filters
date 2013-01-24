@@ -43,6 +43,9 @@
     <Filter Include="Link Libraries\game_controls Header Files">
       <UniqueIdentifier>{d3e87ba4-880f-4ede-b0dc-e1e597e45483}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\vr">
+      <UniqueIdentifier>{0a567bf2-5b77-459a-91e7-54eedafe81b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="achievement_notification_panel.cpp">
@@ -1502,6 +1505,15 @@
     </ClCompile>
     <ClCompile Include="..\shared\freespace\HeadOffsetModel.cpp">
       <Filter>Source Files\freespace</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\vr\motionsensor.cpp">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\vr\vr_controller.cpp">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\vr\sensor_fusion.cpp">
+      <Filter>Source Files\vr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3268,6 +3280,15 @@
     </ClInclude>
     <ClInclude Include="..\shared\freespace\FreespaceMovementController.h">
       <Filter>Source Files\freespace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\vr\motionsensor.h">
+      <Filter>Source Files\vr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\vr\vr_controller.h">
+      <Filter>Source Files\vr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\vr\sensor_fusion.h">
+      <Filter>Source Files\vr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

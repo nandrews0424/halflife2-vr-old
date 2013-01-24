@@ -119,7 +119,7 @@ private:
 	void		ComputeForwardMove( CUserCmd *cmd );
 	void		ComputeUpwardMove( CUserCmd *cmd );
 	void		ComputeSideMove( CUserCmd *cmd );
-	void		AdjustAngles ( float frametime );
+	void		AdjustAngles ( CUserCmd *cmd, float frametime );
 	void		ClampAngles( QAngle& viewangles );
 	void		AdjustPitch( float speed, QAngle& viewangles );
 	void		AdjustYaw( float speed, QAngle& viewangles );

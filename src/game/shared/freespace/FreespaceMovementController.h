@@ -47,8 +47,3 @@ protected:
 	bool _initialized;
 	int _numTrackers;
 };
-
-void UTIL_getHeadOrientation(float &pitch, float &yaw, float &roll);
-void UTIL_getWeaponOrientation(float &pitch, float &yaw, float &roll);
-bool UTIL_hasWeaponOrientation();
-bool UTIL_isHeadTrackerInitialized();

@@ -18,7 +18,7 @@ static void receiveMessageCallback(FreespaceDeviceId id,
                             struct freespace_message* message,
                             void* cookie,
                             int result) {
-    if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_USERFRAME) {
+if (result == FREESPACE_SUCCESS && message != NULL && message->messageType == FREESPACE_MESSAGE_USERFRAME) {
 		for (int idx=0; idx<MAX_TRACKERS; idx++) {
 			if (devices[idx].id == id) {	
 				devices[idx].userFrame = message->userFrame;
@@ -29,7 +29,8 @@ static void receiveMessageCallback(FreespaceDeviceId id,
 }
 
 static void initDevice(FreespaceDeviceId id) {
-    struct freespace_message message;
+    return;
+	struct freespace_message message;
     int rc;
     int idx;
 
@@ -98,7 +99,8 @@ static void initDevice(FreespaceDeviceId id) {
 
 
 static void cleanupDevice(FreespaceDeviceId id) {
-    struct freespace_message message;
+    return;
+	struct freespace_message message;
     int rc;
     int idx;
 
@@ -161,6 +163,7 @@ static float smoothAngle(float& cur, float& prev, float &lastChange, float max, 
 }
 
 FreespaceMovementController::FreespaceMovementController() {
+	return;
 	_initialized = false;
 	int rc;
 
@@ -181,6 +184,7 @@ FreespaceMovementController::FreespaceMovementController() {
 }
  
 FreespaceMovementController::~FreespaceMovementController(){
+	return;
 	Msg("Shutting down Freespace devices");
 	
 	for (int idx=0; idx < MAX_TRACKERS; idx++) {
@@ -195,6 +199,7 @@ FreespaceMovementController::~FreespaceMovementController(){
 
 // -- Assumes all trackers are "aligned" and stores deltas to difference out the raw tracker angles
 void FreespaceMovementController::calibrate() {
+	return;
 	if (activeDevices <= 1) {
 		Msg("Not enough active devices to calibrate");
 		return;
@@ -228,6 +233,7 @@ void FreespaceMovementController::calibrate() {
 
 
 void FreespaceMovementController::setOrientationAxis(int pitch, int roll, int yaw) {
+	return;
 	int idx=0;
 	
 	Msg("Orientation inputs... (p r y):%i %i %i\n", pitch, roll, yaw);
@@ -251,6 +257,7 @@ void FreespaceMovementController::setRollEnabled(bool enabled) {
 }
 
 int FreespaceMovementController::getOrientation(float &pitch, float &yaw, float &roll, int idx = 0){
+	return 0;
 	if (idx > activeDevices-1) {
 		return -1;
 	}
@@ -413,6 +420,7 @@ int FreespaceMovementController::getPosition(float &x, float &y, float &z){
 }
  
 void FreespaceMovementController::update() {
+	return;
 	freespace_perform();
 }
  
@@ -422,27 +430,4 @@ bool FreespaceMovementController::hasOrientationTracking() {
   
 bool FreespaceMovementController::hasPositionTracking() {
 	return false;
-}
-
-//static helper methods for external libs
-extern void UTIL_getHeadOrientation(float &pitch, float& yaw, float& roll)
-{
-	if (freespace == NULL) return;
-	freespace->getOrientation(pitch, yaw, roll, 0);	
-}
-
-extern bool UTIL_hasWeaponOrientation() {
-	return (freespace != NULL && activeDevices > 1);
-}
-
-extern void UTIL_getWeaponOrientation(float &pitch, float& yaw, float& roll)
-{
-	if (freespace == NULL) return;
-	freespace->getOrientation(pitch, yaw, roll, 1);	
-}
-
-extern bool UTIL_isHeadTrackerInitialized() 
-{
-	if (freespace == NULL) return false;
-	freespace->isTrackerInitialized();
 }

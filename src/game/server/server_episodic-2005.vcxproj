@@ -136,10 +136,10 @@ if exist "$(TargetDir)"server.dll copy "$(TargetDir)"server.dll "d:\steam\steama
     </PreBuildEvent>
     <CustomBuildStep>
       <Message>Copying to d:\steam\steamapps\SourceMods\virtualhalf-life\bin\</Message>
-      <Command>if exist "C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\server.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\server.dll"
-if exist "$(TargetDir)"server.dll copy "$(TargetDir)"server.dll "C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\server.dll"
-if exist C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\server.pdb attrib -r "C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\server.pdb"
-if exist "$(TargetDir)"server.pdb copy "$(TargetDir)"server.pdb "C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin"
+      <Command>if exist "C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin\server.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin\server.dll"
+if exist "$(TargetDir)"server.dll copy "$(TargetDir)"server.dll "C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin\server.dll"
+if exist C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin\server.pdb attrib -r "C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin\server.pdb"
+if exist "$(TargetDir)"server.pdb copy "$(TargetDir)"server.pdb "C:\Program Files (x86)\Steam\steamapps\SourceMods\halflife-vr\bin"
 </Command>
       <Outputs>d:\steam\steamapps\SourceMods\virtualhalf-life\bin\server.dll;d:\steam\steamapps\SourceMods\virtualhalf-life\bin\server.pdb;%(Outputs)</Outputs>
     </CustomBuildStep>

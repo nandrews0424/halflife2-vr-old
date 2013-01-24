@@ -31,7 +31,7 @@
 #include <vgui_controls/Controls.h>
 #include <vgui/ISurface.h>
 #include "ScreenSpaceEffects.h"
-#include "FreespaceMovementController.h"
+
 // previous includes mirror those in view.cpp
 
 

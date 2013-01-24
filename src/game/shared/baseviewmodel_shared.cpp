@@ -11,7 +11,7 @@
 #if defined( CLIENT_DLL )
 #include "iprediction.h"
 #include "prediction.h"
-#include "freespace/FreespaceMovementController.h"
+#include "vr/vr_controller.h"
 #else
 #include "vguiscreen.h"
 #endif
@@ -413,10 +413,11 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 	SetLocalOrigin(vmorigin);
 	
-	if (UTIL_hasWeaponOrientation()) {
+	// VR TODO: HOOK UP CHECK FOR WEAPON ANGLES AND USE THEM HERE.....
+	if (false && VR_Controller()->initialized()) {
 		//get viewmodel angle from tracker
 		float p,r,y = 0;
-		UTIL_getWeaponOrientation(p, y, r);
+		// UTIL_getWeaponOrientation(p, y, r);
 		QAngle weaponAngle = QAngle(p, y, r);
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);

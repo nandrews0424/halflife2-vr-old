@@ -19,8 +19,7 @@
 #include "bitbuf.h"
 #include "checksum_md5.h"
 #include "hltvcamera.h"
-#include "IMovementController.h"
-#include "freespace/FreespaceMovementController.h"
+#include "vr/vr_controller.h"
 #include <ctype.h> // isalnum()
 #include <voice_status.h>
 #include "view.h"
@@ -48,37 +47,13 @@ float anglemod( float a );
 static int in_impulse = 0;
 static int in_cancel = 0;
 
+// VR Source
 
-/* VR Source Additions */
-
-static bool useTracking = true;
-static float previousTrackedYaw = 0.f;
-
-IMovementController* motionTracker;
-ConVar in_headtracking("vr_head_tracking", "1", 0, "Toggles headtracking module");
-ConVar in_headpitchaxis("vr_head_pitchaxis", "-2", 0, "Sets the axis index for the headtracking pitch");
-ConVar in_headrollaxis("vr_head_rollaxis", "1", 0, "Sets the axis index for the headtracking roll");
-ConVar in_headyawaxis("vr_head_yawaxis", "-3", 0, "Sets the axis index for the headtracking yaw");
-ConVar in_headrollenabled("vr_head_rollenabled", "1", 0, "Enables and disables head roll");
-
-ConVar in_weapontracking("vr_weapon_tracking", "1", 0, "Toggles  weapon tracking module");
-ConVar in_weaponpitchaxis("vr_weapon_pitchaxis", "-2", 0, "Sets the axis index for the weapon pitch");
-ConVar in_weaponrollaxis("vr_weapon_rollaxis", "1", 0, "Sets the axis index for the weapon roll");
-ConVar in_weaponyawaxis("vr_weapon_yawaxis", "-3", 0, "Sets the axis index for the weapon yaw");
-
+VrController* vrController;
 static void in_vrCalibrate(const CCommand &args) {
-	useTracking = in_headtracking.GetBool();
-	motionTracker->setOrientationAxis(in_headpitchaxis.GetInt(), in_headrollaxis.GetInt(), in_headyawaxis.GetInt());
-	motionTracker->setRollEnabled(in_headrollenabled.GetBool());
-	//todo: add weapon tracking properly
-
-	motionTracker->calibrate();
+	vrController->calibrate(); // calibrates baseline angles to current readings
 }
-
-ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Applies all updated settings & recalibrates vr devices");
-
-/* End VR Source Additions */
-
+ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Recalibrates vr devices to current orientation");
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -165,7 +140,7 @@ IN_CenterView_f
 */
 void IN_CenterView_f (void)
 {
-	if(!motionTracker->isTrackerInitialized() || !useTracking) {
+	if(!vrController->initialized()) {
 		QAngle viewangles;
 
 		if ( UsingMouselook() == false )
@@ -783,38 +758,6 @@ void CInput::SetCamViewangles( QAngle const &view )
 		m_angViewAngle.x += 360.0f;
 }
 
-/* Gets the main view angles from motion trackers */
-QAngle getCameraAngles(QAngle engineViewAngle) {
- 
-	QAngle viewangles;
- 
-	float pitch, yaw, roll;
- 	UTIL_getHeadOrientation(pitch,yaw,roll);
-	
-	// absolute pitch and roll
-	viewangles.x = pitch;
-	viewangles.z = roll;
-	viewangles.y = 	engineViewAngle.y + (yaw - previousTrackedYaw);
-	previousTrackedYaw = yaw; 
-	
-	return viewangles;
-}
-
-QAngle getWeaponAngles() {
-	QAngle viewangles;
- 
-	//pitch, yaw, roll
-	float pitch, yaw, roll;
-	UTIL_getWeaponOrientation(pitch, yaw, roll);
- 
-	//Note: the mapping of angles to your tracker might be different
-	viewangles.x = pitch;
-	viewangles.y = yaw;
-	viewangles.z = roll;
- 
-	return viewangles;	
-}
-
 /*
 ================
 AdjustAngles
@@ -822,7 +765,7 @@ AdjustAngles
 Moves the local angle positions
 ================
 */
-void CInput::AdjustAngles ( float frametime )
+void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 {
 	float	speed;
 	QAngle viewangles;
@@ -833,25 +776,38 @@ void CInput::AdjustAngles ( float frametime )
 	{
 		return;
 	}
-
+	
 	// Retrieve latest view direction from engine
 	engine->GetViewAngles( viewangles );
-
 	
-	if(motionTracker->isTrackerInitialized() && useTracking) {
-		motionTracker->update();
+	if (vrController->initialized()) {
+
+
+
+		// Run update cycle to update accumulated values (I.E. yaw)
+		vrController->update();
 				
-		viewangles = getCameraAngles(viewangles);
-		//todo: trying this here....
-		AdjustYaw( speed, viewangles );
-	} else {
+		QAngle head = vrController->headOrientation();
+		viewangles[PITCH] = head[PITCH];
+		viewangles[ROLL] = head[ROLL];
+		viewangles[YAW] += head[YAW]; 
+				
+		QAngle weapon =  vrController->weaponOrientation();
+		weapon[YAW] = viewangles[YAW]; // TODO: for now lock it to the center....
+		cmd->weaponangles = weapon;
+
+
+
+	} else {	
 		// Adjust YAW
 		AdjustYaw( speed, viewangles );
 		// Adjust PITCH if keyboard looking
 		AdjustPitch( speed, viewangles );
 		// Make sure values are legitimate
 		ClampAngles( viewangles );
+	
 	}
+
 	// Store new view angles into engine view direction
 	engine->SetViewAngles( viewangles );
 }
@@ -1036,7 +992,7 @@ if active == 1 then we are 1) not playing back demos ( where our commands are ig
 void CInput::ExtraMouseSample( float frametime, bool active )
 {
 	
-	if (!motionTracker->isTrackerInitialized() || !useTracking) {
+	if (!vrController->initialized()) {
 
 		CUserCmd dummy;
 		CUserCmd *cmd = &dummy;
@@ -1048,9 +1004,10 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 
 		if ( active )
 		{
+					
 			// Determine view angles
-			AdjustAngles ( frametime );
-
+			AdjustAngles ( cmd, frametime );
+			
 			// Determine sideways movement
 			ComputeSideMove( cmd );
 
@@ -1106,15 +1063,13 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	cmd->command_number = sequence_number;
 	cmd->tick_count = gpGlobals->tickcount;
 
-	QAngle viewangles, weaponangles;
+	QAngle viewangles;
 
 	if ( active || sv_noclipduringpause.GetInt() )
 	{
+
 		// Determine view angles
-		AdjustAngles ( input_sample_frametime );
-		
-		// VR SOURCE TODO - THIS NEEDS TO BE CHECKED FOR WEAPON TRACKING - Weapon angle from tracker
-		
+		AdjustAngles ( cmd, input_sample_frametime );
 		
 		// Determine sideways movement
 		ComputeSideMove( cmd );
@@ -1143,14 +1098,9 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 		}
 	}
 	// Retreive view angles from engine ( could have been set in IN_AdjustAngles above )
+	
 	engine->GetViewAngles( viewangles );
-
-	if (UTIL_hasWeaponOrientation()) {
-		weaponangles = getWeaponAngles();
-	} else {
-		VectorCopy(viewangles, weaponangles);
-	}
-
+	
 	// Latch and clear impulse
 	cmd->impulse = in_impulse;
 	in_impulse = 0;
@@ -1188,7 +1138,6 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	{
 		VectorCopy( viewangles, cmd->viewangles );
 		VectorCopy( viewangles, m_angPreviousViewAngles );
-		VectorCopy( weaponangles, cmd->weaponangles ); // VR Source hook for weapon angle
 		//todo: add previous angles for dead case
 	}
 	else
@@ -1622,9 +1571,8 @@ void CInput::Init_All (void)
 	
 	m_angViewAngle = vec3_angle;
 	HOOK_MESSAGE( SetViewAngle );
-
-	motionTracker = new FreespaceMovementController();
-	motionTracker->setOrientationAxis(in_headpitchaxis.GetInt(), in_headrollaxis.GetInt(), in_headyawaxis.GetInt());
+	
+	vrController = new VrController();
 }
 
 /*
@@ -1643,7 +1591,7 @@ void CInput::Shutdown_All(void)
 	delete[] m_pVerifiedCommands;
 	m_pVerifiedCommands = NULL;
 
-	delete motionTracker;
+	delete vrController;
 }
 
 void CInput::LevelInit( void )

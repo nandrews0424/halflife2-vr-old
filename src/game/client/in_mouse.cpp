@@ -24,8 +24,7 @@
 #include "cdll_client_int.h"
 #include "cdll_util.h"
 #include "tier1/convar_serverbounded.h"
-#include "IMovementController.h"
-#include "freespace/FreespaceMovementController.h"
+#include "vr/vr_controller.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
@@ -593,7 +592,8 @@ void CInput::MouseMove( CUserCmd *cmd )
 		g_pClientMode->OverrideMouseInput( &mouse_x, &mouse_y );
 
 		// VR Source - if headtracking disable y
-		if (UTIL_isHeadTrackerInitialized()) mouse_y = 0;
+		if (VR_Controller()->initialized()) 
+			mouse_y = 0;
 
 		// Add mouse X/Y movement to cmd
 		ApplyMouse( viewangles, cmd, mouse_x, mouse_y );
