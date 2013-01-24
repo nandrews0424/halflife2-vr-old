@@ -8,7 +8,7 @@ This can be played as a standing 360 degree experience or seated using a control
 
 - Hillcrest Labs FSM-6
 
-Other devices in the queue
+**Other devices in the queue**
 
 - Wiimote + Wiimote Plus (coming soon)
 - PS Move
