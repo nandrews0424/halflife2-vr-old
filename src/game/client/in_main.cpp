@@ -51,7 +51,7 @@ static int in_cancel = 0;
 
 VrController* vrController;
 static void in_vrCalibrate(const CCommand &args) {
-//	vrController->calibrate(); // calibrates baseline angles to current readings
+	vrController->calibrate(); // calibrates baseline angles to current readings
 }
 ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Recalibrates vr devices to current orientation");
 
@@ -781,8 +781,6 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 	engine->GetViewAngles( viewangles );
 	
 	if (vrController->initialized()) {
-
-
 
 		// Run update cycle to update accumulated values (I.E. yaw)
 		vrController->update();

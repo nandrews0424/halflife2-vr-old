@@ -28,7 +28,8 @@ public:
 	QAngle  headOrientation( void );
 	QAngle  weaponOrientation( void );
 	QAngle  bodyOrientation( void );
-	void	update(void);
+	void	update( void );
+	void	calibrate( void );
 	bool	initialized() { return _initialized; }
 	
 protected:
@@ -37,10 +38,11 @@ protected:
 	bool _initialized;
 	
 	MotionSensor* _sensors[SENSOR_COUNT];
+	float _fake3[10];
 	QAngle _cachedAngles[SENSOR_COUNT];
-	float _fake[100];
-	
-
+	float _fake[10];
+	QAngle _calibrationAngles[SENSOR_COUNT];
+	float _fake2[10];
 };
 
 VrController* VR_Controller();
