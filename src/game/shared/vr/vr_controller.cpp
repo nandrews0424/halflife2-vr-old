@@ -6,7 +6,7 @@ VrController* _vrController;
 VrController::VrController()
 {
 	Msg("Initializing VR Controller");
-
+	return;
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
 		_sensors[i] = new MotionSensor();

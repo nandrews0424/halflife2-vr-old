@@ -53,13 +53,13 @@ MotionSensor::MotionSensor()
 		_threadState.deviceAngles[i].Init();
 		_threadState.deviceIds[i] = -1;
 	}
-			
-	if ( freespace_init() != FREESPACE_SUCCESS) {
+				
+	if ( freespace_init() != FREESPACE_SUCCESS ) {
 		printf("Freespace initialization error. rc=%d\n", rc);
 		return;
 	}
 
-	freespace_setDeviceHotplugCallback(hotplug_Callback, NULL);
+	freespace_setDeviceHotplugCallback(hotplug_Callback, this);
 
 	_threadState.handle = CreateSimpleThread(MotionSensor_Thread, &_threadState);
 	_freespaceSensor = this;

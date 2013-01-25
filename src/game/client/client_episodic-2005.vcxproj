@@ -140,9 +140,9 @@ copy "$(TargetDir)"client.dll "d:\steam\steamapps\SourceMods\virtualhalf-life\bi
     <CustomBuildStep>
       <Message>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\</Message>
       <Command>if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.dll"
-copy "$(TargetDir)"client.dll "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
+copy "$(TargetDir)client.dll" "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
 if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.pdb" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.pdb"
-if exist "$(TargetDir)"client.pdb copy "$(TargetDir)"client.pdb "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.pdb"
+copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
 </Command>
       <Outputs>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.dll;C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.pdb;%(Outputs)</Outputs>
     </CustomBuildStep>
