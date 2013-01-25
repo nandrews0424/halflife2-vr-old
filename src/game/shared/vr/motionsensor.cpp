@@ -17,13 +17,13 @@ QAngle MotionSensor::getOrientation(int deviceIndex)
 {
 	QAngle angle;
 
-	if (deviceIds[deviceIndex] == -1) {
+	if (_threadState.deviceIds[deviceIndex] == -1) {
 		Msg("Unable to retrieve orientation of freespace device %i, not properly initialized\n", deviceIndex);
 		angle.Init();
 		return angle;
 	}
 	
-	VectorCopy(_threadState->deviceAngles[deviceIndex], angle)
+	VectorCopy(_threadState.deviceAngles[deviceIndex], angle);
 	return angle;
 }
 
@@ -46,7 +46,6 @@ MotionSensor::MotionSensor()
 	int rc;
 	_deviceCount = 0;
 
-	_threadState = new InputThreadState();
 	_threadState.quit = false;
 	_threadState.isDone = false;
 
@@ -54,18 +53,15 @@ MotionSensor::MotionSensor()
 		_threadState.deviceAngles[i].Init();
 		_threadState.deviceIds[i] = -1;
 	}
-	
-		
-	rc = freespace_init();
-
-	if (rc != FREESPACE_SUCCESS) {
+			
+	if ( freespace_init() != FREESPACE_SUCCESS) {
 		printf("Freespace initialization error. rc=%d\n", rc);
 		return;
 	}
 
-	freespace_setDeviceHotplugCallback(hotplugCallback, NULL);
+	freespace_setDeviceHotplugCallback(hotplug_Callback, NULL);
 
-	_threadState->handle = CreateSimpleThread(MotionSensor_Thread, _threadState);
+	_threadState.handle = CreateSimpleThread(MotionSensor_Thread, &_threadState);
 	_freespaceSensor = this;
 	_initialized = true;
 
@@ -75,46 +71,37 @@ MotionSensor::MotionSensor()
 
 MotionSensor::~MotionSensor() 
 {
-	_threadState->quit = true;	
+	_threadState.quit = true;	
 	int rc;
 	int i = 0;
 	struct freespace_message message;
 	
 	// wait for thread to shut down
-	while (!_threadState.isDone) { i++ }
+	while (!_threadState.isDone) { 
+		i++; 
+	}
 
 	printf("\n\nfreespaceInputThread: Shut down successfully...\n");
     
     Msg("Shutting down Freespace devices");
 
-	for (int idx=0; idx < MAX_TRACKERS; idx++) {
-		if (deviceIds[idx] >= 0) {
-			cleanupDevice(deviceIds[idx]);
+	for (int idx=0; idx < MAX_SENSORS; idx++) {
+		if (_threadState.deviceIds[idx] >= 0) {
+			_removeDevice(_threadState.deviceIds[idx]);
 		}
 	}
 
 	freespace_exit();
 }
 
-
-MotionSensor::initDevice(FreespaceDeviceId id)
+void MotionSensor::_initDevice(FreespaceDeviceId id) 
 {
-	//TODO: can we hook back into the class methods this way????
-}
-
-
-static void init_Device(FreespaceDeviceId id) 
-{
-	
-
-    if (_deviceCount >= MAX_SENSORS) {
+	if (_deviceCount >= MAX_SENSORS) {
 		Msg("Too many devices, can't add new freespace device %i\n", id);
 		return;
     }
-
-    freespace_setReceiveMessageCallback(id, receiveMessageCallback, NULL);
-
-    rc = freespace_openDevice(id);
+	    
+    int rc = freespace_openDevice(id);
     if (rc != 0) {
         printf("Error opening device.\n");
         return;
@@ -126,10 +113,10 @@ static void init_Device(FreespaceDeviceId id)
         return;
     }
 
-	Msg("Added freespace device %d to index %d\n", id, i);
+	Msg("Added freespace device %d to index %d\n", id, _deviceCount);
 
-    _threadState->deviceIds[_deviceCount] = id;
-    _threadState->deviceAngles[_deviceCount].Init();
+    _threadState.deviceIds[_deviceCount] = id;
+    _threadState.deviceAngles[_deviceCount].Init();
         
     struct freespace_message message;
     memset(&message, 0, sizeof(message));
@@ -145,15 +132,15 @@ static void init_Device(FreespaceDeviceId id)
 	Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
 }
 
-static void cleanup_Device(FreespaceDeviceId id) {
+void MotionSensor::_removeDevice(FreespaceDeviceId id) {
     struct freespace_message message;
     int rc;
     int i;
 
     // Remove the device from our list.
     for (int i = 0; i < MAX_SENSORS; i++) {
-        if (deviceIds[i] == id) {
-            deviceIds[i] = -1;
+        if (_threadState.deviceIds[i] == id) {
+            _threadState.deviceIds[i] = -1;
 			break;
         }
     }
@@ -181,13 +168,15 @@ static void cleanup_Device(FreespaceDeviceId id) {
 	_deviceCount--;
 }
 
-static void hotplug_Callback(enum freespace_hotplugEvent event, FreespaceDeviceId id, void* cookie) {
+static void hotplug_Callback(enum freespace_hotplugEvent event, FreespaceDeviceId id, void* params) {
+	MotionSensor* sensor = (MotionSensor*) params;
+
 	if (event == FREESPACE_HOTPLUG_REMOVAL) {
         Msg("Closing removed freespace device %d\n", id);
-        cleanupDevice(id);
+        sensor->_removeDevice(id);
     } else if (event == FREESPACE_HOTPLUG_INSERTION) {
         Msg("Opening newly inserted freespace device %d\n", id);
-        initDevice(id);
+        sensor->_initDevice(id);
     }
 }
 
@@ -195,6 +184,7 @@ unsigned MotionSensor_Thread(void* params)
 {
 	InputThreadState* state = (InputThreadState*)params;
 	int rc;
+	FreespaceDeviceId id;
 	struct freespace_message message;
 	static uint16_t lastseq[MAX_SENSORS];
 	for (int i = 0; i<MAX_SENSORS; i++){
@@ -216,9 +206,9 @@ unsigned MotionSensor_Thread(void* params)
 			continue;
 		}
 
-		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq) {
+		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq[i]) {
 
-			lastseq = message.bodyFrame.sequenceNumber;
+			lastseq[i] = message.bodyFrame.sequenceNumber;
 
 			MahonyAHRSupdateIMU(
 				message.bodyFrame.angularVelX / 1000.0f, 

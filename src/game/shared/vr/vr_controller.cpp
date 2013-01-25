@@ -9,7 +9,7 @@ VrController::VrController()
 
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
-		_sensors[i] = new MotionSensor(i+1);
+		_sensors[i] = new MotionSensor();
 		_previousYaw[i] = 0;
 		_totalAccumulatedYaw[i] = 0;
 		_cachedAngles[i].Init();
@@ -58,7 +58,7 @@ void	VrController::update()
 	}
 
 	// HEAD ORIENTATION
-	_cachedAngles[HEAD] = _sensors[HEAD]->getOrientation();
+	_cachedAngles[HEAD] = _sensors[HEAD]->getOrientation(0);
 	
 	float previousYaw = _previousYaw[HEAD];
 	float currentYaw = _cachedAngles[HEAD][YAW];

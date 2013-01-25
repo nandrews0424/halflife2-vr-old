@@ -1,6 +1,6 @@
 #include "vr/imotionsensor.h"
 
-#DEFINE MAX_SENSORS 2
+#define MAX_SENSORS 2
 
 struct InputThreadState 
 {
@@ -23,6 +23,11 @@ public:
 	void	update() {};
  	bool	hasOrientation();
  	int 	deviceCount() { return _deviceCount; }
+	
+	// These ideally would be protected
+	void	_initDevice(FreespaceDeviceId id);
+	void	_removeDevice(FreespaceDeviceId id);
+
 
 protected:
 	struct	InputThreadState _threadState;
