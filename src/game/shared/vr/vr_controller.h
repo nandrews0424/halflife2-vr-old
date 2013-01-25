@@ -31,6 +31,7 @@ public:
 	void	update( void );
 	void	calibrate( void );
 	bool	initialized() { return _initialized; }
+	bool	hasWeaponTracking();
 	
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
@@ -39,10 +40,11 @@ protected:
 	
 	MotionSensor* _sensors[SENSOR_COUNT];
 	float _fake3[10];
-	QAngle _cachedAngles[SENSOR_COUNT];
+	QAngle _angles[SENSOR_COUNT];
 	float _fake[10];
 	QAngle _calibrationAngles[SENSOR_COUNT];
 	float _fake2[10];
+	unsigned int _updateCount;
 };
 
 VrController* VR_Controller();

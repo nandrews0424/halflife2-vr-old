@@ -414,7 +414,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	SetLocalOrigin(vmorigin);
 	
 	// VR TODO: HOOK UP CHECK FOR WEAPON ANGLES AND USE THEM HERE.....
-	if (false && VR_Controller()->initialized()) {
+	if (VR_Controller()->hasWeaponTracking()) {
 		//get viewmodel angle from tracker
 		float p,r,y = 0;
 		// UTIL_getWeaponOrientation(p, y, r);

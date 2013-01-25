@@ -3,46 +3,89 @@
 #include "vr/motionsensor.h"
 #include "vr/sensor_fusion.h"
 
-unsigned MotionSensor_Thread(void* params);
-static void hotplug_Callback(enum freespace_hotplugEvent event, FreespaceDeviceId id, void* cookie);
-static void init_Device(FreespaceDeviceId id);
-static void cleanup_Device(FreespaceDeviceId id);
-
 #define PI 3.141592654f
 #define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
 
-MotionSensor* _freespaceSensor;
+static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
+	MotionSensor* sensor = (MotionSensor*) params;
 
-QAngle MotionSensor::getOrientation(int deviceIndex)
+	if (evnt == FREESPACE_HOTPLUG_REMOVAL) {
+        Msg("Closing removed freespace device %d\n", id);
+        sensor->_removeDevice(id);
+    } else if (evnt == FREESPACE_HOTPLUG_INSERTION) {
+        Msg("Opening newly inserted freespace device %d\n", id);
+        sensor->_initDevice(id);
+    }
+}
+
+unsigned MotionSensor_Thread(void* params)
 {
-	QAngle angle;
-
-	if (_threadState.deviceIds[deviceIndex] == -1) {
-		Msg("Unable to retrieve orientation of freespace device %i, not properly initialized\n", deviceIndex);
-		angle.Init();
-		return angle;
+	InputThreadState* state = (InputThreadState*)params;
+	int rc;
+	FreespaceDeviceId id;
+	struct freespace_message message;
+	static uint16_t lastseq[MAX_SENSORS];
+	for (int i = 0; i<MAX_SENSORS; i++){
+		lastseq[i] = 0;
 	}
-	
-	VectorCopy(_threadState.deviceAngles[deviceIndex], angle);
-	return angle;
+
+	int i = 0;
+	while (!state->quit)
+	{
+
+		i = ++i % MAX_SENSORS;
+		id = state->deviceIds[i];
+		
+		if (id < 0)
+			continue;
+
+		rc = freespace_readMessage(id, &message, 5);
+		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
+			continue;
+		}
+
+		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq[i]) {
+
+			lastseq[i] = message.bodyFrame.sequenceNumber;
+
+			MahonyAHRSupdateIMU(
+				message.bodyFrame.angularVelX / 1000.0f, 
+				message.bodyFrame.angularVelY / 1000.0f,
+				message.bodyFrame.angularVelZ / 1000.0f,
+				message.bodyFrame.linearAccelX ,
+				message.bodyFrame.linearAccelY ,
+				message.bodyFrame.linearAccelZ );
+
+			// convert quaternion to euler angles
+			float m11 = (2.0f * q0 * q0) + (2.0f * q1 * q1) - 1.0f;
+			float m12 = (2.0f * q1 * q2) + (2.0f * q0 * q3);
+			float m13 = (2.0f * q1 * q3) - (2.0f * q0 * q2);
+			float m23 = (2.0f * q2 * q3) + (2.0f * q0 * q1);
+			float m33 = (2.0f * q0 * q0) + (2.0f * q3 * q3) - 1.0f;
+
+			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
+			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
+			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
+
+			state->deviceAngles[i][ROLL]  = roll;
+			state->deviceAngles[i][PITCH] = pitch;
+			state->deviceAngles[i][YAW]   = yaw;
+		}
+	}
+
+	state->isDone = true;
+
+	return 0;
 }
 
-bool MotionSensor::initialized()
-{
-	return _initialized;
-}
-
-bool MotionSensor::hasOrientation()
-{
-	return true;
-}
+MotionSensor* _freespaceSensor;
 
 MotionSensor::MotionSensor() 
 {
 	Msg("Initializing freespace drivers");
 
 	struct freespace_message message;
-	int numIds; 
+	int deviceCount; 
 	int rc;
 	_deviceCount = 0;
 
@@ -58,8 +101,9 @@ MotionSensor::MotionSensor()
 		printf("Freespace initialization error. rc=%d\n", rc);
 		return;
 	}
-
+	
 	freespace_setDeviceHotplugCallback(hotplug_Callback, this);
+	freespace_perform();
 
 	_threadState.handle = CreateSimpleThread(MotionSensor_Thread, &_threadState);
 	_freespaceSensor = this;
@@ -160,7 +204,6 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
        Msg("Could not send message: %d.\n", rc);
     } else {
         freespace_flush(id);
-        freespace_flush(id);
 	}
 
     Msg("%d> Cleaning up...\n", id);
@@ -168,74 +211,25 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 	_deviceCount--;
 }
 
-static void hotplug_Callback(enum freespace_hotplugEvent event, FreespaceDeviceId id, void* params) {
-	MotionSensor* sensor = (MotionSensor*) params;
+QAngle MotionSensor::getOrientation(int deviceIndex)
+{
+	QAngle angle;
 
-	if (event == FREESPACE_HOTPLUG_REMOVAL) {
-        Msg("Closing removed freespace device %d\n", id);
-        sensor->_removeDevice(id);
-    } else if (event == FREESPACE_HOTPLUG_INSERTION) {
-        Msg("Opening newly inserted freespace device %d\n", id);
-        sensor->_initDevice(id);
-    }
+	if (_threadState.deviceIds[deviceIndex] == -1) {
+		angle.Init();
+		return angle;
+	}
+	
+	VectorCopy(_threadState.deviceAngles[deviceIndex], angle);
+	return angle;
 }
 
-unsigned MotionSensor_Thread(void* params)
+bool MotionSensor::initialized()
 {
-	InputThreadState* state = (InputThreadState*)params;
-	int rc;
-	FreespaceDeviceId id;
-	struct freespace_message message;
-	static uint16_t lastseq[MAX_SENSORS];
-	for (int i = 0; i<MAX_SENSORS; i++){
-		lastseq[i] = 0;
-	}
+	return _initialized;
+}
 
-	int i = 0;
-	while (!state->quit)
-	{
-
-		i = (i+1) % MAX_SENSORS;
-		id = state->deviceIds[i];
-		
-		if (id < 0)
-			continue;
-
-		rc = freespace_readMessage(id, &message, 5);
-		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
-			continue;
-		}
-
-		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq[i]) {
-
-			lastseq[i] = message.bodyFrame.sequenceNumber;
-
-			MahonyAHRSupdateIMU(
-				message.bodyFrame.angularVelX / 1000.0f, 
-				message.bodyFrame.angularVelY / 1000.0f,
-				message.bodyFrame.angularVelZ / 1000.0f,
-				message.bodyFrame.linearAccelX ,
-				message.bodyFrame.linearAccelY ,
-				message.bodyFrame.linearAccelZ );
-
-			// convert quaternion to euler angles
-			float m11 = (2.0f * q0 * q0) + (2.0f * q1 * q1) - 1.0f;
-			float m12 = (2.0f * q1 * q2) + (2.0f * q0 * q3);
-			float m13 = (2.0f * q1 * q3) - (2.0f * q0 * q2);
-			float m23 = (2.0f * q2 * q3) + (2.0f * q0 * q1);
-			float m33 = (2.0f * q0 * q0) + (2.0f * q3 * q3) - 1.0f;
-
-			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
-			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
-			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
-
-			state->deviceAngles[i][ROLL]  = roll;
-			state->deviceAngles[i][PITCH] = pitch;
-			state->deviceAngles[i][YAW]   = yaw;
-		}
-	}
-
-	state->isDone = true;
-
-	return 0;
+bool MotionSensor::hasOrientation()
+{
+	return true;
 }
