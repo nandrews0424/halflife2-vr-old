@@ -55,6 +55,12 @@ static void in_vrCalibrate(const CCommand &args) {
 }
 ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Recalibrates vr devices to current orientation");
 
+static void in_vrShutDown(const CCommand &args) {
+	vrController->shutDown(); // calibrates baseline angles to current readings
+}
+ConCommand in_vrshutdown("vr_shutdown", in_vrShutDown, "Shut's off all vr devices and returns controls to normal mode");
+
+
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
 ConVar cl_pitchspeed( "cl_pitchspeed", "225", 0 );

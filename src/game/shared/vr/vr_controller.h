@@ -32,6 +32,7 @@ public:
 	void	calibrate( void );
 	bool	initialized() { return _initialized; }
 	bool	hasWeaponTracking();
+	void	shutDown();
 	
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];

@@ -39,7 +39,7 @@ unsigned MotionSensor_Thread(void* params)
 		if (id < 0)
 			continue;
 
-		rc = freespace_readMessage(id, &message, 5);
+		rc = freespace_readMessage(id, &message, 10);
 		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
 			continue;
 		}
@@ -115,18 +115,19 @@ MotionSensor::MotionSensor()
 
 MotionSensor::~MotionSensor() 
 {
+	Msg("Shutting downfreespace devices\n");
 	_threadState.quit = true;	
 	int rc;
 	int i = 0;
 	struct freespace_message message;
 	
-	// wait for thread to shut down
-	while (!_threadState.isDone) { 
-		i++; 
+	Msg("Waiting on input thread to join\n");
+	if (ThreadJoin(_threadState.handle, 1000)) {
+		Msg("Freespace input thread shut down successfully...\n");
+	} else {
+		Msg("Freespace input thread join timed out, releasing thread handle...\n");
+		ReleaseThreadHandle(_threadState.handle);
 	}
-
-	printf("\n\nfreespaceInputThread: Shut down successfully...\n");
-    
     Msg("Shutting down Freespace devices");
 
 	for (int idx=0; idx < MAX_SENSORS; idx++) {
@@ -136,6 +137,8 @@ MotionSensor::~MotionSensor()
 	}
 
 	freespace_exit();
+	
+	Msg("Freespace interface shutdown");
 }
 
 void MotionSensor::_initDevice(FreespaceDeviceId id) 
@@ -156,12 +159,7 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
         printf("Error flushing device.\n");
         return;
     }
-
-	Msg("Added freespace device %d to index %d\n", id, _deviceCount);
-
-    _threadState.deviceIds[_deviceCount] = id;
-    _threadState.deviceAngles[_deviceCount].Init();
-        
+		    
     struct freespace_message message;
     memset(&message, 0, sizeof(message));
 	message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
@@ -172,7 +170,10 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
         printf("Could not send message: %d.\n", rc);
     }
 
-	_deviceCount++;
+	_threadState.deviceIds[_deviceCount] = id;
+    _threadState.deviceAngles[_deviceCount].Init();
+    _deviceCount++;
+	
 	Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
 }
 
@@ -206,7 +207,7 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
         freespace_flush(id);
 	}
 
-    Msg("%d> Cleaning up...\n", id);
+    Msg("%d> Cleaning up freespace device...\n", id);
     freespace_closeDevice(id);
 	_deviceCount--;
 }

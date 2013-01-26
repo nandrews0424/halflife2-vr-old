@@ -129,6 +129,13 @@ void VrController::calibrate()
 	}
 }
 
+void VrController::shutDown()
+{
+	_initialized = false;
+	delete _sensors[0];
+}
+
+
 
 extern VrController* VR_Controller()
 {
