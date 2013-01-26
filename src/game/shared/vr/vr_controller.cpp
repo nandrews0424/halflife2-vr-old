@@ -57,18 +57,18 @@ bool VrController::hasWeaponTracking( void )
 	return _initialized && _freespace->deviceCount() >= 2;
 }
 
-void	VrController::update()
+void	VrController::update(float previousViewYaw)
 {
+	if (!_freespace->initialized()) {
+		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
+		return;
+	}
+
 	if (_updateCounter++ % 120 == 0) {
 		Msg("Calling freespace perform to check for hot loaded devices");
 		freespace_perform();
 	}
 
-
-	if (!_freespace->initialized()) {
-		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
-		return;
-	}
 
 	// HEAD ORIENTATION
 	_freespace->getOrientation(0, _headAngle);
@@ -77,7 +77,7 @@ void	VrController::update()
 	float currentYaw = _headAngle[YAW];
 	float deltaYaw = currentYaw - previousYaw;
 	
-	_headAngle[YAW] = deltaYaw;
+	_headAngle[YAW] = deltaYaw + previousViewYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
 
@@ -92,15 +92,16 @@ void	VrController::update()
 	}
 
 	_freespace->getOrientation(WEAPON, _weaponAngle);
-	Msg("VR Controller Weapon Angles p: %f r: %f y: %f\n", _weaponAngle[PITCH],_weaponAngle[ROLL],_weaponAngle[YAW]);
-			
+				
 	previousYaw = _previousYaw[WEAPON];
 	currentYaw = _weaponAngle[YAW];
 	deltaYaw = currentYaw - previousYaw;
 
-	_weaponAngle[YAW] = deltaYaw;
 	_previousYaw[WEAPON] = currentYaw;
-	_totalAccumulatedYaw[WEAPON];
+	_totalAccumulatedYaw[WEAPON] += deltaYaw;
+	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON];
+
+	Msg("VR Controller Weapon Angles p: %f r: %f y: %f\n", _weaponAngle[PITCH],_weaponAngle[ROLL],_weaponAngle[YAW]);
 	
 	_weaponAngle -= _weaponCalibration;
 };

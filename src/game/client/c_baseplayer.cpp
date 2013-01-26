@@ -1830,14 +1830,8 @@ C_BaseCombatWeapon	*C_BasePlayer::GetActiveWeapon( void ) const
 //=========================================================
 Vector C_BasePlayer::GetAutoaimVector( float flScale )
 {
-	// Temp disabling...
 	//VR SOURCE - fire in direction provided by trackers if availabe
-	//Vector vec = Weapon_ShootDirection( );
-	//Msg("Autoaim vector set to: pitch%f yaw:%f role:%f \n", vec.x, vec.y, vec.z);
-	//return Weapon_ShootDirection();
-	Vector	forward;
-	AngleVectors( GetAbsAngles() + m_Local.m_vecPunchAngle, &forward );
-	return	forward;
+	return Weapon_ShootDirection();
 }
 
 void C_BasePlayer::PlayPlayerJingle()

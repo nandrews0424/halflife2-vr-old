@@ -417,12 +417,11 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	if (VR_Controller()->hasWeaponTracking()) {
 		//get viewmodel angle from tracker
 		float p,r,y = 0;
-		// UTIL_getWeaponOrientation(p, y, r);
-		QAngle weaponAngle = QAngle(p, y, r);
+
+		QAngle weaponAngle = VR_Controller()->weaponOrientation();
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
 		
-
 		//we need to unexaggerate the yaw within the screen
 		//pitch as well...
 

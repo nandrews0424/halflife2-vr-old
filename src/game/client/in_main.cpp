@@ -788,20 +788,16 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 	
 	if (vrController->initialized()) {
 	
-		vrController->update();
-				
-		QAngle head = vrController->headOrientation();
-		viewangles[PITCH] = head[PITCH];
-		viewangles[ROLL] = head[ROLL];
-		viewangles[YAW] += head[YAW]; 
-				
-		QAngle weapon =  vrController->weaponOrientation();
-		weapon[YAW] = viewangles[YAW]; // TODO: for now lock it to the center....
-		cmd->weaponangles = weapon;
+		vrController->update(viewangles[YAW]);
+		VectorCopy(vrController->headOrientation(), viewangles);
+		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
+
 	} else {	
+		
 		AdjustYaw( speed, viewangles );
 		AdjustPitch( speed, viewangles );
 		ClampAngles( viewangles );
+
 	}
 
 	// Store new view angles into engine view direction
