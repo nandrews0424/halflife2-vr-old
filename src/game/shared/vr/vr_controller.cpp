@@ -60,7 +60,7 @@ bool VrController::hasWeaponTracking( void )
 void	VrController::update(float previousViewYaw)
 {
 	if (!_freespace->initialized()) {
-		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
+		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
 	}
 
@@ -101,8 +101,6 @@ void	VrController::update(float previousViewYaw)
 	_totalAccumulatedYaw[WEAPON] += deltaYaw;
 	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON];
 
-	Msg("VR Controller Weapon Angles p: %f r: %f y: %f\n", _weaponAngle[PITCH],_weaponAngle[ROLL],_weaponAngle[YAW]);
-	
 	_weaponAngle -= _weaponCalibration;
 };
 
@@ -110,20 +108,15 @@ void VrController::calibrate()
 {
 	VectorCopy(_headAngle + _headCalibration, _headCalibration);
 	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
-
-	// Handle Yaw separately
-	/* TODO
-	for (int i=0; i<SENSOR_COUNT; i++) {
-		//add back in current calibration angles as they've already been factored out of the cached angles
-		VectorCopy(_angles[i] + _calibrationAngles[i], _calibrationAngles[i]);
-		_calibrationAngles[i][YAW] = 0;
-
-		if (i == WEAPON) {
-			_calibrationAngles[WEAPON][YAW] +=  (_angles[HEAD][YAW] - _angles[WEAPON][YAW]); // Whatever it takes to set the weapon angle equal to the head angle...
-		}
-	}
-	*/
+	
+	_headCalibration[YAW] = 0;
+	calibrateWeapon();
 }
+
+void VrController::calibrateWeapon() {
+	_weaponCalibration[YAW] = _weaponAngle[YAW] - _headAngle[YAW]; // align the weapon yaw w/ the head for calibration
+}
+
 
 void VrController::shutDown()
 {

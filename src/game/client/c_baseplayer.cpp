@@ -39,6 +39,7 @@
 #include "vgui/isurface.h"
 #include "voice_status.h"
 #include "fx.h"
+#include "vr/vr_controller.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1042,11 +1043,19 @@ void C_BasePlayer::UpdateFlashlight()
 			m_pFlashlight->TurnOn();
 		}
 
-		Vector vecForward, vecRight, vecUp;
-		EyeVectors( &vecForward, &vecRight, &vecUp );
+		Vector vecForward, vecRight, vecUp, flashlightPos;
+		
+		// VR - if available use independently tracked weapon for flashlight direction....
+		if (VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking()) {
+			AngleVectors(VR_Controller()->weaponOrientation(), &vecForward, &vecRight, &vecUp);
+			flashlightPos = EyePosition();
+		} else 
+		{
+			EyeVectors( &vecForward, &vecRight, &vecUp );
+			flashlightPos = EyePosition();
+		}
 
-		// Update the light with the new position and direction.		
-		m_pFlashlight->UpdateLight( EyePosition(), vecForward, vecRight, vecUp, FLASHLIGHT_DISTANCE );
+		m_pFlashlight->UpdateLight( flashlightPos, vecForward, vecRight, vecUp, FLASHLIGHT_DISTANCE );
 	}
 	else if (m_pFlashlight)
 	{

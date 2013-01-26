@@ -30,6 +30,8 @@ public:
 	QAngle  bodyOrientation( void );
 	void	update( float originalYaw );
 	void	calibrate( void );
+	void	calibrateWeapon( void );
+
 	bool	initialized() { return _initialized; }
 	bool	hasWeaponTracking();
 	void	shutDown();

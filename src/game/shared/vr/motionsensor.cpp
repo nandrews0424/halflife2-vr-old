@@ -234,18 +234,16 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 
 void MotionSensor::getOrientation(int deviceIndex, QAngle& angle)
 {
-	Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
+	//Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
 	
 	if (_threadState.deviceIds[deviceIndex] == -1) {
 		angle.Init();
-		
+		return;
 	}
 
 	angle[PITCH] = _threadState.pitch[deviceIndex];
 	angle[ROLL] = _threadState.roll[deviceIndex];
 	angle[YAW] = _threadState.yaw[deviceIndex];
-
-	Msg("p: %f r: %f y: %f\n\n", angle[PITCH], angle[ROLL], angle[YAW]);
 }
 
 bool MotionSensor::initialized()
