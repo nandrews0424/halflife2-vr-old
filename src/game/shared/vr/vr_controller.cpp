@@ -16,6 +16,8 @@ VrController::VrController()
 	_headAngle.Init();
 	_headCalibration.Init();
 	
+	_bodyAngle.Init();
+
 	_weaponAngle.Init();
 	_weaponCalibration.Init();	
 
@@ -44,12 +46,7 @@ QAngle	VrController::weaponOrientation( void )
 
 QAngle	VrController::bodyOrientation( void )
 {
-	QAngle head = headOrientation();
-	QAngle body;
-	
-	//for now just match the YAW exactly
-	body[YAW] = head[YAW]; 
-	return body;
+	return _bodyAngle;
 }
 
 bool VrController::hasWeaponTracking( void ) 
@@ -69,7 +66,9 @@ void	VrController::update(float previousViewYaw)
 		freespace_perform();
 	}
 
-
+	// BODY ORIENTATION
+	_bodyAngle[YAW] = previousViewYaw - _totalAccumulatedYaw[HEAD];
+	
 	// HEAD ORIENTATION
 	_freespace->getOrientation(0, _headAngle);
 	
@@ -99,7 +98,7 @@ void	VrController::update(float previousViewYaw)
 
 	_previousYaw[WEAPON] = currentYaw;
 	_totalAccumulatedYaw[WEAPON] += deltaYaw;
-	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON];
+	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON] - _totalAccumulatedYaw[HEAD];
 
 	_weaponAngle -= _weaponCalibration;
 };
@@ -107,14 +106,20 @@ void	VrController::update(float previousViewYaw)
 void VrController::calibrate()
 {
 	VectorCopy(_headAngle + _headCalibration, _headCalibration);
-	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
-	
 	_headCalibration[YAW] = 0;
 	calibrateWeapon();
 }
 
 void VrController::calibrateWeapon() {
-	_weaponCalibration[YAW] = _weaponAngle[YAW] - _headAngle[YAW]; // align the weapon yaw w/ the head for calibration
+	
+	Msg("Calibrating weapon: \n");
+	
+	QAngle head, weapon;
+	_freespace->getOrientation(0, head);
+	_freespace->getOrientation(1, weapon);
+
+	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
+	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
 }
 
 
