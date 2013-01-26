@@ -1,4 +1,5 @@
 #include "vr/imotionsensor.h"
+#include "vr/sensor_fusion.h"
 
 #define MAX_SENSORS 2
 
@@ -17,6 +18,8 @@ struct InputThreadState
 	float pitch[MAX_SENSORS];
 	float roll[MAX_SENSORS];
 	float yaw[MAX_SENSORS];
+
+	SensorFusion sensorFusion[MAX_SENSORS];
 
 	bool quit;
 };

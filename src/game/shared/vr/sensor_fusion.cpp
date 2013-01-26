@@ -20,37 +20,22 @@
 #include "vr/sensor_fusion.h"
 #include <math.h>
 
-//---------------------------------------------------------------------------------------------------
-// Definitions
-// GOTTA REWORK THIS INTO A CLASS W/ AN INSTANCE PER
-
-
-
 //TODO: once new firmware update back to 250hz
 #define sampleFreq	120.0f			// sample frequency in Hz
 #define twoKpDef	(2.0f * 0.5f)	// 2 * proportional gain
 #define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
 
-//---------------------------------------------------------------------------------------------------
-// Variable definitions
-
-volatile float twoKp = twoKpDef;											// 2 * proportional gain (Kp)
-volatile float twoKi = twoKiDef;											// 2 * integral gain (Ki)
-volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;					// quaternion of sensor frame relative to auxiliary frame
-volatile float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
-
-//---------------------------------------------------------------------------------------------------
-// Function declarations
-
 float invSqrt(float x);
 
-//====================================================================================================
-// Functions
+SensorFusion::SensorFusion()
+{
+	q.Init(1,0,0,0);
+	twoKp = twoKpDef;												// 2 * proportional gain (Kp)
+	twoKi = twoKiDef;												// 2 * integral gain (Ki)
+	integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
+}
 
-//---------------------------------------------------------------------------------------------------
-// AHRS algorithm update
-
-void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
+void SensorFusion::MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
 	float recipNorm;
     float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;  
 	float hx, hy, bx, bz;
@@ -80,16 +65,16 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 		mz *= recipNorm;   
 
         // Auxiliary variables to avoid repeated arithmetic
-        q0q0 = q0 * q0;
-        q0q1 = q0 * q1;
-        q0q2 = q0 * q2;
-        q0q3 = q0 * q3;
-        q1q1 = q1 * q1;
-        q1q2 = q1 * q2;
-        q1q3 = q1 * q3;
-        q2q2 = q2 * q2;
-        q2q3 = q2 * q3;
-        q3q3 = q3 * q3;   
+        q0q0 = q[0] * q[0];
+        q0q1 = q[0] * q[1];
+        q0q2 = q[0] * q[2];
+        q0q3 = q[0] * q[3];
+        q1q1 = q[1] * q[1];
+        q1q2 = q[1] * q[2];
+        q1q3 = q[1] * q[3];
+        q2q2 = q[2] * q[2];
+        q2q3 = q[2] * q[3];
+        q3q3 = q[3] * q[3];   
 
         // Reference direction of Earth's magnetic field
         hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
@@ -135,26 +120,26 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 	gx *= (0.5f * (1.0f / sampleFreq));		// pre-multiply common factors
 	gy *= (0.5f * (1.0f / sampleFreq));
 	gz *= (0.5f * (1.0f / sampleFreq));
-	qa = q0;
-	qb = q1;
-	qc = q2;
-	q0 += (-qb * gx - qc * gy - q3 * gz);
-	q1 += (qa * gx + qc * gz - q3 * gy);
-	q2 += (qa * gy - qb * gz + q3 * gx);
-	q3 += (qa * gz + qb * gy - qc * gx); 
+	qa = q[0];
+	qb = q[1];
+	qc = q[2];
+	q[0] += (-qb * gx - qc * gy - q[3] * gz);
+	q[1] += (qa * gx + qc * gz - q[3] * gy);
+	q[2] += (qa * gy - qb * gz + q[3] * gx);
+	q[3] += (qa * gz + qb * gy - qc * gx); 
 	
 	// Normalise quaternion
-	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-	q0 *= recipNorm;
-	q1 *= recipNorm;
-	q2 *= recipNorm;
-	q3 *= recipNorm;
+	recipNorm = invSqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+	q[0] *= recipNorm;
+	q[1] *= recipNorm;
+	q[2] *= recipNorm;
+	q[3] *= recipNorm;
 }
 
 //---------------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
+void SensorFusion::MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
 	float recipNorm;
 	float halfvx, halfvy, halfvz;
 	float halfex, halfey, halfez;
@@ -170,9 +155,9 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
 		az *= recipNorm;        
 
 		// Estimated direction of gravity and vector perpendicular to magnetic flux
-		halfvx = q1 * q3 - q0 * q2;
-		halfvy = q0 * q1 + q2 * q3;
-		halfvz = q0 * q0 - 0.5f + q3 * q3;
+		halfvx = q[1] * q[3] - q[0] * q[2];
+		halfvy = q[0] * q[1] + q[2] * q[3];
+		halfvz = q[0] * q[0] - 0.5f + q[3] * q[3];
 	
 		// Error is sum of cross product between estimated and measured direction of gravity
 		halfex = (ay * halfvz - az * halfvy);
@@ -204,21 +189,27 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
 	gx *= (0.5f * (1.0f / sampleFreq));		// pre-multiply common factors
 	gy *= (0.5f * (1.0f / sampleFreq));
 	gz *= (0.5f * (1.0f / sampleFreq));
-	qa = q0;
-	qb = q1;
-	qc = q2;
-	q0 += (-qb * gx - qc * gy - q3 * gz);
-	q1 += (qa * gx + qc * gz - q3 * gy);
-	q2 += (qa * gy - qb * gz + q3 * gx);
-	q3 += (qa * gz + qb * gy - qc * gx); 
+	qa = q[0];
+	qb = q[1];
+	qc = q[2];
+	q[0] += (-qb * gx - qc * gy - q[3] * gz);
+	q[1] += (qa * gx + qc * gz - q[3] * gy);
+	q[2] += (qa * gy - qb * gz + q[3] * gx);
+	q[3] += (qa * gz + qb * gy - qc * gx); 
 	
 	// Normalise quaternion
-	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-	q0 *= recipNorm;
-	q1 *= recipNorm;
-	q2 *= recipNorm;
-	q3 *= recipNorm;
+	recipNorm = invSqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+	q[0] *= recipNorm;
+	q[1] *= recipNorm;
+	q[2] *= recipNorm;
+	q[3] *= recipNorm;
 }
+
+Quaternion& SensorFusion::Read()
+{
+	return q;
+}
+
 
 //---------------------------------------------------------------------------------------------------
 // Fast inverse square-root

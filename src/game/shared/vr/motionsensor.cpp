@@ -28,6 +28,8 @@ unsigned MotionSensor_Thread(void* params)
 	FreespaceDeviceId id;
 	struct freespace_message message;
 	static uint16_t lastseq[MAX_SENSORS];
+	Quaternion q;
+	
 	for (int i = 0; i<MAX_SENSORS; i++){
 		lastseq[i] = 0;
 		state->sampleCount[i] = 0;
@@ -47,9 +49,6 @@ unsigned MotionSensor_Thread(void* params)
 		if (id < 0)
 			continue;
 
-		//RATHER THAN READ MESSAGE, WE COULD HERE JUST DO FREESPACE PERFORM....
-		//AND LEVERAGE THE MESSAGE RECIEVED CALLBACKS JUST LIKE WE HAD BEFORE it **SHOULD** STILL WORK JUST FINE....
-		
 		rc = freespace_readMessage(id, &message, 5);
 		state->lastReturnCode[i] = rc;
 		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
@@ -61,7 +60,7 @@ unsigned MotionSensor_Thread(void* params)
 
 			lastseq[i] = message.bodyFrame.sequenceNumber;
 
-			MahonyAHRSupdateIMU(
+			state->sensorFusion[i].MahonyAHRSupdateIMU(
 				message.bodyFrame.angularVelX / 1000.0f, 
 				message.bodyFrame.angularVelY / 1000.0f,
 				message.bodyFrame.angularVelZ / 1000.0f,
@@ -69,17 +68,20 @@ unsigned MotionSensor_Thread(void* params)
 				message.bodyFrame.linearAccelY ,
 				message.bodyFrame.linearAccelZ );
 
+			q = state->sensorFusion[i].Read();
+
 			// convert quaternion to euler angles
-			float m11 = (2.0f * q0 * q0) + (2.0f * q1 * q1) - 1.0f;
-			float m12 = (2.0f * q1 * q2) + (2.0f * q0 * q3);
-			float m13 = (2.0f * q1 * q3) - (2.0f * q0 * q2);
-			float m23 = (2.0f * q2 * q3) + (2.0f * q0 * q1);
-			float m33 = (2.0f * q0 * q0) + (2.0f * q3 * q3) - 1.0f;
+			float m11 = (2.0f * q[0] * q[0]) + (2.0f * q[1] * q[1]) - 1.0f;
+			float m12 = (2.0f * q[1] * q[2]) + (2.0f * q[0] * q[3]);
+			float m13 = (2.0f * q[1] * q[3]) - (2.0f * q[0] * q[2]);
+			float m23 = (2.0f * q[2] * q[3]) + (2.0f * q[0] * q[1]);
+			float m33 = (2.0f * q[0] * q[0]) + (2.0f * q[3] * q[3]) - 1.0f;
 
 			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
 			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
 			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
 
+			
 			state->deviceAngles[i][ROLL]  = roll;
 			state->deviceAngles[i][PITCH] = pitch;
 			state->deviceAngles[i][YAW]   = yaw;
