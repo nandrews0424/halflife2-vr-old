@@ -1,7 +1,10 @@
 #include "cbase.h"
+#include <windows.h>
 #include "freespace.h"
 #include "vr/motionsensor.h"
 #include "vr/sensor_fusion.h"
+#include <windows.h>
+#include <sys/timeb.h>
 
 #define PI 3.141592654f
 #define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
@@ -9,7 +12,7 @@
 static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
 	MotionSensor* sensor = (MotionSensor*) params;
 
-	if (evnt == FREESPACE_HOTPLUG_REMOVAL) {
+	if (evnt == FREESPACE_HOTPLUG_REMOVAL) { 
         Msg("Closing removed freespace device %d\n", id);
         sensor->_removeDevice(id);
     } else if (evnt == FREESPACE_HOTPLUG_INSERTION) {
@@ -27,20 +30,30 @@ unsigned MotionSensor_Thread(void* params)
 	static uint16_t lastseq[MAX_SENSORS];
 	for (int i = 0; i<MAX_SENSORS; i++){
 		lastseq[i] = 0;
+		state->sampleCount[i] = 0;
+		state->errorCount[i] = 0;
+		state->lastReturnCode[i] = 0;
+		state->pitch[i] = 0;
+		state->roll[i] = 0;
+		state->yaw[i] = 0;
 	}
 
 	int i = 0;
 	while (!state->quit)
 	{
-
 		i = ++i % MAX_SENSORS;
 		id = state->deviceIds[i];
-		
+				
 		if (id < 0)
 			continue;
 
-		rc = freespace_readMessage(id, &message, 10);
+		//RATHER THAN READ MESSAGE, WE COULD HERE JUST DO FREESPACE PERFORM....
+		//AND LEVERAGE THE MESSAGE RECIEVED CALLBACKS JUST LIKE WE HAD BEFORE it **SHOULD** STILL WORK JUST FINE....
+		
+		rc = freespace_readMessage(id, &message, 5);
+		state->lastReturnCode[i] = rc;
 		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
+			state->errorCount[i]++;
 			continue;
 		}
 
@@ -70,10 +83,14 @@ unsigned MotionSensor_Thread(void* params)
 			state->deviceAngles[i][ROLL]  = roll;
 			state->deviceAngles[i][PITCH] = pitch;
 			state->deviceAngles[i][YAW]   = yaw;
+
+			state->pitch[i] = pitch;
+			state->roll[i] = roll;
+			state->yaw[i] = yaw;
+
+			state->sampleCount[i]++;
 		}
 	}
-
-	state->isDone = true;
 
 	return 0;
 }
@@ -82,16 +99,14 @@ MotionSensor* _freespaceSensor;
 
 MotionSensor::MotionSensor() 
 {
-	Msg("Initializing freespace drivers");
+	Msg("Initializing freespace drivers\n");
 
 	struct freespace_message message;
 	int deviceCount; 
 	int rc;
 	_deviceCount = 0;
-
 	_threadState.quit = false;
-	_threadState.isDone = false;
-
+	
 	for (int i=0; i<MAX_SENSORS; i++) {
 		_threadState.deviceAngles[i].Init();
 		_threadState.deviceIds[i] = -1;
@@ -109,7 +124,7 @@ MotionSensor::MotionSensor()
 	_freespaceSensor = this;
 	_initialized = true;
 
-	Msg("Freespace initialized successfully");
+	Msg("Freespace initialized successfully\n");
 }
 
 
@@ -128,7 +143,7 @@ MotionSensor::~MotionSensor()
 		Msg("Freespace input thread join timed out, releasing thread handle...\n");
 		ReleaseThreadHandle(_threadState.handle);
 	}
-    Msg("Shutting down Freespace devices");
+    Msg("Shutting down Freespace devices\n");
 
 	for (int idx=0; idx < MAX_SENSORS; idx++) {
 		if (_threadState.deviceIds[idx] >= 0) {
@@ -138,7 +153,7 @@ MotionSensor::~MotionSensor()
 
 	freespace_exit();
 	
-	Msg("Freespace interface shutdown");
+	Msg("Freespace interface shutdown\n");
 }
 
 void MotionSensor::_initDevice(FreespaceDeviceId id) 
@@ -147,19 +162,20 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
 		Msg("Too many devices, can't add new freespace device %i\n", id);
 		return;
     }
-	    
+
+	Msg("Opening freespace device %i\n", id);
     int rc = freespace_openDevice(id);
     if (rc != 0) {
-        printf("Error opening device.\n");
+        Msg("Error opening device.\n");
         return;
     }
 
     rc = freespace_flush(id);
     if (rc != 0) {
-        printf("Error flushing device.\n");
+        Msg("Error flushing device.\n");
         return;
     }
-		    
+		
     struct freespace_message message;
     memset(&message, 0, sizeof(message));
 	message.messageType = FREESPACE_MESSAGE_DATAMODECONTROLV2REQUEST;
@@ -167,11 +183,12 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
 	message.dataModeControlV2Request.modeAndStatus |= 0 << 1;
     
     if (freespace_sendMessage(id, &message) != FREESPACE_SUCCESS) {
-        printf("Could not send message: %d.\n", rc);
+        Msg("Freespace unable to send message: returned %d.\n", rc);
+		return;
     }
 
+	_threadState.deviceAngles[_deviceCount].Init();
 	_threadState.deviceIds[_deviceCount] = id;
-    _threadState.deviceAngles[_deviceCount].Init();
     _deviceCount++;
 	
 	Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
@@ -189,6 +206,7 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 			break;
         }
     }
+
     
     Msg("%d> Sending message to enable mouse motion data.\n", id);
     memset(&message, 0, sizeof(message));
@@ -212,17 +230,20 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 	_deviceCount--;
 }
 
-QAngle MotionSensor::getOrientation(int deviceIndex)
+void MotionSensor::getOrientation(int deviceIndex, QAngle& angle)
 {
-	QAngle angle;
-
+	Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
+	
 	if (_threadState.deviceIds[deviceIndex] == -1) {
 		angle.Init();
-		return angle;
+		
 	}
-	
-	VectorCopy(_threadState.deviceAngles[deviceIndex], angle);
-	return angle;
+
+	angle[PITCH] = _threadState.pitch[deviceIndex];
+	angle[ROLL] = _threadState.roll[deviceIndex];
+	angle[YAW] = _threadState.yaw[deviceIndex];
+
+	Msg("p: %f r: %f y: %f\n\n", angle[PITCH], angle[ROLL], angle[YAW]);
 }
 
 bool MotionSensor::initialized()

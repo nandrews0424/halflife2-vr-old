@@ -22,6 +22,9 @@
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
+// GOTTA REWORK THIS INTO A CLASS W/ AN INSTANCE PER
+
+
 
 //TODO: once new firmware update back to 250hz
 #define sampleFreq	120.0f			// sample frequency in Hz

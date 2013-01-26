@@ -8,7 +8,7 @@
 	VR Controller - Handles coordination of all the raw sensor data, syncing across them and turning them into usable game inputs
 	=================== */
 
-#define SENSOR_COUNT 1
+#define SENSOR_COUNT 3
 
 enum VrTrackedPart
 {
@@ -36,16 +36,23 @@ public:
 	
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
+
+	float _fake123124[10];
 	float _previousYaw[SENSOR_COUNT];
+	float _fak12e[10];
 	bool _initialized;
 	
-	MotionSensor* _sensors[SENSOR_COUNT];
+	MotionSensor* _freespace;
 	float _fake3[10];
-	QAngle _angles[SENSOR_COUNT];
+	QAngle _headAngle;
+	QAngle _headCalibration;
+	QAngle _weaponAngle;
+	QAngle _weaponCalibration;
+	
 	float _fake[10];
-	QAngle _calibrationAngles[SENSOR_COUNT];
+	
 	float _fake2[10];
-	unsigned int _updateCount;
+	unsigned int _updateCounter;
 };
 
 VrController* VR_Controller();

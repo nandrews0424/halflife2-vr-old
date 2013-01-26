@@ -906,6 +906,7 @@ void CHLClient::Shutdown( void )
 	g_pClientMode->Shutdown();
 
 	input->Shutdown_All();
+
 	C_BaseTempEntity::ClearDynamicTempEnts();
 	TermSmokeFogOverlay();
 	view->Shutdown();

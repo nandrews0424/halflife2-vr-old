@@ -5,10 +5,20 @@
 struct InputThreadState 
 {
 	ThreadHandle_t handle;
+	float _fake[10];
 	QAngle deviceAngles[MAX_SENSORS];
+	float _fake2[10];
 	FreespaceDeviceId deviceIds[MAX_SENSORS];
+	float _wtf[10];
+	int sampleCount[MAX_SENSORS];
+	int errorCount[MAX_SENSORS];
+	int lastReturnCode[MAX_SENSORS];
+	
+	float pitch[MAX_SENSORS];
+	float roll[MAX_SENSORS];
+	float yaw[MAX_SENSORS];
+
 	bool quit;
-	bool isDone;
 };
 
 class MotionSensor {
@@ -18,7 +28,7 @@ public:
 	MotionSensor();
 	~MotionSensor();
  
-	QAngle	getOrientation( int deviceIndex );
+	void	getOrientation( int deviceIndex, QAngle &angle );
 	bool	initialized();
 	void	update() {};
  	bool	hasOrientation();

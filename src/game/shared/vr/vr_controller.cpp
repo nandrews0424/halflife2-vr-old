@@ -9,13 +9,17 @@ VrController::VrController()
 	
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
-		_sensors[i] = new MotionSensor();
 		_previousYaw[i] = 0;
 		_totalAccumulatedYaw[i] = 0;
-		_angles[i].Init();
-		_calibrationAngles[i].Init();
 	}
 	
+	_headAngle.Init();
+	_headCalibration.Init();
+	
+	_weaponAngle.Init();
+	_weaponCalibration.Init();	
+
+	_freespace = new MotionSensor();
 	_vrController = this;
 	_initialized = true;
 	
@@ -25,19 +29,17 @@ VrController::VrController()
 
 VrController::~VrController()
 {
-	for (int i=0; i<SENSOR_COUNT; i++){
-		delete _sensors[i];
-	}
+	delete _freespace;
 }
 
 QAngle	VrController::headOrientation( void )
 {
-	return _angles[HEAD];
+	return _headAngle;
 }
 
 QAngle	VrController::weaponOrientation( void )
 {
-	return _angles[WEAPON];
+	return _weaponAngle;
 }
 
 QAngle	VrController::bodyOrientation( void )
@@ -52,71 +54,64 @@ QAngle	VrController::bodyOrientation( void )
 
 bool VrController::hasWeaponTracking( void ) 
 {
-	return _initialized && _sensors[0]->deviceCount() >= 2;
+	return _initialized && _freespace->deviceCount() >= 2;
 }
 
 void	VrController::update()
 {
-	_updateCount++;
-	
-	if (!_sensors[HEAD]->initialized()) {
+	if (_updateCounter++ % 120 == 0) {
+		Msg("Calling freespace perform to check for hot loaded devices");
+		freespace_perform();
+	}
+
+
+	if (!_freespace->initialized()) {
 		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
 		return;
 	}
 
 	// HEAD ORIENTATION
-	_angles[HEAD] = _sensors[HEAD]->getOrientation(0);
+	_freespace->getOrientation(0, _headAngle);
 	
 	float previousYaw = _previousYaw[HEAD];
-	float currentYaw = _angles[HEAD][YAW];
+	float currentYaw = _headAngle[YAW];
 	float deltaYaw = currentYaw - previousYaw;
 	
-	_angles[HEAD][YAW] = deltaYaw;
+	_headAngle[YAW] = deltaYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
 
-	_angles[HEAD] -= _calibrationAngles[HEAD];
-	
-	// END HEAD ORIENTATION
-
+	_headAngle -= _headCalibration;
 	
 	// WEAPON ORIENTATION
-	if (_sensors[HEAD]->deviceCount() <= 1) 
+	
+	if (!hasWeaponTracking()) 
 	{
-		VectorCopy(_angles[HEAD], _angles[WEAPON]);
+		VectorCopy(_headAngle, _weaponAngle);
 		return;		 
 	}
 
-	_angles[WEAPON] = _sensors[HEAD]->getOrientation(1);
-	
+	_freespace->getOrientation(WEAPON, _weaponAngle);
+	Msg("VR Controller Weapon Angles p: %f r: %f y: %f\n", _weaponAngle[PITCH],_weaponAngle[ROLL],_weaponAngle[YAW]);
+			
 	previousYaw = _previousYaw[WEAPON];
-	currentYaw = _angles[WEAPON][YAW];
+	currentYaw = _weaponAngle[YAW];
 	deltaYaw = currentYaw - previousYaw;
 
-	_angles[WEAPON][YAW] = deltaYaw;
+	_weaponAngle[YAW] = deltaYaw;
 	_previousYaw[WEAPON] = currentYaw;
 	_totalAccumulatedYaw[WEAPON];
-
-	Msg("Weapon Angles p: %i r: %i y: %i\n", _angles[WEAPON][PITCH],_angles[WEAPON][ROLL],_angles[WEAPON][YAW]);
 	
-	_angles[WEAPON] -= _calibrationAngles[WEAPON];
-	
-	//END WEAPON ORIENTATION
-
-	//temp override ....
-	VectorCopy(_angles[HEAD], _angles[WEAPON]);
-
-
-	if (_updateCount % 120 == 0) {
-		//occasionally we need to call this to pick up any new or dropped devices...
-		//freespace_perform();
-	}
-
-
+	_weaponAngle -= _weaponCalibration;
 };
 
 void VrController::calibrate()
 {
+	VectorCopy(_headAngle + _headCalibration, _headCalibration);
+	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
+
+	// Handle Yaw separately
+	/* TODO
 	for (int i=0; i<SENSOR_COUNT; i++) {
 		//add back in current calibration angles as they've already been factored out of the cached angles
 		VectorCopy(_angles[i] + _calibrationAngles[i], _calibrationAngles[i]);
@@ -125,17 +120,15 @@ void VrController::calibrate()
 		if (i == WEAPON) {
 			_calibrationAngles[WEAPON][YAW] +=  (_angles[HEAD][YAW] - _angles[WEAPON][YAW]); // Whatever it takes to set the weapon angle equal to the head angle...
 		}
-
 	}
+	*/
 }
 
 void VrController::shutDown()
 {
 	_initialized = false;
-	delete _sensors[0];
+	delete _freespace;
 }
-
-
 
 extern VrController* VR_Controller()
 {
