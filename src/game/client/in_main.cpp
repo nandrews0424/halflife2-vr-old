@@ -55,6 +55,18 @@ static void in_vrCalibrate(const CCommand &args) {
 }
 ConCommand in_vrcalibrate("vr_calibrate", in_vrCalibrate, "Recalibrates vr devices to current orientation");
 
+static void in_vrCalibrateWeapon(const CCommand &args) {
+	vrController->calibrateWeapon(); // calibrates baseline angles to current readings
+}
+ConCommand in_vrcalibrateWeapon("vr_center_weapon", in_vrCalibrateWeapon, "Recenters weapon yaw with view direction (in the case that it's drifted)");
+
+
+static void in_vrShutDown(const CCommand &args) {
+	vrController->shutDown(); // calibrates baseline angles to current readings
+}
+ConCommand in_vrshutdown("vr_shutdown", in_vrShutDown, "Shut's off all vr devices and returns controls to normal mode");
+
+
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
 ConVar cl_pitchspeed( "cl_pitchspeed", "225", 0 );
@@ -781,29 +793,17 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 	engine->GetViewAngles( viewangles );
 	
 	if (vrController->initialized()) {
-
-		// Run update cycle to update accumulated values (I.E. yaw)
-		vrController->update();
-				
-		QAngle head = vrController->headOrientation();
-		viewangles[PITCH] = head[PITCH];
-		viewangles[ROLL] = head[ROLL];
-		viewangles[YAW] += head[YAW]; 
-				
-		QAngle weapon =  vrController->weaponOrientation();
-		weapon[YAW] = viewangles[YAW]; // TODO: for now lock it to the center....
-		cmd->weaponangles = weapon;
-
-
+	
+		vrController->update(viewangles[YAW]);
+		VectorCopy(vrController->headOrientation(), viewangles);
+		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
 
 	} else {	
-		// Adjust YAW
+		
 		AdjustYaw( speed, viewangles );
-		// Adjust PITCH if keyboard looking
 		AdjustPitch( speed, viewangles );
-		// Make sure values are legitimate
 		ClampAngles( viewangles );
-	
+
 	}
 
 	// Store new view angles into engine view direction

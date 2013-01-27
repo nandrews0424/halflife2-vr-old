@@ -3038,7 +3038,7 @@ bool CHL2_Player::Weapon_Ready( void )
 	// Already ready?
 	if ( m_HL2Local.m_bWeaponLowered == false )
 		return true;
-
+		
 	m_HL2Local.m_bWeaponLowered = false;
 
 	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon *>(GetActiveWeapon());

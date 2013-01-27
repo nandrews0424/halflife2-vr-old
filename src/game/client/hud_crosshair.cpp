@@ -13,6 +13,7 @@
 #include "vgui_controls/controls.h"
 #include "vgui/ISurface.h"
 #include "IVRenderView.h"
+#include "vr/vr_controller.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -120,10 +121,22 @@ void CHudCrosshair::Paint( void )
 	x = ScreenWidth()/2;
 	y = ScreenHeight()/2;
 
-	// MattB - m_vecCrossHairOffsetAngle is the autoaim angle.
-	// if we're not using autoaim, just draw in the middle of the 
-	// screen
-	if ( m_vecCrossHairOffsetAngle != vec3_angle )
+	// VR SOURCE - Adjust crosshairs based on weapon angle...
+	if (VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking())
+	{
+		QAngle angles;
+		Vector forward;
+		Vector point, screen;
+
+		angles = VR_Controller()->weaponOrientation();
+		AngleVectors( angles, &forward );
+		VectorAdd( m_curViewOrigin, forward, point );
+		ScreenTransform( point, screen );
+
+		x += 0.5f * screen[0] * ScreenWidth() + 0.5f;
+		y -= 0.5f * screen[1] * ScreenHeight() + 0.5f;
+	} 
+	else if ( m_vecCrossHairOffsetAngle != vec3_angle )
 	{
 		QAngle angles;
 		Vector forward;

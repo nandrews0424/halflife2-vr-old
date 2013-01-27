@@ -6,16 +6,22 @@ VrController* _vrController;
 VrController::VrController()
 {
 	Msg("Initializing VR Controller");
-
+	
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
-		_sensors[i] = new MotionSensor(i+1);
 		_previousYaw[i] = 0;
 		_totalAccumulatedYaw[i] = 0;
-		_cachedAngles[i].Init();
-		_calibrationAngles[i].Init();
 	}
 	
+	_headAngle.Init();
+	_headCalibration.Init();
+	
+	_bodyAngle.Init();
+
+	_weaponAngle.Init();
+	_weaponCalibration.Init();
+
+	_freespace = new MotionSensor();
 	_vrController = this;
 	_initialized = true;
 	
@@ -25,69 +31,103 @@ VrController::VrController()
 
 VrController::~VrController()
 {
-	for (int i=0; i<SENSOR_COUNT; i++){
-		delete _sensors[i];
-	}
+	delete _freespace;
 }
 
 QAngle	VrController::headOrientation( void )
 {
-	return _cachedAngles[HEAD];
+	return _headAngle;
 }
 
 QAngle	VrController::weaponOrientation( void )
 {
-	return _cachedAngles[WEAPON];
+	return _weaponAngle;
 }
 
 QAngle	VrController::bodyOrientation( void )
 {
-	QAngle head = headOrientation();
-	QAngle body;
-	
-	//for now just match the YAW exactly
-	body[YAW] = head[YAW]; 
-	return body;
+	return _bodyAngle;
 }
 
-void	VrController::update()
+bool VrController::hasWeaponTracking( void ) 
 {
-	if (!_sensors[HEAD]->initialized()) {
-		Msg("HEAD Sensor not initialized properly, nothing to do here...\n");
+	return _initialized && _freespace->deviceCount() >= 2;
+}
+
+void	VrController::update(float previousViewYaw)
+{
+	if (!_freespace->initialized()) {
+		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
 	}
 
+	if (_updateCounter++ % 120 == 0) {
+		Msg("Calling freespace perform to check for hot loaded devices");
+		freespace_perform();
+	}
+
+	// BODY ORIENTATION
+	_bodyAngle[YAW] = previousViewYaw - _totalAccumulatedYaw[HEAD];
+	
 	// HEAD ORIENTATION
-	_cachedAngles[HEAD] = _sensors[HEAD]->getOrientation();
+	_freespace->getOrientation(0, _headAngle);
 	
 	float previousYaw = _previousYaw[HEAD];
-	float currentYaw = _cachedAngles[HEAD][YAW];
+	float currentYaw = _headAngle[YAW];
 	float deltaYaw = currentYaw - previousYaw;
 	
-	_cachedAngles[HEAD][YAW] = deltaYaw;
+	_headAngle[YAW] = deltaYaw + previousViewYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
 
-	_cachedAngles[HEAD] -= _calibrationAngles[HEAD];
+	_headAngle -= _headCalibration;
+	
+	// WEAPON ORIENTATION
+	
+	if (!hasWeaponTracking()) 
+	{
+		VectorCopy(_headAngle, _weaponAngle);
+		return;		 
+	}
 
-	// END HEAD ORIENTATION
-	//Msg("Yaw change %f prev %f total %\n", deltaYaw, previousYaw, _totalAccumulatedYaw[HEAD]);
-	
-	Msg("Calibration Angle %f %f %f", _calibrationAngles[HEAD][PITCH], _calibrationAngles[HEAD][ROLL], _calibrationAngles[HEAD][YAW]);
-	
-	//todo: weapon orientation will be relative to either head or the "baseline"
-	VectorCopy(_cachedAngles[HEAD], _cachedAngles[WEAPON]);
+	_freespace->getOrientation(WEAPON, _weaponAngle);
+				
+	previousYaw = _previousYaw[WEAPON];
+	currentYaw = _weaponAngle[YAW];
+	deltaYaw = currentYaw - previousYaw;
+
+	_previousYaw[WEAPON] = currentYaw;
+	_totalAccumulatedYaw[WEAPON] += deltaYaw;
+	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON] - _totalAccumulatedYaw[HEAD];
+
+	_weaponAngle -= _weaponCalibration;
 };
 
 void VrController::calibrate()
 {
-	for (int i=0; i<SENSOR_COUNT; i++) {
-		//add back in current calibration angles as they've already been factored out of the cached angles
-		VectorCopy(_cachedAngles[i] + _calibrationAngles[i], _calibrationAngles[i]);
-		_calibrationAngles[i][YAW] = 0;
-	}
+	VectorCopy(_headAngle + _headCalibration, _headCalibration);
+	_headCalibration[YAW] = 0;
+	calibrateWeapon();
 }
 
+void VrController::calibrateWeapon() {
+	
+	Msg("Calibrating weapon: \n");
+	
+	QAngle head, weapon;
+	_freespace->getOrientation(0, head);
+	_freespace->getOrientation(1, weapon);
+
+	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
+	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
+}
+
+
+void VrController::shutDown()
+{
+	_initialized = false;
+	delete _freespace;
+}
 
 extern VrController* VR_Controller()
 {

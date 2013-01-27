@@ -14,6 +14,7 @@
 #include "tier0/vprof.h"
 #include "tier1/KeyValues.h"
 #include "toolframework_client.h"
+#include "vr/vr_controller.h"
 
 #ifdef HL2_CLIENT_DLL
 #include "c_basehlplayer.h"
@@ -199,7 +200,19 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 	iMask &= ~CONTENTS_HITBOX;
 	iMask |= CONTENTS_WINDOW;
 
-	Vector vTarget = vecPos + vecForward * r_flashlightfar.GetFloat();
+	// VR SOURCE - Use weap angle forward vector here
+	
+	Vector vTarget;
+
+	/*if ( VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking() ) 
+	{
+		vTarget = vecPos + 
+	} 
+	else 
+	{*/
+		vTarget = vecPos + vecForward * r_flashlightfar.GetFloat();
+	// }
+	
 
 	// Work with these local copies of the basis for the rest of the function
 	Vector vDir   = vTarget - vOrigin;

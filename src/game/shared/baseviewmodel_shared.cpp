@@ -414,15 +414,14 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	SetLocalOrigin(vmorigin);
 	
 	// VR TODO: HOOK UP CHECK FOR WEAPON ANGLES AND USE THEM HERE.....
-	if (false && VR_Controller()->initialized()) {
+	if (VR_Controller()->hasWeaponTracking()) {
 		//get viewmodel angle from tracker
 		float p,r,y = 0;
-		// UTIL_getWeaponOrientation(p, y, r);
-		QAngle weaponAngle = QAngle(p, y, r);
+
+		QAngle weaponAngle = VR_Controller()->weaponOrientation();
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
 		
-
 		//we need to unexaggerate the yaw within the screen
 		//pitch as well...
 
@@ -464,9 +463,6 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		//3 is an arbitrary forward offset I think might make it feel less pulled back
 		SetLocalOrigin(vmorigin + (forward * (pitchForwardOffset + 4)) + (up * (rollUpOffset + pitchUpOffset)) + (right * (yawRightOffset)));
 		SetLocalAngles(weaponAngle);
-		
-		Msg("eye angle x:%f y:%f z:%f\n", eyeAngles.x, eyeAngles.y, eyeAngles.z);
-		Msg("weapon angle x:%f y:%f z:%f\n", weaponAngle.x, weaponAngle.y, weaponAngle.z);
 	} else {
 		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
 		SetLocalAngles(vmangles);
