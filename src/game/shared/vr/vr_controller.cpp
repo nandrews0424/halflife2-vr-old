@@ -19,7 +19,7 @@ VrController::VrController()
 	_bodyAngle.Init();
 
 	_weaponAngle.Init();
-	_weaponCalibration.Init();	
+	_weaponCalibration.Init();
 
 	_freespace = new MotionSensor();
 	_vrController = this;
