@@ -13,7 +13,6 @@
 #endif
 
 #include "igamemovement.h"
-#include "freespace/FreespaceMovementController.h"
 #include "cmodel.h"
 #include "tier0/vprof.h"
 

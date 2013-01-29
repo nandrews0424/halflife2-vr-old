@@ -218,8 +218,7 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
-    <ClCompile Include="..\shared\freespace\FreespaceMovementController.cpp" />
-    <ClCompile Include="..\shared\freespace\HeadOffsetModel.cpp" />
+    <ClCompile Include="..\shared\vr\head_offset.cpp" />
     <ClCompile Include="..\shared\vr\motionsensor.cpp" />
     <ClCompile Include="..\shared\vr\sensor_fusion.cpp" />
     <ClCompile Include="..\shared\vr\vr_controller.cpp" />
@@ -856,7 +855,6 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
     <ClCompile Include="toolframework_client.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\shared\freespace\FreespaceMovementController.h" />
     <ClInclude Include="..\shared\IMovementController.h" />
     <ClInclude Include="..\shared\vr\motionsensor.h" />
     <ClInclude Include="..\shared\vr\sensor_fusion.h" />
