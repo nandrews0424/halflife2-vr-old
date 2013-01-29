@@ -9,6 +9,7 @@
 
 #include "hl2_player_shared.h"
 
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -88,6 +89,7 @@ bool CBaseHLCombatWeapon::CanLower()
 //-----------------------------------------------------------------------------
 bool CBaseHLCombatWeapon::Lower( void )
 {
+
 	//Don't bother if we don't have the animation
 	if ( SelectWeightedSequence( ACT_VM_IDLE_LOWERED ) == ACTIVITY_NOT_AVAILABLE )
 		return false;

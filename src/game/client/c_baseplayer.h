@@ -429,7 +429,7 @@ protected:
 	// Did we just enter a vehicle this frame?
 	bool			JustEnteredVehicle();
 	Vector			weaponangle;  //VR Source
-
+	
 // DATA
 	int				m_iObserverMode;	// if in spectator mode != 0
 	EHANDLE			m_hObserverTarget;	// current observer target

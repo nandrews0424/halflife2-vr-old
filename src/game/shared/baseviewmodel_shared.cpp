@@ -378,63 +378,12 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	QAngle vmangoriginal = eyeAngles;
 	QAngle vmangles = eyeAngles;
 	Vector vmorigin = eyePosition;
-
-	CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
-	//Allow weapon lagging
-	if ( pWeapon != NULL )
-	{
-		if ( !prediction->InPrediction() )
-		{
-			// add weapon-specific bob 
-			pWeapon->AddViewmodelBob( this, vmorigin, vmangles );
-		}
-	}
-	// Add model-specific bob even if no weapon associated (for head bob for off hand models)
-	AddViewModelBob( owner, vmorigin, vmangles );
-	// Add lag
-	CalcViewModelLag( vmorigin, vmangles, vmangoriginal );
-
-	if ( !prediction->InPrediction() )
-	{
-		// Let the viewmodel shake at about 10% of the amplitude of the player's view
-		vieweffects->ApplyShake( vmorigin, vmangles, 0.1 );	
-	}
-
-	//VR Source -- shift the view models to match HeadOffsetModel applied later
-	Vector playerOrigin = owner->GetAbsOrigin();
-	//vmorigin.z -= 12; //neck length (need to abstract)
-
-	// ISSUE: ViewModels pivot on a different origin
-	// will need to figure out the offset adjustments for roll etc
-	// to make it like the gun itself rolls but not the whole screen.
-
-	// weapon shifts based on angle
-	//vmorigin += up*12;
-
-	SetLocalOrigin(vmorigin);
 	
-	// VR TODO: HOOK UP CHECK FOR WEAPON ANGLES AND USE THEM HERE.....
 	if (VR_Controller()->hasWeaponTracking()) {
-		//get viewmodel angle from tracker
-		float p,r,y = 0;
 
 		QAngle weaponAngle = VR_Controller()->weaponOrientation();
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
-		
-		//we need to unexaggerate the yaw within the screen
-		//pitch as well...
-
-		//adjust for height given that viewmodel roll happens offset from the weapon near center of the screen
-		float rollUpOffset =  7 * sin(DEG2RAD(weaponAngle.z));
-		float pitchUpOffset =  7 * sin(DEG2RAD(weaponAngle.x));
-		float pitchForwardOffset =  -5 - 5*cos(DEG2RAD(weaponAngle.x));
-		
-		//again with the sign changes
-		float yawRightOffset = 7 * sin(DEG2RAD(weaponAngle.y - eyeAngles.y));
-
-		//aiming left of eye angle seems off... TODO: handle sign change
-		bool yawWrapped = weaponAngle.y < eyeAngles.y && weaponAngle.y < 0 && eyeAngles.y > 0;
 
 		//get yaw offset taking into account differences in sign,
 		//yawDelta = degrees between weapon and eye angles
@@ -450,20 +399,62 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			yawDelta = weaponAngle.y - eyeAngles.y;
 		}
 
-		//left aim seems overstated
-		if (yawDelta > 0){
-			weaponAngle.y = eyeAngles.y + (yawDelta)*.75;
-		}
-
+		// Adjust for an origin that isn't actually near the weapon
+		float upOffset =  7 * sin(DEG2RAD(weaponAngle.z)); //up adjustment for roll
+		upOffset +=  10 * sin(DEG2RAD(weaponAngle.x)); // up adjustment for pitch
+		
+		float forwardOffset = -6*cos(DEG2RAD(weaponAngle.x)); // forward adjustment for pitch
+		forwardOffset += 2*sin(DEG2RAD(yawDelta));
+		// Handle yaw effects on left-right position
+		float rightOffset = 10 * sin(DEG2RAD(weaponAngle.y - eyeAngles.y));
+		
+		
+		rightOffset += 2 * sin(DEG2RAD(weaponAngle.z));  // left/right offsetting for roll
+		
+		//yaw aim seems overstated
+		weaponAngle.y = eyeAngles.y + yawDelta *.70;
+		
 		//up aim seems way overstated
 		if (weaponAngle.x < 0) {
 			weaponAngle.x *= .66;
+		} else {
+			weaponAngle.x *= .8;//down less so
 		}
-
-		//3 is an arbitrary forward offset I think might make it feel less pulled back
-		SetLocalOrigin(vmorigin + (forward * (pitchForwardOffset + 4)) + (up * (rollUpOffset + pitchUpOffset)) + (right * (yawRightOffset)));
+				
+		// give the viewmodel a less exaggerated right position like it's actually shouldered.
+		rightOffset -= 5; // units left				
+		upOffset += 1.2;
+		
+		SetLocalOrigin(vmorigin + (forward * forwardOffset) + (up * upOffset) + (right * rightOffset));
 		SetLocalAngles(weaponAngle);
 	} else {
+
+		
+		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
+		//Allow weapon lagging
+		if ( pWeapon != NULL )
+		{
+			if ( !prediction->InPrediction() )
+			{
+				// add weapon-specific bob 
+				pWeapon->AddViewmodelBob( this, vmorigin, vmangles );
+			}
+		}
+		// Add model-specific bob even if no weapon associated (for head bob for off hand models)
+		AddViewModelBob( owner, vmorigin, vmangles );
+		// Add lag
+		CalcViewModelLag( vmorigin, vmangles, vmangoriginal );
+
+		if ( !prediction->InPrediction() )
+		{
+			// Let the viewmodel shake at about 10% of the amplitude of the player's view
+			vieweffects->ApplyShake( vmorigin, vmangles, 0.1 );	
+		}
+
+		Vector playerOrigin = owner->GetAbsOrigin();
+	
+		SetLocalOrigin(vmorigin);
+		
 		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
 		SetLocalAngles(vmangles);
 	}

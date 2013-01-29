@@ -735,6 +735,7 @@ Vector CBasePlayer::SetWeaponAngle(QAngle& angle)
 	return weaponangle;
 }
 
+
 void CBasePlayer::SetAnimationExtension( const char *pExtension )
 {
 	Q_strncpy( m_szAnimExtension, pExtension, sizeof(m_szAnimExtension) );

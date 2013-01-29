@@ -2049,7 +2049,7 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	}
 
 	pPlayer->DoMuzzleFlash();
-
+	
 	SendWeaponAnim( GetPrimaryAttackActivity() );
 
 	// player "shoot" animation
@@ -2059,8 +2059,9 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	// VR SOURCE - using new ucmd data provided by trackers (or defaulted)
 	FireBulletsInfo_t info;
 	info.m_vecSrc	 = pPlayer->Weapon_ShootPosition( );
-	info.m_vecDirShooting = pPlayer->GetAutoaimVector(AUTOAIM_SCALE_DEFAULT);// pPlayer->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT );
-	// Msg("BaseWeapon shoot dir: pitch%f yaw:%f role:%f \n", info.m_vecDirShooting.x, info.m_vecDirShooting.y, info.m_vecDirShooting.z);
+	info.m_vecDirShooting = pPlayer->GetAutoaimVector(AUTOAIM_SCALE_DEFAULT);
+
+
 
 	// To make the firing framerate independent, we may have to fire more than one bullet here on low-framerate systems, 
 	// especially if the weapon we're firing has a really fast rate of fire.

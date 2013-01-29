@@ -107,11 +107,7 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 		buf->WriteOneBit( 0 );
 	}
 
-
-
-
-
-
+	buf->WriteOneBit( to->weaponTracking ? 1 : 0 );
 
 	if ( to->forwardmove != from->forwardmove )
 	{
@@ -289,7 +285,8 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 	{
 		move->weaponangles[2] = buf->ReadFloat();
 	}
-
+	
+	move->weaponTracking = buf->ReadOneBit();
 
 	// Read movement
 	if ( buf->ReadOneBit() )
