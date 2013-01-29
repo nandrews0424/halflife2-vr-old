@@ -44,7 +44,6 @@ public:
 		tick_count = 0;
 		viewangles.Init();
 		weaponangles.Init();
-		weaponTracking = false;
 		forwardmove = 0.0f;
 		sidemove = 0.0f;
 		upmove = 0.0f;
@@ -71,7 +70,6 @@ public:
 		tick_count			= src.tick_count;
 		viewangles			= src.viewangles;
 		weaponangles		= src.weaponangles;
-		weaponTracking		= src.weaponTracking;
 		forwardmove			= src.forwardmove;
 		sidemove			= src.sidemove;
 		upmove				= src.upmove;

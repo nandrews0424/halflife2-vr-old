@@ -398,10 +398,7 @@ public:
 	virtual Vector			Weapon_ShootPosition( );
 	virtual Vector			SetWeaponAngle(QAngle& angle);
 	virtual Vector			Weapon_ShootDirection( );
-	bool					_weaponTracking;
-	void					SetWeaponTracking(bool tracking) { _weaponTracking = tracking };
-	bool					Weapon_Tracking( );
-
+	
 	virtual bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	virtual void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
 	virtual	void			Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ );

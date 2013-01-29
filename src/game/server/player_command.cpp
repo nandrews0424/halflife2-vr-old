@@ -321,8 +321,7 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	// Set globals appropriately
 	gpGlobals->curtime		=  player->m_nTickBase * TICK_INTERVAL;
 	gpGlobals->frametime	=  player->m_bGamePaused ? 0 : TICK_INTERVAL;
-	player->SetWeaponTracking(ucmd->weaponTracking);
-
+	
 	// Add and subtract buttons we're forcing on the player
 	ucmd->buttons |= player->m_afButtonForced;
 	ucmd->buttons &= ~player->m_afButtonDisabled;
