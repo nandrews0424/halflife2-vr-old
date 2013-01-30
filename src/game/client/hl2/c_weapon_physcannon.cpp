@@ -212,7 +212,7 @@ int C_WeaponPhysCannon::DrawModel( int flags )
 	if ( m_bIsCurrentlyUpgrading == false && m_bWasUpgraded == false )
 		return BaseClass::DrawModel( flags );
 
-	if ( gpGlobals->frametime == 0 )
+	if ( gpGlobals->frametime == 0 ) 
 		return BaseClass::DrawModel( flags );
 
 	if ( !m_bReadyToDraw )

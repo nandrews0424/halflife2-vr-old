@@ -422,10 +422,14 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		}
 				
 		// give the viewmodel a less exaggerated right position like it's actually shouldered.
-		rightOffset -= 5; // units left				
+		rightOffset -= 4; // units left				
 		upOffset += 1.2;
 		
-		SetLocalOrigin(vmorigin + (forward * forwardOffset) + (up * upOffset) + (right * rightOffset));
+		// TODO: 
+
+		vmorigin = vmorigin + (forward * forwardOffset) + (up * upOffset) + (right * rightOffset);
+
+		SetLocalOrigin(vmorigin);
 		SetLocalAngles(weaponAngle);
 	} else {
 

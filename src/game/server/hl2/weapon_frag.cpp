@@ -386,18 +386,32 @@ void CWeaponFrag::CheckThrowPosition( CBasePlayer *pPlayer, const Vector &vecEye
 //-----------------------------------------------------------------------------
 void CWeaponFrag::ThrowGrenade( CBasePlayer *pPlayer )
 {
+
+	// VR Source - if weapon tracking through based on weapon angle vector.
 	Vector	vecEye = pPlayer->EyePosition();
 	Vector	vForward, vRight;
 
 	pPlayer->EyeVectors( &vForward, &vRight, NULL );
 	Vector vecSrc = vecEye + vForward * 18.0f + vRight * 8.0f;
 	CheckThrowPosition( pPlayer, vecEye, vecSrc );
-//	vForward[0] += 0.1f;
 	vForward[2] += 0.1f;
-
+	
 	Vector vecThrow;
 	pPlayer->GetVelocity( &vecThrow, NULL );
-	vecThrow += vForward * 1200;
+	
+	// VR Source - use weapon angle vectors if available
+	if ( pPlayer->Weapon_Tracking() ) 
+	{
+		vecThrow += pPlayer->Weapon_ShootDirection() * 1200;
+	} 
+	else
+	{
+		vecThrow += vForward * 1200;
+	}
+	
+
+	//todo: do I need to replace the vec3_angle as well?
+
 	Fraggrenade_Create( vecSrc, vec3_angle, vecThrow, AngularImpulse(600,random->RandomInt(-1200,1200),0), pPlayer, GRENADE_TIMER, false );
 
 	m_bRedraw = true;

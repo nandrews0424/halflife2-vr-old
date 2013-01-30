@@ -840,6 +840,8 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 
 	// VR SOURCE
 	player->SetWeaponAngle(ucmd->weaponangles);
+	player->SetWeaponTracking(ucmd->weapontracking);
+
 	#if defined (CLIENT_DLL)
 		Msg("Prediction::RunCommand weap angles x: %f y: %f z: %f\n", ucmd->weaponangles.x, ucmd->weaponangles.y, ucmd->weaponangles.z);
 	#endif

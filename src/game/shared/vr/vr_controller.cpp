@@ -61,8 +61,7 @@ void	VrController::update(float previousViewYaw)
 		return;
 	}
 
-	if (_updateCounter++ % 120 == 0) {
-		Msg("Calling freespace perform to check for hot loaded devices");
+	if (_updateCounter++ % 240 == 0) {
 		freespace_perform();
 	}
 

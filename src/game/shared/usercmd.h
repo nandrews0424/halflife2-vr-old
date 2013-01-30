@@ -44,10 +44,11 @@ public:
 		tick_count = 0;
 		viewangles.Init();
 		weaponangles.Init();
+		weapontracking = false;
 		forwardmove = 0.0f;
 		sidemove = 0.0f;
 		upmove = 0.0f;
-		buttons = 0;
+		buttons = 0; 
 		impulse = 0;
 		weaponselect = 0;
 		weaponsubtype = 0;
@@ -70,6 +71,7 @@ public:
 		tick_count			= src.tick_count;
 		viewangles			= src.viewangles;
 		weaponangles		= src.weaponangles;
+		weapontracking		= src.weapontracking;
 		forwardmove			= src.forwardmove;
 		sidemove			= src.sidemove;
 		upmove				= src.upmove;
@@ -104,7 +106,7 @@ public:
 		CRC32_ProcessBuffer( &crc, &tick_count, sizeof( tick_count ) );
 		CRC32_ProcessBuffer( &crc, &viewangles, sizeof( viewangles ) );    
 		CRC32_ProcessBuffer( &crc, &weaponangles, sizeof( weaponangles ) );    
-		CRC32_ProcessBuffer( &crc, &weaponTracking, sizeof( weaponTracking ) );    
+		CRC32_ProcessBuffer( &crc, &weapontracking, sizeof( weapontracking ) );    
 		CRC32_ProcessBuffer( &crc, &forwardmove, sizeof( forwardmove ) );   
 		CRC32_ProcessBuffer( &crc, &sidemove, sizeof( sidemove ) );      
 		CRC32_ProcessBuffer( &crc, &upmove, sizeof( upmove ) );         
@@ -129,7 +131,7 @@ public:
 	// Player instantaneous view angles.
 	QAngle	viewangles;     
 	QAngle	weaponangles;
-	bool	weaponTracking;
+	bool	weapontracking;
 
 
 	// Intended velocities

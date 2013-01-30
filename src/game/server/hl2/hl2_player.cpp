@@ -2935,7 +2935,6 @@ ConVar	sv_show_crosshair_target( "sv_show_crosshair_target", "0" );
 void CHL2_Player::UpdateWeaponPosture( void )
 {
 	//VR SOURCE - Rewritten to raise or lower when aiming at friendly/enemy but primary driver for this is actions (shooting, using, etc..)
-
 	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon *>(GetActiveWeapon());
 	
 	if ( pWeapon && m_LowerWeaponTimer.Expired() && pWeapon->CanLower() )
@@ -3012,6 +3011,11 @@ void CHL2_Player::UpdateWeaponPosture( void )
 //-----------------------------------------------------------------------------
 bool CHL2_Player::Weapon_Lower( void )
 {
+	//vr source - don't lower the weapon if weapon tracking is active
+	if (Weapon_Tracking()) {
+		return false;
+	}
+	
 	VPROF( "CHL2_Player::Weapon_Lower" );
 	// Already lowered?
 	if ( m_HL2Local.m_bWeaponLowered )

@@ -112,7 +112,11 @@ public:
 
 	virtual Vector			Weapon_ShootPosition();
 	virtual Vector			Weapon_ShootDirection();
+	virtual	bool			Weapon_Tracking();
 	virtual Vector			SetWeaponAngle(QAngle& angle);
+	virtual	void			SetWeaponTracking(bool tracking);
+	bool					weapontracking;
+
 	virtual void			Weapon_DropPrimary( void ) {}
 
 	virtual Vector			GetAutoaimVector( float flScale );

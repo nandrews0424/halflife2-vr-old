@@ -1902,8 +1902,17 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 				}
 #endif //#ifdef PORTAL
 
-				MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
-
+				if (IsPlayer()) 
+				{
+					CBasePlayer *pPlayer = ToBasePlayer( this );
+					if ( !pPlayer->Weapon_Tracking() ) {
+						MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
+					}
+				}
+				else 
+				{
+					MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
+				}
 #ifdef PORTAL
 				if ( pShootThroughPortal )
 				{
@@ -2102,7 +2111,19 @@ void CBaseEntity::ComputeTracerStartPosition( const Vector &vecShotSrc, Vector *
 		Vector forward, right;
 		CBasePlayer *pPlayer = ToBasePlayer( this );
 		pPlayer->EyeVectors( &forward, &right, NULL );
-		*pVecTracerStart = vecShotSrc + Vector ( 0 , 0 , -4 ) + right * 2 + forward * 16;
+
+		// VR Source todo: need to get ahold of the actual weapon muzzle position which we'll be able to calculate w/ better viewmodels and origins that don't suck
+		if (pPlayer->Weapon_Tracking()) 
+		{
+			Vector vecMuzzle;
+			QAngle muzzleAngle;
+			pPlayer->GetActiveWeapon()->GetAttachment(1, vecMuzzle, muzzleAngle);
+			*pVecTracerStart = vecMuzzle + Vector(0,0,12); 
+
+		} else 
+		{
+			*pVecTracerStart = vecShotSrc + Vector ( 0 , 0 , -4 ) + right * 2 + forward * 16;
+		}
 	}
 	else
 	{

@@ -396,8 +396,10 @@ public:
 
 	// Weapon stuff
 	virtual Vector			Weapon_ShootPosition( );
-	virtual Vector			SetWeaponAngle(QAngle& angle);
+	virtual Vector			SetWeaponAngle( QAngle& angle );
 	virtual Vector			Weapon_ShootDirection( );
+	virtual void			SetWeaponTracking( bool tracking );
+	virtual bool			Weapon_Tracking( );
 	
 	virtual bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	virtual void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
@@ -841,9 +843,8 @@ protected:
 	Vector					m_vecCameraPVSOrigin;
 
 	Vector					weaponangle; //VR Source
-
-
-
+	bool					weapontracking;
+	
 	CNetworkHandle( CBaseEntity, m_hUseEntity );			// the player is currently controlling this entity because of +USE latched, NULL if no entity
 
 	int						m_iTrain;				// Train control position

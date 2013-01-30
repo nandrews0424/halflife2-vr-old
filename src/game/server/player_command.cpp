@@ -317,7 +317,8 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	
 	// VR SOURCE - setting the player info for weapon and view angles
 	player->SetWeaponAngle(ucmd->weaponangles);
-
+	player->SetWeaponTracking(ucmd->weapontracking);
+	
 	// Set globals appropriately
 	gpGlobals->curtime		=  player->m_nTickBase * TICK_INTERVAL;
 	gpGlobals->frametime	=  player->m_bGamePaused ? 0 : TICK_INTERVAL;

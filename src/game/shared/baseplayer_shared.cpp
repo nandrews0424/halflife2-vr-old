@@ -735,6 +735,16 @@ Vector CBasePlayer::SetWeaponAngle(QAngle& angle)
 	return weaponangle;
 }
 
+bool CBasePlayer::Weapon_Tracking( )
+{
+	return weapontracking;
+}
+
+void CBasePlayer::SetWeaponTracking(bool tracking) 
+{
+	weapontracking = tracking;
+}
+
 
 void CBasePlayer::SetAnimationExtension( const char *pExtension )
 {
