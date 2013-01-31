@@ -106,9 +106,17 @@ void VrController::calibrate()
 {
 	VectorCopy(_headAngle + _headCalibration, _headCalibration);
 	_headCalibration[YAW] = 0;
-	calibrateWeapon();
+
+	if ( hasWeaponTracking() ) 
+	{
+		VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
+		calibrateWeapon();
+	}
+
+	
 }
 
+// This only calibrates the yaw
 void VrController::calibrateWeapon() {
 	
 	Msg("Calibrating weapon: \n");
@@ -117,7 +125,6 @@ void VrController::calibrateWeapon() {
 	_freespace->getOrientation(0, head);
 	_freespace->getOrientation(1, weapon);
 
-	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
 	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
 }
 
