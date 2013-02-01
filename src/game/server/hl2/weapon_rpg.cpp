@@ -1606,6 +1606,12 @@ void CWeaponRPG::PrimaryAttack( void )
 
 	pOwner->EyeVectors( &vForward, &vRight, &vUp );
 
+	if ( pOwner->Weapon_Tracking() )
+	{
+		VectorCopy(pOwner->Weapon_ShootDirection(), vForward);
+		VectorVectors(vForward, vRight, vUp);
+	}
+
 	Vector	muzzlePoint = pOwner->Weapon_ShootPosition() + vForward * 12.0f + vRight * 6.0f + vUp * -3.0f;
 
 	QAngle vecAngles;
@@ -1930,6 +1936,11 @@ void CWeaponRPG::UpdateLaserPosition( Vector vecMuzzlePos, Vector vecEndPos )
 		else
 		{
 			pPlayer->EyeVectors( &forward );
+		}
+
+		if ( pPlayer->Weapon_Tracking() )
+		{
+			VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
 		}
 
 		vecEndPos = vecMuzzlePos + ( forward * MAX_TRACE_LENGTH );

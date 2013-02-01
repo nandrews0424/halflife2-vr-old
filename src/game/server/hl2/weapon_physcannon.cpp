@@ -2103,6 +2103,11 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 		Vector forward;
 		pOwner->EyeVectors( &forward );
 
+		if ( pOwner->Weapon_Tracking() )
+		{
+			VectorCopy(pOwner->Weapon_ShootDirection(), forward);
+		}
+		
 		// Validate the item is within punt range
 		CBaseEntity *pHeld = m_grabController.GetAttached();
 		Assert( pHeld != NULL );
@@ -2132,6 +2137,11 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 	Vector forward;
 	pOwner->EyeVectors( &forward );
 
+	if ( pOwner->Weapon_Tracking() )
+	{
+		VectorCopy(pOwner->Weapon_ShootDirection(), forward);
+	}
+	
 	// NOTE: Notice we're *not* using the mega tracelength here
 	// when you have the mega cannon. Punting has shorter range.
 	Vector start, end;
@@ -2450,6 +2460,11 @@ void CWeaponPhysCannon::FindObjectTrace( CBasePlayer *pPlayer, trace_t *pTraceRe
 	Vector forward;
 	pPlayer->EyeVectors( &forward );
 
+	if ( pPlayer->Weapon_Tracking() )
+	{
+		VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
+	}
+
 	// Setup our positions
 	Vector	start = pPlayer->Weapon_ShootPosition();
 	float	testLength = TraceLength() * 4.0f;
@@ -2502,6 +2517,12 @@ CWeaponPhysCannon::FindObjectResult_t CWeaponPhysCannon::FindObject( void )
 	
 	Vector forward;
 	pPlayer->EyeVectors( &forward );
+
+	if ( pPlayer->Weapon_Tracking() )
+	{
+		VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
+	}
+
 
 	// Setup our positions
 	Vector	start = pPlayer->Weapon_ShootPosition();
@@ -2725,6 +2746,13 @@ bool CGrabController::UpdateObject( CBasePlayer *pPlayer, float flError )
 	QAngle playerAngles = pPlayer->EyeAngles();
 	AngleVectors( playerAngles, &forward, &right, &up );
 
+	if ( pPlayer->Weapon_Tracking() )
+	{
+		VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
+		VectorVectors(forward, right, up);
+		VectorAngles(forward, playerAngles);
+	}
+	
 	if ( HL2GameRules()->MegaPhyscannonActive() )
 	{
 		Vector los = ( pEntity->WorldSpaceCenter() - pPlayer->Weapon_ShootPosition() );

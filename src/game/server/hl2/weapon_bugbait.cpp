@@ -267,6 +267,12 @@ void CWeaponBugBait::ThrowGrenade( CBasePlayer *pPlayer )
 	
 	pPlayer->EyeVectors( &vForward, &vRight, &vUp );
 
+	if ( pPlayer->Weapon_Tracking() )
+	{
+		VectorCopy(pPlayer->Weapon_ShootDirection(), vForward);
+		VectorVectors(vForward, vRight, vUp);
+	}
+
 	vThrowPos = pPlayer->EyePosition();
 
 	vThrowPos += vForward * 18.0f;
