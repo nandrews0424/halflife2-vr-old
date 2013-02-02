@@ -25,42 +25,38 @@ unsigned MotionSensor_Thread(void* params)
 {
 	InputThreadState* state = (InputThreadState*)params;
 	int rc;
-	FreespaceDeviceId id;
 	struct freespace_message message;
-	static uint16_t lastseq[MAX_SENSORS];
+	static uint16_t lastseq = 0;
 	Quaternion q;
 	
-	for (int i = 0; i<MAX_SENSORS; i++){
-		lastseq[i] = 0;
-		state->sampleCount[i] = 0;
-		state->errorCount[i] = 0;
-		state->lastReturnCode[i] = 0;
-		state->pitch[i] = 0;
-		state->roll[i] = 0;
-		state->yaw[i] = 0;
-	}
-
-	int i = 0;
+	state->sampleCount = 0;
+	state->errorCount = 0;
+	state->lastReturnCode = 0;
+	state->pitch = 0;
+	state->roll = 0;
+	state->yaw = 0;
+	unsigned int i = 0;
+	
 	while (!state->quit)
 	{
-		i = ++i % MAX_SENSORS;
-		id = state->deviceIds[i];
-				
-		if (id < 0)
-			continue;
-
-		rc = freespace_readMessage(id, &message, 5);
-		state->lastReturnCode[i] = rc;
+		i = i++ % 10000;
+		if ( i == 0 ) 
+		{
+			Msg("Device %i reading value on thread %f\n", state->deviceId, state->handle);
+		}
+		
+		rc = freespace_readMessage(state->deviceId, &message, 5);
+		state->lastReturnCode = rc;
 		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
-			state->errorCount[i]++;
+			state->errorCount++;
 			continue;
 		}
 
-		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq[i]) {
+		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq) {
 
-			lastseq[i] = message.bodyFrame.sequenceNumber;
+			lastseq = message.bodyFrame.sequenceNumber;
 
-			state->sensorFusion[i].MahonyAHRSupdateIMU(
+			state->sensorFusion.MahonyAHRSupdateIMU(
 				message.bodyFrame.angularVelX / 1000.0f, 
 				message.bodyFrame.angularVelY / 1000.0f,
 				message.bodyFrame.angularVelZ / 1000.0f,
@@ -68,7 +64,7 @@ unsigned MotionSensor_Thread(void* params)
 				message.bodyFrame.linearAccelY ,
 				message.bodyFrame.linearAccelZ );
 
-			q = state->sensorFusion[i].Read();
+			q = state->sensorFusion.Read();
 
 			// convert quaternion to euler angles
 			float m11 = (2.0f * q[0] * q[0]) + (2.0f * q[1] * q[1]) - 1.0f;
@@ -82,15 +78,15 @@ unsigned MotionSensor_Thread(void* params)
 			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
 
 			
-			state->deviceAngles[i][ROLL]  = roll;
-			state->deviceAngles[i][PITCH] = pitch;
-			state->deviceAngles[i][YAW]   = yaw;
+			state->deviceAngles[ROLL]  = roll;
+			state->deviceAngles[PITCH] = pitch;
+			state->deviceAngles[YAW]   = yaw;
 
-			state->pitch[i] = pitch;
-			state->roll[i] = roll;
-			state->yaw[i] = yaw;
+			state->pitch = pitch;
+			state->roll = roll;
+			state->yaw = yaw;
 
-			state->sampleCount[i]++;
+			state->sampleCount++;
 		}
 	}
 
@@ -103,29 +99,20 @@ MotionSensor::MotionSensor()
 {
 	Msg("Initializing freespace drivers\n");
 
-	struct freespace_message message;
-	int deviceCount; 
-	int rc;
 	_deviceCount = 0;
-	_threadState.quit = false;
+	struct freespace_message message;
 	
-	for (int i=0; i<MAX_SENSORS; i++) {
-		_threadState.deviceAngles[i].Init();
-		_threadState.deviceIds[i] = -1;
-	}
-				
 	if ( freespace_init() != FREESPACE_SUCCESS ) {
-		printf("Freespace initialization error. rc=%d\n", rc);
+		printf("Freespace initialization error...\n");
 		return;
 	}
 	
 	freespace_setDeviceHotplugCallback(hotplug_Callback, this);
 	freespace_perform();
 
-	_threadState.handle = CreateSimpleThread(MotionSensor_Thread, &_threadState);
 	_freespaceSensor = this;
 	_initialized = true;
-
+	
 	Msg("Freespace initialized successfully\n");
 }
 
@@ -133,23 +120,9 @@ MotionSensor::MotionSensor()
 MotionSensor::~MotionSensor() 
 {
 	Msg("Shutting downfreespace devices\n");
-	_threadState.quit = true;	
-	int rc;
-	int i = 0;
-	struct freespace_message message;
-	
-	Msg("Waiting on input thread to join\n");
-	if (ThreadJoin(_threadState.handle, 1000)) {
-		Msg("Freespace input thread shut down successfully...\n");
-	} else {
-		Msg("Freespace input thread join timed out, releasing thread handle...\n");
-		ReleaseThreadHandle(_threadState.handle);
-	}
-    Msg("Shutting down Freespace devices\n");
-
 	for (int idx=0; idx < MAX_SENSORS; idx++) {
-		if (_threadState.deviceIds[idx] >= 0) {
-			_removeDevice(_threadState.deviceIds[idx]);
+		if (_threadState[idx].deviceId >= 0) {
+			_removeDevice(_threadState[idx].deviceId);
 		}
 	}
 
@@ -188,10 +161,22 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
         Msg("Freespace unable to send message: returned %d.\n", rc);
 		return;
     }
+	
+	int i;
+	for ( i=0; i<MAX_SENSORS; i++ )
+	{
+		if ( _threadState[i].deviceId = -1 ) {
+			break;
+		}
+	}
 
-	_threadState.deviceAngles[_deviceCount].Init();
-	_threadState.deviceIds[_deviceCount] = id;
-    _deviceCount++;
+	// todo: is this the issue.....
+	i = _deviceCount;
+	
+	_threadState[i].Init();
+	_threadState[i].deviceId = id;
+	_threadState[i].handle = CreateSimpleThread(MotionSensor_Thread, &_threadState[i]);
+	_deviceCount++;
 	
 	Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
 }
@@ -200,16 +185,26 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
     struct freespace_message message;
     int rc;
     int i;
-
-    // Remove the device from our list.
+	
+    // Shut down the thread and remove it from the list of active trackers...
     for (int i = 0; i < MAX_SENSORS; i++) {
-        if (_threadState.deviceIds[i] == id) {
-            _threadState.deviceIds[i] = -1;
+        if (_threadState[i].deviceId == id) {
+            
+			_threadState[i].quit = true;
+
+			if (ThreadJoin(_threadState[i].handle, 200)) {
+				Msg("Freespace input thread shut down successfully...\n");
+			} else {
+				Msg("Freespace input thread join timed out, releasing thread handle...\n");
+				ReleaseThreadHandle(_threadState[i].handle);
+			}
+
+			_threadState[i].Init();
+			
 			break;
         }
     }
-
-    
+	    
     Msg("%d> Sending message to enable mouse motion data.\n", id);
     memset(&message, 0, sizeof(message));
 
@@ -236,14 +231,14 @@ void MotionSensor::getOrientation(int deviceIndex, QAngle& angle)
 {
 	//Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
 	
-	if (_threadState.deviceIds[deviceIndex] == -1) {
+	if (_threadState[deviceIndex].deviceId == -1) {
 		angle.Init();
 		return;
 	}
 
-	angle[PITCH] = _threadState.pitch[deviceIndex];
-	angle[ROLL] = _threadState.roll[deviceIndex];
-	angle[YAW] = _threadState.yaw[deviceIndex];
+	angle[PITCH] = _threadState[deviceIndex].pitch;
+	angle[ROLL] = _threadState[deviceIndex].roll;
+	angle[YAW] = _threadState[deviceIndex].yaw;
 }
 
 bool MotionSensor::initialized()

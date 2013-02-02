@@ -6,22 +6,32 @@
 struct InputThreadState 
 {
 	ThreadHandle_t handle;
-	float _fake[10];
-	QAngle deviceAngles[MAX_SENSORS];
-	float _fake2[10];
-	FreespaceDeviceId deviceIds[MAX_SENSORS];
-	float _wtf[10];
-	int sampleCount[MAX_SENSORS];
-	int errorCount[MAX_SENSORS];
-	int lastReturnCode[MAX_SENSORS];
+	QAngle deviceAngles;
+	FreespaceDeviceId deviceId;
+	int sampleCount;
+	int errorCount;
+	int lastReturnCode;
 	
-	float pitch[MAX_SENSORS];
-	float roll[MAX_SENSORS];
-	float yaw[MAX_SENSORS];
+	float pitch;
+	float roll;
+	float yaw;
 
-	SensorFusion sensorFusion[MAX_SENSORS];
+	SensorFusion sensorFusion;
 
 	bool quit;
+
+	void Init()
+	{
+		quit = false;
+		sampleCount = 0;
+		errorCount = 0;
+		lastReturnCode = 0;
+		deviceId = -1;
+		deviceAngles.Init();
+		pitch = 0;
+		roll = 0;
+		yaw = 0;
+	}
 };
 
 class MotionSensor {
@@ -43,7 +53,7 @@ public:
 
 
 protected:
-	struct	InputThreadState _threadState;
+	struct	InputThreadState _threadState[MAX_SENSORS];
 	bool	_initialized;
 	int 	_deviceCount;
 };
