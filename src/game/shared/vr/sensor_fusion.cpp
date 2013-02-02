@@ -21,7 +21,7 @@
 #include <math.h>
 
 
-static float fsSampleFreq = 120.f;
+static float fsSampleFreq = 250.f;
 ConVar	   in_vrfreespacerate("vr_freespace_rate", "120", FCVAR_ARCHIVE, "Polling frequency used for freespace sensor fusion");
 static void in_vrFreespaceRate(const CCommand &args) 
 {	

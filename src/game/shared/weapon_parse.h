@@ -128,7 +128,7 @@ public:
 	bool					bShowUsageHint;							// if true, then when you receive the weapon, show a hint about it
 
 // SERVER DLL
-
+	Vector					viewModelOffset;
 };
 
 // The weapon parse function

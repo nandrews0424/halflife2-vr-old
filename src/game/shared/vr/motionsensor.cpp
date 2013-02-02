@@ -189,6 +189,8 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
 		return;
     }
 
+	//todo: freespace_setReceiveMessageCallback(id, receiveMessageCallback, NULL);
+
 	_threadState.deviceAngles[_deviceCount].Init();
 	_threadState.deviceIds[_deviceCount] = id;
     _deviceCount++;
@@ -208,8 +210,7 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 			break;
         }
     }
-
-    
+	    
     Msg("%d> Sending message to enable mouse motion data.\n", id);
     memset(&message, 0, sizeof(message));
 

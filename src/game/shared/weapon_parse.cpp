@@ -451,5 +451,15 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 			}
 		}
 	}
+
+	// VR SOURCE - Load additional data for weapon view model offsets...
+	viewModelOffset.Init();
+	KeyValues *offsets = pKeyValuesData->FindKey( "ViewModelOffsets" );
+	if(offsets)
+	{
+		viewModelOffset.x			= offsets->GetFloat( "forward", 0.0f );
+		viewModelOffset.y			= offsets->GetFloat( "right", 0.0f );
+		viewModelOffset.z			= offsets->GetFloat( "up", 0.0f );
+	}
 }
 
