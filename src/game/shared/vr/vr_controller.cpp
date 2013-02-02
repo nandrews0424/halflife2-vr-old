@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
+
 VrController* _vrController;
 
 VrController::VrController()
@@ -127,7 +128,6 @@ void VrController::calibrateWeapon() {
 
 	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
 }
-
 
 void VrController::shutDown()
 {

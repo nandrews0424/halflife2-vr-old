@@ -20,11 +20,18 @@
 #include "vr/sensor_fusion.h"
 #include <math.h>
 
-//TODO: once new firmware update back to 250hz
-#define sampleFreq	120.0f			// sample frequency in Hz
+
+static float fsSampleFreq = 120.f;
+ConVar	   in_vrfreespacerate("vr_freespace_rate", "120", FCVAR_ARCHIVE, "Polling frequency used for freespace sensor fusion");
+static void in_vrFreespaceRate(const CCommand &args) 
+{	
+	fsSampleFreq = in_vrfreespacerate.GetFloat();
+}
+ConCommand in_vrfreespaceupdate("vr_freespace_update", in_vrFreespaceRate, "Applies other vr_freespace_* variables.");
+
+
 #define twoKpDef	(2.0f * 0.5f)	// 2 * proportional gain
 #define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
-
 float invSqrt(float x);
 
 SensorFusion::SensorFusion()
@@ -97,9 +104,9 @@ void SensorFusion::MahonyAHRSupdate(float gx, float gy, float gz, float ax, floa
 
 		// Compute and apply integral feedback if enabled
 		if(twoKi > 0.0f) {
-			integralFBx += twoKi * halfex * (1.0f / sampleFreq);	// integral error scaled by Ki
-			integralFBy += twoKi * halfey * (1.0f / sampleFreq);
-			integralFBz += twoKi * halfez * (1.0f / sampleFreq);
+			integralFBx += twoKi * halfex * (1.0f / fsSampleFreq);	// integral error scaled by Ki
+			integralFBy += twoKi * halfey * (1.0f / fsSampleFreq);
+			integralFBz += twoKi * halfez * (1.0f / fsSampleFreq);
 			gx += integralFBx;	// apply integral feedback
 			gy += integralFBy;
 			gz += integralFBz;
@@ -117,9 +124,9 @@ void SensorFusion::MahonyAHRSupdate(float gx, float gy, float gz, float ax, floa
 	}
 	
 	// Integrate rate of change of quaternion
-	gx *= (0.5f * (1.0f / sampleFreq));		// pre-multiply common factors
-	gy *= (0.5f * (1.0f / sampleFreq));
-	gz *= (0.5f * (1.0f / sampleFreq));
+	gx *= (0.5f * (1.0f / fsSampleFreq));		// pre-multiply common factors
+	gy *= (0.5f * (1.0f / fsSampleFreq));
+	gz *= (0.5f * (1.0f / fsSampleFreq));
 	qa = q[0];
 	qb = q[1];
 	qc = q[2];
@@ -166,9 +173,9 @@ void SensorFusion::MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, f
 
 		// Compute and apply integral feedback if enabled
 		if(twoKi > 0.0f) {
-			integralFBx += twoKi * halfex * (1.0f / sampleFreq);	// integral error scaled by Ki
-			integralFBy += twoKi * halfey * (1.0f / sampleFreq);
-			integralFBz += twoKi * halfez * (1.0f / sampleFreq);
+			integralFBx += twoKi * halfex * (1.0f / fsSampleFreq);	// integral error scaled by Ki
+			integralFBy += twoKi * halfey * (1.0f / fsSampleFreq);
+			integralFBz += twoKi * halfez * (1.0f / fsSampleFreq);
 			gx += integralFBx;	// apply integral feedback
 			gy += integralFBy;
 			gz += integralFBz;
@@ -186,9 +193,9 @@ void SensorFusion::MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, f
 	}
 	
 	// Integrate rate of change of quaternion
-	gx *= (0.5f * (1.0f / sampleFreq));		// pre-multiply common factors
-	gy *= (0.5f * (1.0f / sampleFreq));
-	gz *= (0.5f * (1.0f / sampleFreq));
+	gx *= (0.5f * (1.0f / fsSampleFreq));		// pre-multiply common factors
+	gy *= (0.5f * (1.0f / fsSampleFreq));
+	gz *= (0.5f * (1.0f / fsSampleFreq));
 	qa = q[0];
 	qb = q[1];
 	qc = q[2];
