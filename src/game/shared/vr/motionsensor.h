@@ -11,6 +11,7 @@ struct InputThreadState
 	int sampleCount;
 	int errorCount;
 	int lastReturnCode;
+	uint16_t lastseq;
 	
 	float pitch;
 	float roll;
@@ -31,6 +32,33 @@ struct InputThreadState
 		pitch = 0;
 		roll = 0;
 		yaw = 0;
+	}
+
+	void Read()
+	{
+		freespace_message message;
+
+		lastReturnCode = freespace_readMessage(deviceId, &message, 5);
+		if (lastReturnCode == FREESPACE_ERROR_TIMEOUT || lastReturnCode == FREESPACE_ERROR_INTERRUPTED) {
+			errorCount++;
+			return;
+		}
+
+		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq) {
+
+			lastseq = message.bodyFrame.sequenceNumber;
+
+			sensorFusion.MahonyAHRSupdateIMU(
+				message.bodyFrame.angularVelX / 1000.0f, 
+				message.bodyFrame.angularVelY / 1000.0f,
+				message.bodyFrame.angularVelZ / 1000.0f,
+				message.bodyFrame.linearAccelX ,
+				message.bodyFrame.linearAccelY ,
+				message.bodyFrame.linearAccelZ );
+
+			sensorFusion.ReadAngles(deviceAngles);
+			sampleCount++;
+		}	
 	}
 };
 

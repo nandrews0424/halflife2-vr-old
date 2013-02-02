@@ -35,6 +35,11 @@ VrController::~VrController()
 	delete _freespace;
 }
 
+bool	VrController::initialized( void )
+{
+	return _initialized && _freespace->deviceCount() > 0; //for now
+}
+
 QAngle	VrController::headOrientation( void )
 {
 	return _headAngle;

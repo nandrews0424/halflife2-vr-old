@@ -6,8 +6,7 @@
 #include <windows.h>
 #include <sys/timeb.h>
 
-#define PI 3.141592654f
-#define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
+
 
 static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
 	MotionSensor* sensor = (MotionSensor*) params;
@@ -23,73 +22,11 @@ static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId
 
 unsigned MotionSensor_Thread(void* params)
 {
-	InputThreadState* state = (InputThreadState*)params;
-	int rc;
-	struct freespace_message message;
-	static uint16_t lastseq = 0;
-	Quaternion q;
-	
-	state->sampleCount = 0;
-	state->errorCount = 0;
-	state->lastReturnCode = 0;
-	state->pitch = 0;
-	state->roll = 0;
-	state->yaw = 0;
-	unsigned int i = 0;
-	
-	while (!state->quit)
+	// Trying no local variables which seemed to be shared across threads.
+	while (!((InputThreadState*)params)->quit)
 	{
-		i = i++ % 10000;
-		if ( i == 0 ) 
-		{
-			Msg("Device %i reading value on thread %f\n", state->deviceId, state->handle);
-		}
-		
-		rc = freespace_readMessage(state->deviceId, &message, 5);
-		state->lastReturnCode = rc;
-		if (rc == FREESPACE_ERROR_TIMEOUT || rc == FREESPACE_ERROR_INTERRUPTED) {
-			state->errorCount++;
-			continue;
-		}
-
-		if (message.messageType == FREESPACE_MESSAGE_BODYFRAME && message.bodyFrame.sequenceNumber != lastseq) {
-
-			lastseq = message.bodyFrame.sequenceNumber;
-
-			state->sensorFusion.MahonyAHRSupdateIMU(
-				message.bodyFrame.angularVelX / 1000.0f, 
-				message.bodyFrame.angularVelY / 1000.0f,
-				message.bodyFrame.angularVelZ / 1000.0f,
-				message.bodyFrame.linearAccelX ,
-				message.bodyFrame.linearAccelY ,
-				message.bodyFrame.linearAccelZ );
-
-			q = state->sensorFusion.Read();
-
-			// convert quaternion to euler angles
-			float m11 = (2.0f * q[0] * q[0]) + (2.0f * q[1] * q[1]) - 1.0f;
-			float m12 = (2.0f * q[1] * q[2]) + (2.0f * q[0] * q[3]);
-			float m13 = (2.0f * q[1] * q[3]) - (2.0f * q[0] * q[2]);
-			float m23 = (2.0f * q[2] * q[3]) + (2.0f * q[0] * q[1]);
-			float m33 = (2.0f * q[0] * q[0]) + (2.0f * q[3] * q[3]) - 1.0f;
-
-			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
-			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
-			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
-
-			
-			state->deviceAngles[ROLL]  = roll;
-			state->deviceAngles[PITCH] = pitch;
-			state->deviceAngles[YAW]   = yaw;
-
-			state->pitch = pitch;
-			state->roll = roll;
-			state->yaw = yaw;
-
-			state->sampleCount++;
-		}
+		((InputThreadState*)params)->Read();	
 	}
-
 	return 0;
 }
 

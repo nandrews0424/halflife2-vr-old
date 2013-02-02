@@ -32,9 +32,9 @@ public:
 	void	calibrate( void );
 	void	calibrateWeapon( void );
 	
-	bool	initialized() { return _initialized; }
-	bool	hasWeaponTracking();
-	void	shutDown();
+	bool	initialized( void );
+	bool	hasWeaponTracking( void );
+	void	shutDown( void );
 	
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];

@@ -20,8 +20,10 @@
 #include "vr/sensor_fusion.h"
 #include <math.h>
 
+#define PI 3.141592654f
+#define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
 
-static float fsSampleFreq = 120.f;
+static float fsSampleFreq = 250.f;
 ConVar	   in_vrfreespacerate("vr_freespace_rate", "120", FCVAR_ARCHIVE, "Polling frequency used for freespace sensor fusion");
 static void in_vrFreespaceRate(const CCommand &args) 
 {	
@@ -215,6 +217,20 @@ void SensorFusion::MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, f
 Quaternion& SensorFusion::Read()
 {
 	return q;
+}
+
+void SensorFusion::ReadAngles( QAngle& angle )
+{
+	// convert quaternion to euler angles
+	float m11 = (2.0f * q[0] * q[0]) + (2.0f * q[1] * q[1]) - 1.0f;
+	float m12 = (2.0f * q[1] * q[2]) + (2.0f * q[0] * q[3]);
+	float m13 = (2.0f * q[1] * q[3]) - (2.0f * q[0] * q[2]);
+	float m23 = (2.0f * q[2] * q[3]) + (2.0f * q[0] * q[1]);
+	float m33 = (2.0f * q[0] * q[0]) + (2.0f * q[3] * q[3]) - 1.0f;
+
+	angle[ROLL] = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
+	angle[PITCH] = RADIANS_TO_DEGREES(asinf(-m13));
+	angle[YAW] = RADIANS_TO_DEGREES(atan2f(m12, m11));
 }
 
 
