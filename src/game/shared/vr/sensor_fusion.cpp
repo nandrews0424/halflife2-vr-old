@@ -20,15 +20,13 @@
 #include "vr/sensor_fusion.h"
 #include <math.h>
 
-
 static float fsSampleFreq = 250.f;
-ConVar	   in_vrfreespacerate("vr_freespace_rate", "120", FCVAR_ARCHIVE, "Polling frequency used for freespace sensor fusion");
+ConVar	   in_vrfreespacerate("vr_freespace_rate", "250", FCVAR_ARCHIVE, "Polling frequency used for freespace sensor fusion");
 static void in_vrFreespaceRate(const CCommand &args) 
 {	
 	fsSampleFreq = in_vrfreespacerate.GetFloat();
 }
 ConCommand in_vrfreespaceupdate("vr_freespace_update", in_vrFreespaceRate, "Applies other vr_freespace_* variables.");
-
 
 #define twoKpDef	(2.0f * 0.5f)	// 2 * proportional gain
 #define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
@@ -36,6 +34,7 @@ float invSqrt(float x);
 
 SensorFusion::SensorFusion()
 {
+	in_vrFreespaceRate(CCommand());
 	q.Init(1,0,0,0);
 	twoKp = twoKpDef;												// 2 * proportional gain (Kp)
 	twoKi = twoKiDef;												// 2 * integral gain (Ki)

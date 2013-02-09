@@ -1,4 +1,3 @@
-#include "vr/imotionsensor.h"
 #include "vr/sensor_fusion.h"
 
 #define MAX_SENSORS 2

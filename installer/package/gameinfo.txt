@@ -15,12 +15,10 @@
 		SteamAppId				218	
 		ToolsAppId				211	
 		
-		AdditionalContentId 420 //Ep2
+		// AdditionalContentId 420 //Ep2
 		AdditionalContentId 220 //HL2
-		AdditionalContentId 240 //CS Source
-		AdditionalContentId 320 //HL2 Deatmatch
-		AdditionalContentId 340 //HL2 Lost Coast
-		AdditionalContentId 380 //Ep1
+		// AdditionalContentId 340 //HL2 Lost Coast
+		// AdditionalContentId 380 //Ep1
 		
 		SearchPaths
 		{
