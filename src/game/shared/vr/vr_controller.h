@@ -50,6 +50,7 @@ protected:
 	QAngle _headCalibration;
 	QAngle _weaponAngle;
 	QAngle _weaponCalibration;
+	QAngle _bodyCalibration;
 	QAngle _bodyAngle;
 	
 	float _fake[10];

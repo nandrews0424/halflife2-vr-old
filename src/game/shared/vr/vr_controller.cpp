@@ -18,6 +18,8 @@ VrController::VrController()
 	_headCalibration.Init();
 	
 	_bodyAngle.Init();
+	_bodyCalibration.Init();
+	_bodyCalibration[YAW] = -1; // triggers first pass initialization
 
 	_weaponAngle.Init();
 	_weaponCalibration.Init();
@@ -68,11 +70,9 @@ void	VrController::update(float previousViewYaw)
 	}
 
 	if (_updateCounter++ % 240 == 0) {
-		freespace_perform();
+		freespace_perform(); // check freespace for added/removed devices...
 	}
 
-	// BODY ORIENTATION
-	_bodyAngle[YAW] = previousViewYaw - _totalAccumulatedYaw[HEAD];
 	
 	// HEAD ORIENTATION
 	_freespace->getOrientation(0, _headAngle);
@@ -84,11 +84,26 @@ void	VrController::update(float previousViewYaw)
 	_headAngle[YAW] = deltaYaw + previousViewYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
-
+		
 	_headAngle -= _headCalibration;
 	
-	// WEAPON ORIENTATION
+
+
+	// BODY ORIENTATION
+	VectorCopy(_headAngle, _bodyAngle);
+
+	_bodyAngle[YAW] = previousViewYaw - _totalAccumulatedYaw[HEAD];  // this gives us the global original value
 	
+	// if uninitialized, set initial body calibration
+	if (_bodyCalibration[YAW] < 0) {
+		_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
+	}
+	
+	_bodyAngle -= _bodyCalibration;
+	
+
+
+	// WEAPON ORIENTATION
 	if (!hasWeaponTracking()) 
 	{
 		VectorCopy(_headAngle, _weaponAngle);
@@ -113,16 +128,11 @@ void VrController::calibrate()
 	VectorCopy(_headAngle + _headCalibration, _headCalibration);
 	_headCalibration[YAW] = 0;
 
-	if ( hasWeaponTracking() ) 
-	{
-		VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
-		calibrateWeapon();
-	}
-
-	
+	VectorCopy(_weaponAngle + _weaponCalibration, _weaponCalibration);
+	calibrateWeapon();
 }
 
-// This only calibrates the yaw
+// This recenters all elements
 void VrController::calibrateWeapon() {
 	
 	Msg("Calibrating weapon: \n");
@@ -132,6 +142,7 @@ void VrController::calibrateWeapon() {
 	_freespace->getOrientation(1, weapon);
 
 	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
+	_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
 }
 
 void VrController::shutDown()

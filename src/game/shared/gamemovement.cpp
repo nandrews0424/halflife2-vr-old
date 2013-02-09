@@ -1270,7 +1270,7 @@ void CGameMovement::CheckWaterJump( void )
 	Vector	flatvelocity;
 	float curspeed;
 
-	AngleVectors( mv->m_vecViewAngles, &forward );  // Determine movement angles
+	AngleVectors( mv->m_vecMoveAngles, &forward );  // Determine movement angles
 
 	// Already water jumping.
 	if (player->m_flWaterJumpTime)
@@ -1376,7 +1376,7 @@ void CGameMovement::WaterMove( void )
 	float speed, newspeed, addspeed, accelspeed;
 	Vector forward, right, up;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 
 	//
 	// user intentions
@@ -1753,7 +1753,7 @@ void CGameMovement::AirMove( void )
 	float		wishspeed;
 	Vector forward, right, up;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 	
 	// Copy movement amounts
 	fmove = mv->m_flForwardMove;
@@ -1900,8 +1900,10 @@ void CGameMovement::WalkMove( void )
 	trace_t pm;
 	Vector forward, right, up;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
 
+	// VR Source - update to use movement specific angle
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
+	
 	CHandle< CBaseEntity > oldground;
 	oldground = player->GetGroundEntity();
 	
@@ -2149,6 +2151,7 @@ void CGameMovement::FullObserverMove( void )
 		{
 			mv->SetAbsOrigin( target->GetAbsOrigin() );
 			mv->m_vecViewAngles = target->GetAbsAngles();
+			mv->m_vecMoveAngles = target->GetAbsAngles();
 			mv->m_vecVelocity = target->GetAbsVelocity();
 		}
 
@@ -2175,7 +2178,7 @@ void CGameMovement::FullObserverMove( void )
 	Vector wishdir, wishend;
 	float wishspeed;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 	
 	// Copy movement amounts
 
@@ -2255,7 +2258,7 @@ void CGameMovement::FullNoClipMove( float factor, float maxacceleration )
 	float wishspeed;
 	float maxspeed = sv_maxspeed.GetFloat() * factor;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 
 	if ( mv->m_nButtons & IN_SPEED )
 	{
@@ -2464,7 +2467,7 @@ bool CGameMovement::CheckJumpButton( void )
 	{
 		CHLMoveData *pMoveData = ( CHLMoveData* )mv;
 		Vector vecForward;
-		AngleVectors( mv->m_vecViewAngles, &vecForward );
+		AngleVectors( mv->m_vecMoveAngles, &vecForward );
 		vecForward.z = 0;
 		VectorNormalize( vecForward );
 		
@@ -4421,7 +4424,7 @@ void CGameMovement::PlayerMove( void )
 
 	ReduceTimers();
 
-	AngleVectors (mv->m_vecViewAngles, &m_vecForward, &m_vecRight, &m_vecUp );  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &m_vecForward, &m_vecRight, &m_vecUp );  // Determine movement angles
 
 	// Always try and unstick us unless we are using a couple of the movement modes
 	if ( player->GetMoveType() != MOVETYPE_NOCLIP && 
@@ -4630,7 +4633,7 @@ void CGameMovement::FullTossMove( void )
 		float wishspeed;
 		int i;
 
-		AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+		AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 
 		// Copy movement amounts
 		fmove = mv->m_flForwardMove;
@@ -4725,7 +4728,7 @@ void CGameMovement::IsometricMove( void )
 	float fmove, smove;
 	Vector forward, right, up;
 
-	AngleVectors (mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles
+	AngleVectors (mv->m_vecMoveAngles, &forward, &right, &up);  // Determine movement angles
 	
 	// Copy movement amounts
 	fmove = mv->m_flForwardMove;

@@ -145,6 +145,7 @@ void CPlayerMove::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *p
 	// Prepare the usercmd fields
 	move->m_nImpulseCommand		= ucmd->impulse;	
 	move->m_vecViewAngles		= ucmd->viewangles;
+	move->m_vecMoveAngles		= ucmd->moveangles;
 
 	CBaseEntity *pMoveParent = player->GetMoveParent();
 	if (!pMoveParent)
@@ -318,6 +319,7 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	// VR SOURCE - setting the player info for weapon and view angles
 	player->SetWeaponAngle(ucmd->weaponangles);
 	player->SetWeaponTracking(ucmd->weapontracking);
+//	player->SetMoveAngle(ucmd->moveangles);
 	
 	// Set globals appropriately
 	gpGlobals->curtime		=  player->m_nTickBase * TICK_INTERVAL;

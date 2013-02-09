@@ -50,6 +50,8 @@ static int in_cancel = 0;
 // VR Source
 
 VrController* vrController;
+bool bodyRelativeMovement = false;
+
 static void in_vrCalibrate(const CCommand &args) {
 	vrController->calibrate(); // calibrates baseline angles to current readings
 }
@@ -59,6 +61,12 @@ static void in_vrCalibrateWeapon(const CCommand &args) {
 	vrController->calibrateWeapon(); // calibrates baseline angles to current readings
 }
 ConCommand in_vrcalibrateWeapon("vr_center_weapon", in_vrCalibrateWeapon, "Recenters weapon yaw with view direction (in the case that it's drifted)");
+
+static void in_vrToggleMovementType(const CCommand &args) {
+	bodyRelativeMovement = !bodyRelativeMovement;
+	Msg("Body Relative Movement: %d", bodyRelativeMovement);
+}
+ConCommand in_vrtogglemovement("vr_toggle_movement_type", in_vrToggleMovementType, "Toggles between body-relative movement and the normal view oriented movement");
 
 
 static void in_vrShutDown(const CCommand &args) {
@@ -797,6 +805,7 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 		vrController->update(viewangles[YAW]);
 		VectorCopy(vrController->headOrientation(), viewangles);
 		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
+		VectorCopy(bodyRelativeMovement ? vrController->bodyOrientation() : vrController->headOrientation(), cmd->moveangles);
 		cmd->weapontracking = vrController->hasWeaponTracking();
 
 	} else {	

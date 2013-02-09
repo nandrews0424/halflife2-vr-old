@@ -45,6 +45,7 @@ public:
 
 	int				m_nImpulseCommand;	// Impulse command issued.
 	QAngle			m_vecViewAngles;	// Command view angles (local space)
+	QAngle			m_vecMoveAngles;	// Command view angles (local space)
 	QAngle			m_vecAbsViewAngles;	// Command view angles (world space)
 	int				m_nButtons;			// Attack buttons.
 	int				m_nOldButtons;		// From host_client->oldbuttons;
