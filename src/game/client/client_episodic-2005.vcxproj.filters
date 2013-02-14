@@ -1497,13 +1497,7 @@
     <ClCompile Include="..\..\libfreespace\include\math\quaternion.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\vr\motionsensor.cpp">
-      <Filter>Source Files\vr</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\vr\vr_controller.cpp">
-      <Filter>Source Files\vr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\vr\sensor_fusion.cpp">
       <Filter>Source Files\vr</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\vr\head_offset.cpp">
@@ -3272,13 +3266,7 @@
     <ClInclude Include="..\shared\IMovementController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\vr\motionsensor.h">
-      <Filter>Source Files\vr</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\vr\vr_controller.h">
-      <Filter>Source Files\vr</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\vr\sensor_fusion.h">
       <Filter>Source Files\vr</Filter>
     </ClInclude>
   </ItemGroup>
@@ -3322,7 +3310,7 @@
     <Library Include="..\..\lib\public\vstdlib.lib">
       <Filter>Link Libraries</Filter>
     </Library>
-    <Library Include="..\..\libfreespace\lib\libfreespace.lib">
+    <Library Include="..\..\vr_io\vr.io.lib">
       <Filter>Link Libraries</Filter>
     </Library>
   </ItemGroup>

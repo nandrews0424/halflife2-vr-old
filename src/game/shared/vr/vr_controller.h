@@ -1,21 +1,12 @@
 #include <stdio.h>
 #include <math.h>
-#include "freespace.h"
-#include "vr/motionsensor.h"
-
+#include "vr_io.h"
 
 /*	===================
 	VR Controller - Handles coordination of all the raw sensor data, syncing across them and turning them into usable game inputs
 	=================== */
 
-#define SENSOR_COUNT 3
-
-enum VrTrackedPart
-{
-	HEAD = 0,
-	WEAPON = 1,
-	BODY = 2
-};
+#define SENSOR_COUNT 4
 
 class VrController 
 {
@@ -44,7 +35,7 @@ protected:
 	float _fak12e[10];
 	bool _initialized;
 	
-	MotionSensor* _freespace;
+	IVRIOClient* _vrIO;
 	float _fake3[10];
 	QAngle _headAngle;
 	QAngle _headCalibration;

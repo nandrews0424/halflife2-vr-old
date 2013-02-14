@@ -1,7 +1,6 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-
 VrController* _vrController;
 
 VrController::VrController()
@@ -24,7 +23,9 @@ VrController::VrController()
 	_weaponAngle.Init();
 	_weaponCalibration.Init();
 
-	_freespace = new MotionSensor();
+	_vrIO = _vrio_getInProcessClient();
+	_vrIO->initialize();
+
 	_vrController = this;
 	_initialized = true;
 	
@@ -34,12 +35,12 @@ VrController::VrController()
 
 VrController::~VrController()
 {
-	delete _freespace;
+	delete _vrIO;
 }
 
 bool	VrController::initialized( void )
 {
-	return _initialized && _freespace->deviceCount() > 0; //for now
+	return _initialized; //TODO: need deviceCount && _vrIO->deviceCount() > 0; //for now
 }
 
 QAngle	VrController::headOrientation( void )
@@ -57,25 +58,28 @@ QAngle	VrController::bodyOrientation( void )
 	return _bodyAngle;
 }
 
-bool VrController::hasWeaponTracking( void ) 
+bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 {
-	return _initialized && _freespace->deviceCount() >= 2;
+	return _initialized; // && _vrIO->channelHasOrientation(HEAD);
 }
 
 void	VrController::update(float previousViewYaw)
 {
-	if (!_freespace->initialized()) {
+	if (!false) { //todo: check vrIO state
 		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
 	}
-
-	if (_updateCounter++ % 240 == 0) {
-		freespace_perform(); // check freespace for added/removed devices...
-	}
-
 	
+	VRIO_Message message;
+	_vrIO->think();
+	
+
 	// HEAD ORIENTATION
-	_freespace->getOrientation(0, _headAngle);
+
+	_vrIO->getOrientation(HEAD, message);
+	_headAngle[PITCH] = message.pitch;
+	_headAngle[ROLL] = message.roll;
+	_headAngle[YAW] = message.yaw;
 	
 	float previousYaw = _previousYaw[HEAD];
 	float currentYaw = _headAngle[YAW];
@@ -104,13 +108,17 @@ void	VrController::update(float previousViewYaw)
 
 
 	// WEAPON ORIENTATION
+
 	if (!hasWeaponTracking()) 
 	{
 		VectorCopy(_headAngle, _weaponAngle);
 		return;		 
 	}
 
-	_freespace->getOrientation(WEAPON, _weaponAngle);
+	_vrIO->getOrientation(WEAPON, message);
+	_weaponAngle[PITCH] = message.pitch;
+	_weaponAngle[ROLL] = message.roll;
+	_weaponAngle[YAW] = message.yaw;
 				
 	previousYaw = _previousYaw[WEAPON];
 	currentYaw = _weaponAngle[YAW];
@@ -137,18 +145,18 @@ void VrController::calibrateWeapon() {
 	
 	Msg("Calibrating weapon: \n");
 	
-	QAngle head, weapon;
-	_freespace->getOrientation(0, head);
-	_freespace->getOrientation(1, weapon);
+	VRIO_Message head, weapon;
+	_vrIO->getOrientation(HEAD, head);
+	_vrIO->getOrientation(WEAPON, weapon);
 
-	_weaponCalibration[YAW] = weapon[YAW] - head[YAW];
+	_weaponCalibration[YAW] = weapon.yaw- head.yaw;
 	_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
 }
 
 void VrController::shutDown()
 {
 	_initialized = false;
-	delete _freespace;
+	delete _vrIO;
 }
 
 extern VrController* VR_Controller()

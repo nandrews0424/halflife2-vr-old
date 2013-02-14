@@ -52,8 +52,8 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;../../libfreespace/include</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;../../libfreespace/lib</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(SolutionDir)vr_io</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;../../vr_io</LibraryPath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Client</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -219,8 +219,6 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
   <ItemGroup>
     <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
     <ClCompile Include="..\shared\vr\head_offset.cpp" />
-    <ClCompile Include="..\shared\vr\motionsensor.cpp" />
-    <ClCompile Include="..\shared\vr\sensor_fusion.cpp" />
     <ClCompile Include="..\shared\vr\vr_controller.cpp" />
     <ClCompile Include="achievement_notification_panel.cpp" />
     <ClCompile Include="..\shared\achievement_saverestore.cpp" />
@@ -856,8 +854,6 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\IMovementController.h" />
-    <ClInclude Include="..\shared\vr\motionsensor.h" />
-    <ClInclude Include="..\shared\vr\sensor_fusion.h" />
     <ClInclude Include="..\shared\vr\vr_controller.h" />
     <ClInclude Include="achievement_notification_panel.h" />
     <ClInclude Include="..\shared\achievement_saverestore.h" />
@@ -1447,7 +1443,6 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
     <ClInclude Include="game_controls\vguitextwindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\libfreespace\lib\libfreespace.lib" />
     <Library Include="..\..\lib\public\bitmap.lib" />
     <Library Include="..\..\lib\public\choreoobjects.lib" />
     <Library Include="..\..\lib\public\dmxloader.lib" />
@@ -1461,6 +1456,7 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
     <Library Include="..\..\lib\public\tier3.lib" />
     <Library Include="..\..\lib\public\vgui_controls.lib" />
     <Library Include="..\..\lib\public\vstdlib.lib" />
+    <Library Include="..\..\vr_io\vr.io.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="client_episodic.vpc" />
