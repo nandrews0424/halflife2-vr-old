@@ -3269,6 +3269,9 @@
     <ClInclude Include="..\shared\vr\vr_controller.h">
       <Filter>Source Files\vr</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\vr_io\vr_io.h">
+      <Filter>Source Files\vr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\lib\public\bitmap.lib">

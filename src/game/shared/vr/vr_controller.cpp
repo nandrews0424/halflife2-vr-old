@@ -40,7 +40,7 @@ VrController::~VrController()
 
 bool	VrController::initialized( void )
 {
-	return _initialized; //TODO: need deviceCount && _vrIO->deviceCount() > 0; //for now
+	return _initialized && _vrIO->getChannelCount() > 0; //for now
 }
 
 QAngle	VrController::headOrientation( void )
@@ -60,12 +60,12 @@ QAngle	VrController::bodyOrientation( void )
 
 bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 {
-	return _initialized; // && _vrIO->channelHasOrientation(HEAD);
+	return _initialized && _vrIO->getChannelCount() > 1;  // TODO: && _vrIO->channelHasOrientation(HEAD);
 }
 
 void	VrController::update(float previousViewYaw)
 {
-	if (!false) { //todo: check vrIO state
+	if (_vrIO->getChannelCount() == 0) { //todo: check vrIO state
 		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
 	}
@@ -73,7 +73,6 @@ void	VrController::update(float previousViewYaw)
 	VRIO_Message message;
 	_vrIO->think();
 	
-
 	// HEAD ORIENTATION
 
 	_vrIO->getOrientation(HEAD, message);
@@ -91,8 +90,6 @@ void	VrController::update(float previousViewYaw)
 		
 	_headAngle -= _headCalibration;
 	
-
-
 	// BODY ORIENTATION
 	VectorCopy(_headAngle, _bodyAngle);
 
@@ -105,8 +102,6 @@ void	VrController::update(float previousViewYaw)
 	
 	_bodyAngle -= _bodyCalibration;
 	
-
-
 	// WEAPON ORIENTATION
 
 	if (!hasWeaponTracking()) 
@@ -155,8 +150,10 @@ void VrController::calibrateWeapon() {
 
 void VrController::shutDown()
 {
+	Msg("Shutting down VR Controller");
 	_initialized = false;
-	delete _vrIO;
+	_vrIO->dispose();
+	// delete _vrIO; 
 }
 
 extern VrController* VR_Controller()

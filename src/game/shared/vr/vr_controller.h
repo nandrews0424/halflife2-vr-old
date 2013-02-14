@@ -2,6 +2,10 @@
 #include <math.h>
 #include "vr_io.h"
 
+// WinBase.h does so strange defines that break 
+#undef CreateEvent
+#undef CopyFile
+
 /*	===================
 	VR Controller - Handles coordination of all the raw sensor data, syncing across them and turning them into usable game inputs
 	=================== */

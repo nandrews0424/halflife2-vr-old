@@ -52,7 +52,7 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(SolutionDir)vr_io</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;../../vr_io</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;../../vr_io</LibraryPath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Client</TargetName>
   </PropertyGroup>
@@ -142,8 +142,8 @@ copy "$(TargetDir)"client.dll "d:\steam\steamapps\SourceMods\virtualhalf-life\bi
       <Message>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\</Message>
       <Command>if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.dll" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.dll"
 copy "$(TargetDir)client.dll" "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
-if exist "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.pdb" attrib -r "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin\client.pdb"
-copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
+
+copy "$(SolutionDir)vr_io\*.dll" "C:\Program Files (x86)\Steam\steamapps\sourcemods\halflife-vr\bin"
 </Command>
       <Outputs>C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.dll;C:\Program Files (x86)\Steam\steamapps\SourceMods\virtualhalf-life\bin\client.pdb;%(Outputs)</Outputs>
     </CustomBuildStep>
@@ -853,6 +853,7 @@ copy "$(TargetDir)Client Episodic.pdb" "C:\Program Files (x86)\Steam\steamapps\s
     <ClCompile Include="toolframework_client.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\vr_io\vr_io.h" />
     <ClInclude Include="..\shared\IMovementController.h" />
     <ClInclude Include="..\shared\vr\vr_controller.h" />
     <ClInclude Include="achievement_notification_panel.h" />
