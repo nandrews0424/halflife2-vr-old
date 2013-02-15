@@ -45,6 +45,7 @@ struct VRIO_Message
 		y = 0;
 		z = 0;
 	}
+
 };
 
 

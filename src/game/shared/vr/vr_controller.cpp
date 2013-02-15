@@ -35,7 +35,7 @@ VrController::VrController()
 
 VrController::~VrController()
 {
-	delete _vrIO;
+	shutDown();
 }
 
 bool	VrController::initialized( void )
@@ -150,9 +150,17 @@ void VrController::calibrateWeapon() {
 
 void VrController::shutDown()
 {
-	Msg("Shutting down VR Controller");
-	_initialized = false;
-	_vrIO->dispose();
+	
+	if (_initialized)
+	{
+		Msg("Shutting down VR Controller");
+		_initialized = false;
+		_vrIO->dispose();
+	}
+	else 
+	{
+		Msg("VR Controller already shut down, nothing to do here.");
+	}
 	// delete _vrIO; 
 }
 

@@ -814,6 +814,7 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 		AdjustPitch( speed, viewangles );
 		ClampAngles( viewangles );
 
+		VectorCopy(viewangles, cmd->moveangles);
 	}
 
 	// Store new view angles into engine view direction
