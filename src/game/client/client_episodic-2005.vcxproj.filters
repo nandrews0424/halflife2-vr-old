@@ -1494,9 +1494,6 @@
     <ClCompile Include="toolframework_client.cpp">
       <Filter>Tool Framework</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\vr\vr_controller.cpp">
       <Filter>Source Files\vr</Filter>
     </ClCompile>

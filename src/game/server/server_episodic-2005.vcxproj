@@ -213,7 +213,6 @@ copy "$(TargetDir)server.pdb" "C:\Program Files (x86)\Steam\steamapps\SourceMods
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
     <ClCompile Include="..\shared\achievement_saverestore.cpp" />
     <ClCompile Include="..\shared\achievementmgr.cpp" />
     <ClCompile Include="..\shared\achievements_hlx.cpp" />
@@ -1509,7 +1508,6 @@ copy "$(TargetDir)server.pdb" "C:\Program Files (x86)\Steam\steamapps\SourceMods
     <ClInclude Include="toolframework_server.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\libfreespace\lib\libfreespace.lib" />
     <Library Include="..\..\lib\public\choreoobjects.lib" />
     <Library Include="..\..\lib\public\dmxloader.lib" />
     <Library Include="..\..\lib\public\mathlib.lib" />

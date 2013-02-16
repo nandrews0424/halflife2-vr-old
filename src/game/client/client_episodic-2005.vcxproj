@@ -217,7 +217,6 @@ copy "$(SolutionDir)vr_io\*.dll" "C:\Program Files (x86)\Steam\steamapps\sourcem
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\libfreespace\include\math\quaternion.c" />
     <ClCompile Include="..\shared\vr\head_offset.cpp" />
     <ClCompile Include="..\shared\vr\vr_controller.cpp" />
     <ClCompile Include="achievement_notification_panel.cpp" />
