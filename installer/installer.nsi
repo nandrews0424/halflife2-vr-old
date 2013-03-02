@@ -8,7 +8,6 @@ OutFile ".\output\halflife-vr-${VERSION}.exe"
 Var SDK_INSTALLED
 Var STEAM_EXE
 
-
 ;TODO: 
 ;!define MUI_ICON '.\images\icon.ico'
 ;!define MUI_HEADERIMAGE images\header.bmp ;150x57
