@@ -4,5 +4,7 @@
 
 void CViewRender::ApplyHeadOffset(CViewSetup *view)
 {
-	view->origin += VR_Controller()->getHeadOffset();
+	Vector headOffset;
+	VR_Controller()->getHeadOffset(headOffset, false);
+	view->origin += headOffset;
 }

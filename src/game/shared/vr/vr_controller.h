@@ -31,8 +31,8 @@ public:
 	bool	hasWeaponTracking( void );
 	void	shutDown( void );
 
-	Vector getHeadOffset();
-	Vector getShootOffset();
+	void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll);
+	void VrController::getShootOffset(Vector &shootOffset);
 	Vector calculateViewModelRotationTranslation(Vector desiredRotationOrigin);
 			
 protected:

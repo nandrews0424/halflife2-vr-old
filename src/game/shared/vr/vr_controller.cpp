@@ -1,7 +1,7 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-ConVar vr_neck_length( "vr_neck_length", "12", 0 );
+ConVar vr_neck_length( "vr_neck_length", "10", 0 );
 ConVar vr_spine_length( "vr_spine_length", "50", 0 );
 
 VrController* _vrController;
@@ -173,36 +173,36 @@ extern VrController* VR_Controller()
 }
 
 
-Vector VrController::getHeadOffset()
+void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 {
-	Vector position;
 	float neckLength = vr_neck_length.GetFloat();
-	position.z -= neckLength;
+	headOffset.z -= neckLength;
 	
 	QAngle headAngle = _vrController->headOrientation();
+
+	if ( ignoreRoll )	{
+		headAngle.z = 0;
+	}
+
 	Vector up;
 	AngleVectors(headAngle, NULL, NULL, &up);
-	up *= neckLength;
-	position += up;
+	headOffset += up*neckLength;
 	
+	// TODO: Apply the same technique to a spine length if tracking body orientation separately...
 	if (false) {
 		QAngle spineAngle = _vrController->headOrientation();
 		up;
 		AngleVectors(spineAngle, NULL, NULL, &up);
-	
-		// TODO: Apply the same technique
 	}
 
 	// TODO: collision detection necessary with larger sizes
 	// Msg("getHeadOffset() position %f %f %f", position.x, position.y, position.z);
-
-	return position;
 }
 
 // TODO: more we can do here....
-Vector VrController::getShootOffset()
+void VrController::getShootOffset(Vector &shootOffset)
 {
-	return getHeadOffset();
+	getHeadOffset(shootOffset);
 }
 
 void getViewModelAngles()
@@ -210,13 +210,25 @@ void getViewModelAngles()
 	// View model rotations often need to be adjusted but may be fixed by proper origin adjustments...
 }
 
+
+void applyGestures()
+{
+	// todo: a method that looks for special orientation relationships or changes and triggers input buttons...
+
+}
+
+
+
 // Viewmodels aren't properly origined and thus a translation needs to be calculated to adjust for the rotation about an invalid origin
 Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotationOrigin)
 {
-	QAngle angles = _vrController->weaponOrientation() - _vrController->headOrientation();
+	QAngle weapon = _vrController->weaponOrientation();
+	QAngle head = _vrController->headOrientation();
+	QAngle angles = weapon - head;
 	angles.x*=-1;
+
+	// TODO: still getting less than ideal results from weapon roll right 
 	
-	Msg("Calculating viewmodel translation from angles %f %f %f\n", angles.x, angles.y, angles.z);
 	Vector moved;
 	matrix3x4_t rotateMatrix;
 	AngleMatrix(angles, rotateMatrix);

@@ -386,6 +386,12 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		AngleVectors(eyeAngles, &forward, &right, &up);
 
 		// Faking this which should be configured per gun for the moment
+		
+		float pitchScale = .72;
+		float yawScale = .72;
+		Vector vmOriginOffset(5.5,6,4);
+		Vector baseVmOffset = forward * -5 + right*-2.5 + up*4;
+		
 		/*
 			Sample configuration
 			{
@@ -396,25 +402,39 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			}
 
 		*/
-
-		// TODO: need to scale the pitch and yaw of VM to line up better...
 		
-		Vector baseVmOffset = forward * -5 + right*-2.5 + up*4;
-		Vector v = VR_Controller()->calculateViewModelRotationTranslation(Vector(10, 10, 5));
+		
+		// Getting scaled viewmodel rotation (todo: extract)
+
+		QAngle headAngle = VR_Controller()->headOrientation();
+		QAngle deltaAngle = weaponAngle - headAngle;
+	
+		deltaAngle.x *= pitchScale;
+		deltaAngle.y *= yawScale;
+		
+		QAngle newWeaponAngle = headAngle + deltaAngle;
+		
+		Msg("ViewModel angle scaled\n%f %f %f -> %f %f %f \n", weaponAngle.x, weaponAngle.y, weaponAngle.z, newWeaponAngle.x, newWeaponAngle.y, newWeaponAngle.z);
+		
+		// end getting scaled viewmodel rotation
+		
+
+
+		Vector v = VR_Controller()->calculateViewModelRotationTranslation(vmOriginOffset);
 		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
 		
-		// TODO: we need to also apply the head offset as well or at least some fraction of it... (later with spine model that would be the ideal offset)
-		// Vector headOffset = VR_Controller()->getHeadOffset();
+		Vector headOffset(0,0,0);
+		VR_Controller()->getHeadOffset(headOffset, true);
 		
-		DebugDrawLine(vmorigin, vmorigin+baseVmOffset, 0, 255, 0, true, 1);
-		DebugDrawLine(vmorigin+baseVmOffset, vmorigin+baseVmOffset+vmRotationOffset, 255, 0, 0, true, 1);
+		// DebugDrawLine(vmorigin, vmorigin+baseVmOffset, 0, 255, 0, true, 1);
+		// DebugDrawLine(vmorigin+baseVmOffset, vmorigin+baseVmOffset+vmRotationOffset, 255, 0, 0, true, 1);
 
-		SetLocalOrigin(vmorigin + baseVmOffset + vmRotationOffset);
-		SetLocalAngles(weaponAngle);
+		SetLocalOrigin(vmorigin + baseVmOffset + vmRotationOffset + headOffset);
+		SetLocalAngles(newWeaponAngle);
+
 
 	} else {
 
-		
 		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
 		//Allow weapon lagging
 		if ( pWeapon != NULL )
