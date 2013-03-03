@@ -30,7 +30,11 @@ public:
 	bool	initialized( void );
 	bool	hasWeaponTracking( void );
 	void	shutDown( void );
-	
+
+	Vector getHeadOffset();
+	Vector getShootOffset();
+	Vector calculateViewModelRotationTranslation(Vector desiredRotationOrigin);
+			
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
 

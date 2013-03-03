@@ -385,52 +385,33 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
 
-		//get yaw offset taking into account differences in sign,
-		//yawDelta = degrees between weapon and eye angles
-		float yawDelta = 0;
-		if(fabs(weaponAngle.y - eyeAngles.y) > 180.f) {
-			if (weaponAngle.y > 0) {
-				yawDelta = weaponAngle.y - (eyeAngles.y + 360.f);
-			} else {
-				yawDelta = weaponAngle.y - (eyeAngles.y - 360.f);
+		// Faking this which should be configured per gun for the moment
+		/*
+			Sample configuration
+			{
+				offset: x y z,
+				originOffset: x y z,
+				pitchScale: f,
+				yawScale: f,
 			}
-		}
-		else {
-			yawDelta = weaponAngle.y - eyeAngles.y;
-		}
 
-		// Adjust for an origin that isn't actually near the weapon
-		float upOffset =  7 * sin(DEG2RAD(weaponAngle.z)); //up adjustment for roll
-		upOffset +=  10 * sin(DEG2RAD(weaponAngle.x)); // up adjustment for pitch
-		
-		float forwardOffset = -6*cos(DEG2RAD(weaponAngle.x)); // forward adjustment for pitch
-		forwardOffset += 2*sin(DEG2RAD(yawDelta));
-		// Handle yaw effects on left-right position
-		float rightOffset = 10 * sin(DEG2RAD(weaponAngle.y - eyeAngles.y));
-		
-		
-		rightOffset += 2 * sin(DEG2RAD(weaponAngle.z));  // left/right offsetting for roll
-		
-		//yaw aim seems overstated
-		weaponAngle.y = eyeAngles.y + yawDelta *.70;
-		
-		//up aim seems way overstated
-		if (weaponAngle.x < 0) {
-			weaponAngle.x *= .66;
-		} else {
-			weaponAngle.x *= .8;//down less so
-		}
-				
-		// give the viewmodel a less exaggerated right position like it's actually shouldered.
-		rightOffset -= 4; // units left				
-		upOffset += 1.2;
-		
-		// TODO: 
+		*/
 
-		vmorigin = vmorigin + (forward * forwardOffset) + (up * upOffset) + (right * rightOffset);
+		// TODO: need to scale the pitch and yaw of VM to line up better...
+		
+		Vector baseVmOffset = forward * -5 + right*-2.5 + up*4;
+		Vector v = VR_Controller()->calculateViewModelRotationTranslation(Vector(10, 10, 5));
+		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
+		
+		// TODO: we need to also apply the head offset as well or at least some fraction of it... (later with spine model that would be the ideal offset)
+		// Vector headOffset = VR_Controller()->getHeadOffset();
+		
+		DebugDrawLine(vmorigin, vmorigin+baseVmOffset, 0, 255, 0, true, 1);
+		DebugDrawLine(vmorigin+baseVmOffset, vmorigin+baseVmOffset+vmRotationOffset, 255, 0, 0, true, 1);
 
-		SetLocalOrigin(vmorigin);
+		SetLocalOrigin(vmorigin + baseVmOffset + vmRotationOffset);
 		SetLocalAngles(weaponAngle);
+
 	} else {
 
 		

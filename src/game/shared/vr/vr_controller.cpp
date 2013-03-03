@@ -173,7 +173,7 @@ extern VrController* VR_Controller()
 }
 
 
-Vector getHeadOffset()
+Vector VrController::getHeadOffset()
 {
 	Vector position;
 	float neckLength = vr_neck_length.GetFloat();
@@ -184,9 +184,7 @@ Vector getHeadOffset()
 	AngleVectors(headAngle, NULL, NULL, &up);
 	up *= neckLength;
 	position += up;
-
-	// if spine
-
+	
 	if (false) {
 		QAngle spineAngle = _vrController->headOrientation();
 		up;
@@ -196,30 +194,33 @@ Vector getHeadOffset()
 	}
 
 	// TODO: collision detection necessary with larger sizes
+	// Msg("getHeadOffset() position %f %f %f", position.x, position.y, position.z);
 
 	return position;
 }
 
 // TODO: more we can do here....
-Vector getShootOffset()
+Vector VrController::getShootOffset()
 {
 	return getHeadOffset();
 }
 
-void getViewModelAngle()
+void getViewModelAngles()
 {
 	// View model rotations often need to be adjusted but may be fixed by proper origin adjustments...
 }
 
 // Viewmodels aren't properly origined and thus a translation needs to be calculated to adjust for the rotation about an invalid origin
-Vector calculateViewModelRotationTranslation(Vector desiredRotationOrigin)
+Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotationOrigin)
 {
-	QAngle angles = _vrController->weaponOrientation();
+	QAngle angles = _vrController->weaponOrientation() - _vrController->headOrientation();
+	angles.x*=-1;
+	
+	Msg("Calculating viewmodel translation from angles %f %f %f\n", angles.x, angles.y, angles.z);
 	Vector moved;
 	matrix3x4_t rotateMatrix;
 	AngleMatrix(angles, rotateMatrix);
 	VectorRotate( desiredRotationOrigin, rotateMatrix, moved);
 
-	// We want to remove the translation that occurred to the target origin, so we'll return the difference between the original and rotated vector
 	return moved - desiredRotationOrigin;
 }
