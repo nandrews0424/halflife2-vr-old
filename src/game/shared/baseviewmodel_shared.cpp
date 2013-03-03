@@ -381,6 +381,16 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	
 	if (VR_Controller()->hasWeaponTracking()) {
 
+
+		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
+		if(!pWeapon)
+			return;
+	
+		// TODO: use these settings for per weapon configurations ...
+		// pWeapon->GetWpnData().viewModelOffset;
+		// pWeapon->GetWpnData().viewModelOrigin;
+		// pWeapon->GetWpnData().viewModelPitchScale;
+		
 		QAngle weaponAngle = VR_Controller()->weaponOrientation();
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
@@ -389,20 +399,8 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		
 		float pitchScale = .72;
 		float yawScale = .72;
-		Vector vmOriginOffset(5.5,6,4);
-		Vector baseVmOffset = forward * -5 + right*-2.5 + up*4;
-		
-		/*
-			Sample configuration
-			{
-				offset: x y z,
-				originOffset: x y z,
-				pitchScale: f,
-				yawScale: f,
-			}
-
-		*/
-		
+		Vector vmOriginOffset(8.5,6,3.5);
+		Vector baseVmOffset = forward * -5 + right*-4.5 + up*1.5;
 		
 		// Getting scaled viewmodel rotation (todo: extract)
 
@@ -413,12 +411,9 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		deltaAngle.y *= yawScale;
 		
 		QAngle newWeaponAngle = headAngle + deltaAngle;
-		
-		Msg("ViewModel angle scaled\n%f %f %f -> %f %f %f \n", weaponAngle.x, weaponAngle.y, weaponAngle.z, newWeaponAngle.x, newWeaponAngle.y, newWeaponAngle.z);
-		
+				
 		// end getting scaled viewmodel rotation
 		
-
 
 		Vector v = VR_Controller()->calculateViewModelRotationTranslation(vmOriginOffset);
 		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
@@ -426,12 +421,8 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, true);
 		
-		// DebugDrawLine(vmorigin, vmorigin+baseVmOffset, 0, 255, 0, true, 1);
-		// DebugDrawLine(vmorigin+baseVmOffset, vmorigin+baseVmOffset+vmRotationOffset, 255, 0, 0, true, 1);
-
 		SetLocalOrigin(vmorigin + baseVmOffset + vmRotationOffset + headOffset);
 		SetLocalAngles(newWeaponAngle);
-
 
 	} else {
 
@@ -458,7 +449,10 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 		Vector playerOrigin = owner->GetAbsOrigin();
 	
-		SetLocalOrigin(vmorigin);
+		Vector headOffset(0,0,0); // from lean/neck model
+		VR_Controller()->getHeadOffset(headOffset, false);
+		
+		SetLocalOrigin(vmorigin + headOffset);
 		
 		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
 		SetLocalAngles(vmangles);

@@ -205,18 +205,30 @@ void VrController::getShootOffset(Vector &shootOffset)
 	getHeadOffset(shootOffset);
 }
 
-void getViewModelAngles()
-{
-	// View model rotations often need to be adjusted but may be fixed by proper origin adjustments...
-}
-
-
 void applyGestures()
 {
 	// todo: a method that looks for special orientation relationships or changes and triggers input buttons...
-
 }
 
+Vector rotateVector(Vector &vector, QAngle &angle)
+{
+	Vector result(0,0,0);
+
+	angle.x = DEG2RAD(angle.x);
+	angle.y = DEG2RAD(angle.y);
+	angle.z = DEG2RAD(angle.z);
+	
+	result.y += vector.y*cos(angle.x) - vector.z*sin(angle.x);
+	result.z += vector.y*sin(angle.x) + vector.z*cos(angle.x);
+	
+	result.x += vector.x*cos(angle.y) + vector.z*sin(angle.y);
+	result.z += -vector.x*sin(angle.y) + vector.z*cos(angle.y);
+			
+	result.x += vector.x*cos(angle.z) - vector.y*sin(angle.z);
+	result.y += vector.x*sin(angle.z) + vector.y*cos(angle.z);
+	
+	return result;
+}
 
 
 // Viewmodels aren't properly origined and thus a translation needs to be calculated to adjust for the rotation about an invalid origin
@@ -225,14 +237,23 @@ Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotatio
 	QAngle weapon = _vrController->weaponOrientation();
 	QAngle head = _vrController->headOrientation();
 	QAngle angles = weapon - head;
-	angles.x*=-1;
+
+	// angles.x*=-1;
 
 	// TODO: still getting less than ideal results from weapon roll right 
 	
 	Vector moved;
 	matrix3x4_t rotateMatrix;
 	AngleMatrix(angles, rotateMatrix);
-	VectorRotate( desiredRotationOrigin, rotateMatrix, moved);
+	VectorRotate(desiredRotationOrigin, rotateMatrix, moved);
+
+	// TODO: These two definitely give different results so something isn't yet squared away...
+	// Vector moved2 = rotateVector(desiredRotationOrigin, angles);
+	// Msg("Comparing vector rotations x %f:%f y %f:%f z %f:%f\n", moved.x, moved2.x, moved.y, moved2.y, moved.z, moved2.z);
 
 	return moved - desiredRotationOrigin;
 }
+
+
+
+

@@ -17,6 +17,7 @@
 	#include "c_basedoor.h"
 	#include "c_world.h"
 	#include "view.h"
+	#include "vr\vr_controller.h"	
 
 	#define CRecipientFilter C_RecipientFilter
 
@@ -282,6 +283,7 @@ Vector CBasePlayer::EyePosition( )
 	else
 	{
 #ifdef CLIENT_DLL
+
 		if ( IsObserver() )
 		{
 			if ( m_iObserverMode == OBS_MODE_CHASE )
@@ -720,13 +722,31 @@ void CBasePlayer::SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalki
 
 Vector CBasePlayer::Weapon_ShootPosition( )
 {
-	//take into account the eye angles etc to correctly place this 
-	return EyePosition();  //VR SOURCE TODO - THIS WILL NEED TO ACTUALLY BE THE WEAPON'S MUZZLE POSITION
+	Vector forward, right, up;
+	
+	// todo: hacked in for now... this apparently only happens on the server...
+
+	EyeVectors(&forward, &right, &up);
+	float neckLength = 10;  // we're going to have to actually pass the lean 
+	
+	Vector eyes = EyePosition();
+
+	eyes.z -= neckLength;
+	eyes += up*neckLength;
+		
+	return eyes;
 }
 
 Vector CBasePlayer::Weapon_ShootDirection( )
 {
-	return weaponangle;
+	if ( weapontracking ) 
+	{
+		return weaponangle;
+	}
+	
+	Vector v;
+	EyeVectors(&v);
+	return v;
 }
 
 Vector CBasePlayer::SetWeaponAngle(QAngle& angle) 

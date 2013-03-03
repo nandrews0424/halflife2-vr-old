@@ -129,6 +129,8 @@ public:
 
 // SERVER DLL
 	Vector					viewModelOffset;
+	Vector					viewModelOrigin;
+	Vector					viewModelPitchScale;
 };
 
 // The weapon parse function

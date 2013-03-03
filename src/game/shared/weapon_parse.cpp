@@ -453,13 +453,26 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 	}
 
 	// VR SOURCE - Load additional data for weapon view model offsets...
-	viewModelOffset.Init();
+	
+	viewModelOffset.Init(-5.f, -3.5f, 5.f);
+	viewModelOrigin.Init(5.5f, 5.f, 3.5f);
+	viewModelPitchScale.Init(.72, .72, 0.f);
+		
 	KeyValues *offsets = pKeyValuesData->FindKey( "ViewModelOffsets" );
 	if(offsets)
 	{
-		viewModelOffset.x			= offsets->GetFloat( "forward", 0.0f );
-		viewModelOffset.y			= offsets->GetFloat( "right", 0.0f );
-		viewModelOffset.z			= offsets->GetFloat( "up", 0.0f );
+		viewModelOffset.x			= offsets->GetFloat( "offsetForward", -5.f );
+		viewModelOffset.y			= offsets->GetFloat( "offsetRight", -3.5f );
+		viewModelOffset.z			= offsets->GetFloat( "offsetUp", 5.f );
+
+		viewModelOrigin.x			= offsets->GetFloat( "originForward", 5.5f );
+		viewModelOrigin.y			= offsets->GetFloat( "originRight", 5.f );
+		viewModelOrigin.z			= offsets->GetFloat( "originUp", 3.5f );
+		
+		viewModelPitchScale.x		= offsets->GetFloat( "pitchScaleX", .72 );
+		viewModelPitchScale.y		= offsets->GetFloat( "pitchScaleY", .72 );
+		viewModelPitchScale.z		= offsets->GetFloat( "pitchScaleZ", 0.f );
+		
 	}
 }
 

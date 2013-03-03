@@ -31,9 +31,9 @@ public:
 	bool	hasWeaponTracking( void );
 	void	shutDown( void );
 
-	void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll);
-	void VrController::getShootOffset(Vector &shootOffset);
-	Vector calculateViewModelRotationTranslation(Vector desiredRotationOrigin);
+	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
+	void	getShootOffset(Vector &shootOffset);
+	Vector	calculateViewModelRotationTranslation(Vector desiredRotationOrigin);
 			
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
