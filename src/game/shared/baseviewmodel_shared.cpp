@@ -399,8 +399,9 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		
 		float pitchScale = .72;
 		float yawScale = .72;
-		Vector vmOriginOffset(8.5,6,3.5);
-		Vector baseVmOffset = forward * -5 + right*-4.5 + up*1.5;
+		Vector vmOriginOffset(8,6,4);
+		//Vector baseVmOffset = forward * -1 + right*-4 + up;
+		Vector baseVmOffset = right*-4 + up;
 		
 		// Getting scaled viewmodel rotation (todo: extract)
 
@@ -411,13 +412,14 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		deltaAngle.y *= yawScale;
 		
 		QAngle newWeaponAngle = headAngle + deltaAngle;
-				
+				 
 		// end getting scaled viewmodel rotation
 		
-
 		Vector v = VR_Controller()->calculateViewModelRotationTranslation(vmOriginOffset);
+		//v.y*=1;
+		v.z*=1.5;
 		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
-		
+				
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, true);
 		

@@ -238,20 +238,42 @@ Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotatio
 	QAngle head = _vrController->headOrientation();
 	QAngle angles = weapon - head;
 
-	// angles.x*=-1;
-
-	// TODO: still getting less than ideal results from weapon roll right 
+	if ( angles.z < -180.f )
+		angles.z += 360.f;
+	if ( angles.z > 180.f )
+		angles.z -= 360.f;
 	
-	Vector moved;
-	matrix3x4_t rotateMatrix;
-	AngleMatrix(angles, rotateMatrix);
-	VectorRotate(desiredRotationOrigin, rotateMatrix, moved);
+	Vector offset(0,0,0);
+	
 
-	// TODO: These two definitely give different results so something isn't yet squared away...
-	// Vector moved2 = rotateVector(desiredRotationOrigin, angles);
-	// Msg("Comparing vector rotations x %f:%f y %f:%f z %f:%f\n", moved.x, moved2.x, moved.y, moved2.y, moved.z, moved2.z);
+	// pitch effects - good enough
+	offset.x += -6 * cos(DEG2RAD(angles.x));
+	offset.z +=  10.5 * sin(DEG2RAD(angles.x));
+		
+	//Msg("%.1f deg pitch effects x: %.1f y: %.1f z: %.1f\n", angles.x, offset.x, offset.y, offset.z);
 
-	return moved - desiredRotationOrigin;
+	// yaw effects 
+	offset.x += 2 * sin(DEG2RAD(angles.y));
+	offset.y += 15.5 * sin(DEG2RAD(angles.y));
+
+	if (angles.y < 0) {
+		// Msg("%.1f x axis boost per negative yaw\n", -8 * sin(DEG2RAD(angles.y)));
+		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
+	}
+	
+	//Msg("+ %.1f yaw pitch effects x: %.1f y: %.1f z: %.1f\n", angles.y, offset.x, offset.y, offset.z);
+
+	// roll effects
+	offset.y +=	 8 * sin(DEG2RAD(angles.z));  // side to side is fine...
+
+	if (angles.z < 0) {
+		offset.y += -3 * sin(DEG2RAD(angles.z)); 
+		offset.z += 5 * sin(DEG2RAD(angles.z));
+	}
+
+	
+	
+	return offset;
 }
 
 
