@@ -245,33 +245,37 @@ Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotatio
 	
 	Vector offset(0,0,0);
 	
-
 	// pitch effects - good enough
-	offset.x += -6 * cos(DEG2RAD(angles.x));
-	offset.z +=  10.5 * sin(DEG2RAD(angles.x));
+	offset.x += -7 * cos(DEG2RAD(angles.x));
+	if (angles.x < 0)
+		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
+	else
+		offset.z +=  8 * sin(DEG2RAD(angles.x));
 		
-	//Msg("%.1f deg pitch effects x: %.1f y: %.1f z: %.1f\n", angles.x, offset.x, offset.y, offset.z);
-
 	// yaw effects 
 	offset.x += 2 * sin(DEG2RAD(angles.y));
-	offset.y += 15.5 * sin(DEG2RAD(angles.y));
-
+	offset.y += 14 * sin(DEG2RAD(angles.y)); 
+	
 	if (angles.y < 0) {
-		// Msg("%.1f x axis boost per negative yaw\n", -8 * sin(DEG2RAD(angles.y)));
 		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
 	}
 	
-	//Msg("+ %.1f yaw pitch effects x: %.1f y: %.1f z: %.1f\n", angles.y, offset.x, offset.y, offset.z);
-
-	// roll effects
-	offset.y +=	 8 * sin(DEG2RAD(angles.z));  // side to side is fine...
-
+		// roll effects
+	Vector rollOffset(0,0,0);
+	
 	if (angles.z < 0) {
-		offset.y += -3 * sin(DEG2RAD(angles.z)); 
-		offset.z += 5 * sin(DEG2RAD(angles.z));
+		rollOffset.y += 5 * sin(DEG2RAD(angles.z)); 
+		rollOffset.z +=  (4.5 - angles.z/30.f) * sin(DEG2RAD(angles.z));
+	}	
+	else 
+	{
+		rollOffset.y +=	 8 * sin(DEG2RAD(angles.z)); 
+		rollOffset.z += (4.5 - angles.z/20.f )  * sin(DEG2RAD(angles.z));
 	}
 
+	// Msg("%.1f deg roll offsets %.1f %.1f %.1f\n", angles.z, rollOffset.x, rollOffset.y, rollOffset.z);
 	
+	offset += rollOffset;
 	
 	return offset;
 }
