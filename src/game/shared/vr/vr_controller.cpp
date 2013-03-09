@@ -243,6 +243,13 @@ Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotatio
 	if ( angles.z > 180.f )
 		angles.z -= 360.f;
 	
+	if ( angles.y < -180.f )
+		angles.y += 360.f;
+	if ( angles.y > 180.f )
+		angles.y -= 360.f;
+	
+	// Msg("Yaw angles head %.1f weap %1.f diff %.1f\n", head.y, weapon.y, angles.y);
+
 	Vector offset(0,0,0);
 	
 	// pitch effects - good enough
@@ -250,11 +257,11 @@ Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotatio
 	if (angles.x < 0)
 		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
 	else
-		offset.z +=  8 * sin(DEG2RAD(angles.x));
+		offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
 		
 	// yaw effects 
 	offset.x += 2 * sin(DEG2RAD(angles.y));
-	offset.y += 14 * sin(DEG2RAD(angles.y)); 
+	offset.y += 7 * sin(DEG2RAD(angles.y)); 
 	
 	if (angles.y < 0) {
 		offset.x -= 9.5 * sin(DEG2RAD(angles.y));

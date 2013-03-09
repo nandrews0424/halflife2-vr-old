@@ -408,6 +408,16 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		QAngle headAngle = VR_Controller()->headOrientation();
 		QAngle deltaAngle = weaponAngle - headAngle;
 	
+		if ( deltaAngle.y < -180.f )
+			deltaAngle.y += 360.f;
+		if ( deltaAngle.y > 180.f )
+			deltaAngle.y -= 360.f;
+	
+
+		Msg("Yaw angles head %.1f weap %1.f diff %.1f\n", headAngle.y, weaponAngle.y, deltaAngle.y);
+
+
+
 		deltaAngle.x *= pitchScale;
 		deltaAngle.y *= yawScale;
 		
