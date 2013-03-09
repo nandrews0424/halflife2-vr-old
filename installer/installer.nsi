@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.9.3'
+!define VERSION '0.9.4'
 
 Name "Half-Life VR"
 
@@ -36,16 +36,28 @@ Keep in mind this is a very early version so if you have any issues or ideas ple
 
 Section "" 
 
-	
-
 	SetOutPath $INSTDIR\halflife-vr
-	RMDir /r $INSTDIR\virtualhalf-life
-
 	File /r .\package\*
+	SetOutPath $INSTDIR\halflife-vr\cfg
+	File .\package\cfg\chapters-hl2\*
+
+
+	SetOutPath $INSTDIR\halflife-vr-ep1
+	File /r .\package\*
+	Delete $INSTDIR\halflife-vr-ep1\gameinfo.txt
+	Rename $INSTDIR\halflife-vr-ep1\ep1-gameinfo.txt $INSTDIR\halflife-vr-ep1\gameinfo.txt
+	SetOutPath $INSTDIR\halflife-vr-ep1\cfg
+	File .\package\cfg\chapters-ep1\*
+
+
+	SetOutPath $INSTDIR\halflife-vr-ep2
+	File /r .\package\*
+	Delete $INSTDIR\halflife-vr-ep2\gameinfo.txt
+	Rename $INSTDIR\halflife-vr-ep2\ep2-gameinfo.txt $INSTDIR\halflife-vr-ep2\gameinfo.txt
+	SetOutPath $INSTDIR\halflife-vr-ep2\cfg
+	File .\package\cfg\chapters-ep2\*
 
 	WriteUninstaller $INSTDIR\Uninstall.exe
-
-	;TODO: REG ENTRIES FOR UNINSTALL
 
 SectionEnd
 
