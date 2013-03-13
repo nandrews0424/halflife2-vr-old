@@ -74,6 +74,8 @@ static void in_vrShutDown(const CCommand &args) {
 }
 ConCommand in_vrshutdown("vr_shutdown", in_vrShutDown, "Shut's off all vr devices and returns controls to normal mode");
 
+ConVar vr_forward_accel("vr_forward_accel", "7", 0, "max forward acceleration value");
+ConVar vr_side_accel("vr_side_accel", "5", 0, "max side acceleration value");
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -800,16 +802,8 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 	// Retrieve latest view direction from engine
 	engine->GetViewAngles( viewangles );
 	
-	if (vrController->initialized()) {
-	
-		vrController->update(viewangles[YAW]);
-		VectorCopy(vrController->headOrientation(), viewangles);
-		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
-		VectorCopy(bodyRelativeMovement ? vrController->bodyOrientation() : vrController->headOrientation(), cmd->moveangles);
-		cmd->weapontracking = vrController->hasWeaponTracking();
-
-	} else {	
-		
+	if ( !vrController->initialized() ) 
+	{
 		AdjustYaw( speed, viewangles );
 		AdjustPitch( speed, viewangles );
 		ClampAngles( viewangles );
@@ -820,6 +814,27 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 	// Store new view angles into engine view direction
 	engine->SetViewAngles( viewangles );
 }
+
+
+
+void VR_UpdateTracking( CUserCmd *cmd )
+{
+	QAngle viewangles;
+	engine->GetViewAngles( viewangles );
+	
+	if (vrController->initialized()) {
+	
+		vrController->update(viewangles[YAW]);
+		VectorCopy(vrController->headOrientation(), viewangles);
+		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
+		VectorCopy(bodyRelativeMovement ? vrController->bodyOrientation() : vrController->headOrientation(), cmd->moveangles);
+		cmd->weapontracking = vrController->hasWeaponTracking();
+	}
+	
+	engine->SetViewAngles( viewangles );
+}
+
+
 
 /*
 ==============================
@@ -929,34 +944,39 @@ ScaleMovements
 
 ==============================
 */
+
+int idxMovementSmoothing = 0;
+
 void CInput::ScaleMovements( CUserCmd *cmd )
 {
-	// float spd;
-
-	// clip to maxspeed
-	// FIXME FIXME:  This doesn't work
-	return;
-
-	/*
-	spd = engine->GetClientMaxspeed();
-	if ( spd == 0.0 )
+		
+	float forwardLimit = vr_forward_accel.GetFloat();
+	float sideLimit = vr_side_accel.GetFloat();
+	
+	if ( forwardLimit <= 0 )
 		return;
-
-	// Scale the speed so that the total velocity is not > spd
-	float fmov = sqrt( (cmd->forwardmove*cmd->forwardmove) + (cmd->sidemove*cmd->sidemove) + (cmd->upmove*cmd->upmove) );
-
-	if ( fmov > spd && fmov > 0.0 )
+		
+	if ( !(fabs(m_flLastSideMove) > 160 && m_flLastSideMove*cmd->sidemove>0) )
 	{
-		float fratio = spd / fmov;
 
-		if ( !IsNoClipping() ) 
-		{
-			cmd->forwardmove	*= fratio;
-			cmd->sidemove		*= fratio;
-			cmd->upmove			*= fratio;
-		}
+		if ( cmd->forwardmove*m_flLastForwardMove < 0 )
+			cmd->forwardmove = 0;
+		else if ( m_flLastForwardMove >= 0 )
+			cmd->forwardmove = min(m_flLastForwardMove + forwardLimit, cmd->forwardmove); 
+		else
+			cmd->forwardmove = max(m_flLastForwardMove - forwardLimit, cmd->forwardmove);
 	}
-	*/
+
+	if ( sideLimit <= 0 || fabs(cmd->forwardmove) > 160 )
+		return;
+		
+	// same for side move (maybe different rules here... 
+	if ( cmd->sidemove*m_flLastSideMove < 0 )
+		cmd->sidemove = 0;
+	else if ( m_flLastSideMove >= 0 )
+		cmd->sidemove = min(m_flLastSideMove + sideLimit, cmd->sidemove); 
+	else
+		cmd->sidemove = max(m_flLastSideMove - sideLimit, cmd->sidemove);
 }
 
 
@@ -1032,6 +1052,7 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 
 			// Allow mice and other controllers to add their inputs
 			ControllerMove( frametime, cmd );
+
 		}
 
 		// Retreive view angles from engine ( could have been set in IN_AdjustAngles above )
@@ -1089,12 +1110,15 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 		// Determine forward movement
 		ComputeForwardMove( cmd );
 
-		// Scale based on holding speed key or having too fast of a velocity based on client maximum
-		//  speed.
-		ScaleMovements( cmd );
-
 		// Allow mice and other controllers to add their inputs
 		ControllerMove( input_sample_frametime, cmd );
+
+		// Scale movement by applying a rolling average to give some weight 
+		ScaleMovements( cmd );
+
+		// if vr tracking is active allow it to update the angles as well
+		VR_UpdateTracking( cmd );
+
 	}
 	else
 	{
@@ -1162,6 +1186,7 @@ void CInput::CreateMove ( int sequence_number, float input_sample_frametime, boo
 	}
 
 	m_flLastForwardMove = cmd->forwardmove;
+	m_flLastSideMove = cmd->sidemove;
 
 	cmd->random_seed = MD5_PseudoRandom( sequence_number ) & 0x7fffffff;
 
@@ -1567,6 +1592,9 @@ void CInput::Init_All (void)
 	m_fMouseParmsValid	= false;
 	m_fJoystickAdvancedInit = false;
 	m_flLastForwardMove = 0.0;
+	m_flLastSideMove = 0.0;
+
+	
 
 	// Initialize inputs
 	if ( IsPC() )
@@ -1580,7 +1608,7 @@ void CInput::Init_All (void)
 	
 	m_angViewAngle = vec3_angle;
 	HOOK_MESSAGE( SetViewAngle );
-	
+			
 	vrController = new VrController();
 }
 

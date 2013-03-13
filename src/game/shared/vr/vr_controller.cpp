@@ -43,6 +43,7 @@ VrController::~VrController()
 
 bool	VrController::initialized( void )
 {
+
 	return _initialized && _vrIO->getChannelCount() > 0; //for now
 }
 

@@ -960,12 +960,16 @@ bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	// Allow the vehicle to clamp the view angles
 	if ( IsInAVehicle() )
 	{
+
+		// VR TODO: don't clamp angles for vehicle 	
+
 		IClientVehicle *pVehicle = m_hVehicle.Get()->GetClientVehicle();
-		if ( pVehicle )
+		if ( pVehicle && VR_Controller()->initialized() )
 		{
 			pVehicle->UpdateViewAngles( this, pCmd );
 			engine->SetViewAngles( pCmd->viewangles );
 		}
+
 	}
 	else 
 	{
@@ -987,7 +991,7 @@ bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	}
 
 	// If the frozen flag is set, prevent view movement (server prevents the rest of the movement)
-	if ( GetFlags() & FL_FROZEN )
+	if ( (GetFlags() & FL_FROZEN) && !VR_Controller()->initialized() )
 	{
 		// Don't stomp the first time we get frozen
 		if ( m_bWasFrozen )

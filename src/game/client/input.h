@@ -237,6 +237,7 @@ private:
 	QAngle		m_angPreviousViewAngles;
 
 	float		m_flLastForwardMove;
+	float		m_flLastSideMove;
 
 	// VR Source Changes
 	QAngle		m_angViewAngle;

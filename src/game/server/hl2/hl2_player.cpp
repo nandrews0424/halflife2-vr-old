@@ -282,6 +282,33 @@ void CC_ToggleDuck( void )
 
 static ConCommand toggle_duck("toggle_duck", CC_ToggleDuck, "Toggles duck" );
 
+
+void CC_ToggleWalk( void )
+{
+	CBasePlayer* pPlayer = UTIL_GetCommandClient();
+
+	if( !pPlayer )
+		return;
+	
+	CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player*>(pPlayer);
+
+	if ( !pHL2Player )
+		return;
+	
+	Msg("Toggling walk for player...");
+
+	// Cannot be frozen
+	if ( pHL2Player->GetFlags() & FL_FROZEN )
+		return;
+
+	if ( pHL2Player->IsWalking() )
+		pHL2Player->StopWalking();
+	else
+		pHL2Player->StartWalking();
+}
+
+static ConCommand toggle_walk("toggle_walk", CC_ToggleWalk, "Toggles walk" );
+
 #ifndef HL2MP
 #ifndef PORTAL
 LINK_ENTITY_TO_CLASS( player, CHL2_Player );

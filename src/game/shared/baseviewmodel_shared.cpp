@@ -381,11 +381,10 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	
 	if (VR_Controller()->hasWeaponTracking()) {
 
-
 		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
-		if(!pWeapon)
+		if( pWeapon == NULL )
 			return;
-	
+			
 		// TODO: use these settings for per weapon configurations ...
 		// pWeapon->GetWpnData().viewModelOffset;
 		// pWeapon->GetWpnData().viewModelOrigin;
@@ -400,7 +399,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		float pitchScale = .72;
 		float yawScale = .72;
 		Vector vmOriginOffset(8,6,4);
-		Vector baseVmOffset = forward * -1 + right*-4 + up; 
+		Vector baseVmOffset = forward * -1 + right*-3 + up; 
 		//Vector baseVmOffset = right*-5 + up*3.5  + forward*-3; //ironsight version
 		
 		// Getting scaled viewmodel rotation (todo: extract)
@@ -412,17 +411,13 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			deltaAngle.y += 360.f;
 		if ( deltaAngle.y > 180.f )
 			deltaAngle.y -= 360.f;
+			
 	
-
-		Msg("Yaw angles head %.1f weap %1.f diff %.1f\n", headAngle.y, weaponAngle.y, deltaAngle.y);
-
-
-
 		deltaAngle.x *= pitchScale;
 		deltaAngle.y *= yawScale;
 		
 		QAngle newWeaponAngle = headAngle + deltaAngle;
-				 
+			
 		// end getting scaled viewmodel rotation
 		
 		Vector v = VR_Controller()->calculateViewModelRotationTranslation(vmOriginOffset);
@@ -432,8 +427,12 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 				
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, false);
-		
-		SetLocalOrigin(vmorigin + baseVmOffset + vmRotationOffset + headOffset);
+
+		vmorigin = vmorigin + baseVmOffset + vmRotationOffset + headOffset;
+				
+		AddViewModelBob( owner, vmorigin, newWeaponAngle );
+
+		SetLocalOrigin(vmorigin);
 		SetLocalAngles(newWeaponAngle);
 
 	} else {
@@ -476,7 +475,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float g_fMaxViewModelLag = 1.5f;
+float g_fMaxViewModelLag = .5f;
 
 void CBaseViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& original_angles )
 {
