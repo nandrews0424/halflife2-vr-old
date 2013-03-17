@@ -41,19 +41,21 @@ Section ""
 	SetOutPath $INSTDIR\halflife-vr\cfg
 	File .\package\cfg\chapters-hl2\*
 
-
 	SetOutPath $INSTDIR\halflife-vr-ep1
 	File /r .\package\*
 	Delete $INSTDIR\halflife-vr-ep1\gameinfo.txt
 	Rename $INSTDIR\halflife-vr-ep1\ep1-gameinfo.txt $INSTDIR\halflife-vr-ep1\gameinfo.txt
+	Delete $INSTDIR\halflife-vr-ep1\Scenes\scenes.image
+	Rename $INSTDIR\halflife-vr-ep1\Scenes\ep1-scenes.image $INSTDIR\halflife-vr-ep1\Scenes\scenes.image
 	SetOutPath $INSTDIR\halflife-vr-ep1\cfg
 	File .\package\cfg\chapters-ep1\*
-
 
 	SetOutPath $INSTDIR\halflife-vr-ep2
 	File /r .\package\*
 	Delete $INSTDIR\halflife-vr-ep2\gameinfo.txt
 	Rename $INSTDIR\halflife-vr-ep2\ep2-gameinfo.txt $INSTDIR\halflife-vr-ep2\gameinfo.txt
+	Delete $INSTDIR\halflife-vr-ep2\Scenes\scenes.image
+	Rename $INSTDIR\halflife-vr-ep2\Scenes\ep2-scenes.image $INSTDIR\halflife-vr-ep2\Scenes\scenes.image
 	SetOutPath $INSTDIR\halflife-vr-ep2\cfg
 	File .\package\cfg\chapters-ep2\*
 

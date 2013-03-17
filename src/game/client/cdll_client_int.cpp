@@ -1147,7 +1147,23 @@ void CHLClient::View_Render( vrect_t *rect )
 	if ( rect->width == 0 || rect->height == 0 )
 		return;
 
-	view->Render( rect );
+
+	// VR TODO: RENDER SPECIFICALLY THE RIGHT AND LEFT EYE FOR THE RIFT, THE 2D stuff needs fixing as does menus... 
+	if (false)
+	{
+		rect->width = 640;
+		rect->height = 800;
+		view->Render( rect );
+		
+		rect->x += 640;
+
+		view->Render( rect );
+	}
+	else
+	{
+		view->Render( rect );
+	}
+
 	UpdatePerfStats();
 }
 

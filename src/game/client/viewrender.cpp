@@ -1827,6 +1827,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 	m_CurrentView = view;
 
+	// VR TODO: is this where we hack in the 3d view and maybe the warp shaders
+
 	C_BaseAnimating::AutoAllowBoneAccess boneaccess( true, true );
 	VPROF( "CViewRender::RenderView" );
 

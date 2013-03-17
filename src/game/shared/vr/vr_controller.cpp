@@ -1,8 +1,9 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-ConVar vr_neck_length( "vr_neck_length", "10", 0 );
+ConVar vr_neck_length( "vr_neck_length", "12", 0 );
 ConVar vr_spine_length( "vr_spine_length", "50", 0 );
+ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
 
 VrController* _vrController;
 
@@ -30,10 +31,20 @@ VrController::VrController()
 	_vrIO->initialize();
 
 	_vrController = this;
+
+	if ( _vrIO->getChannelCount() > 0 )
+	{
+	
+	}
+	else 
+	{
+		Msg("VR Controller initialized with no devices");
+	}
+
 	_initialized = true;
 	
 	Msg("VR Controller initialized");
-}
+} 
 
 
 VrController::~VrController()
@@ -69,6 +80,8 @@ bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 
 void	VrController::update(float previousViewYaw)
 {
+
+
 	if (_vrIO->getChannelCount() == 0) { //todo: check vrIO state
 		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
@@ -77,9 +90,19 @@ void	VrController::update(float previousViewYaw)
 	VRIO_Message message;
 	_vrIO->think();
 	
-	// HEAD ORIENTATION
 
-	_vrIO->getOrientation(HEAD, message);
+	VRIO_Channel headChannel = HEAD;
+	VRIO_Channel weaponChannel = WEAPON;
+	if ( vr_swap_trackers.GetBool() )
+	{
+		headChannel = WEAPON;
+		weaponChannel = HEAD;
+	}
+	
+	// HEAD ORIENTATION
+	
+	_vrIO->getOrientation(headChannel, message);
+		
 	_headAngle[PITCH] = message.pitch;
 	_headAngle[ROLL] = message.roll;
 	_headAngle[YAW] = message.yaw;
@@ -114,7 +137,7 @@ void	VrController::update(float previousViewYaw)
 		return;		 
 	}
 
-	_vrIO->getOrientation(WEAPON, message);
+	_vrIO->getOrientation(weaponChannel, message);
 	_weaponAngle[PITCH] = message.pitch;
 	_weaponAngle[ROLL] = message.roll;
 	_weaponAngle[YAW] = message.yaw;
@@ -145,9 +168,19 @@ void VrController::calibrateWeapon() {
 	Msg("Calibrating weapon: \n");
 	
 	VRIO_Message head, weapon;
-	_vrIO->getOrientation(HEAD, head);
-	_vrIO->getOrientation(WEAPON, weapon);
+	
+	if ( !vr_swap_trackers.GetBool() )
+	{
+		_vrIO->getOrientation(HEAD, head);
+		_vrIO->getOrientation(WEAPON, weapon);
+	}
+	else 
+	{
+		_vrIO->getOrientation(WEAPON, head);
+		_vrIO->getOrientation(HEAD, weapon);
+	}
 
+	
 	_weaponCalibration[YAW] = weapon.yaw- head.yaw;
 	_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
 }
@@ -172,7 +205,6 @@ extern VrController* VR_Controller()
 {
 	return _vrController;
 }
-
 
 void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 {

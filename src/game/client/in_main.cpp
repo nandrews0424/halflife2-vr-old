@@ -74,8 +74,8 @@ static void in_vrShutDown(const CCommand &args) {
 }
 ConCommand in_vrshutdown("vr_shutdown", in_vrShutDown, "Shut's off all vr devices and returns controls to normal mode");
 
-ConVar vr_forward_accel("vr_forward_accel", "7", 0, "max forward acceleration value");
-ConVar vr_side_accel("vr_side_accel", "5", 0, "max side acceleration value");
+ConVar vr_forward_accel("vr_forward_accel", "11", 0, "max forward acceleration value");
+ConVar vr_side_accel("vr_side_accel", "9", 0, "max side acceleration value");
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
