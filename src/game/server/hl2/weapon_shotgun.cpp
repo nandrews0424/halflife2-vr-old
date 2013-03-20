@@ -22,6 +22,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define VR_SHOTGUN true
+
+
 extern ConVar sk_auto_reload_time;
 extern ConVar sk_plr_num_shotgun_pellets;
 
@@ -47,6 +50,10 @@ public:
 	{
 		static Vector vitalAllyCone = VECTOR_CONE_3DEGREES;
 		static Vector cone = VECTOR_CONE_10DEGREES;
+		static Vector vrCone = VECTOR_CONE_8DEGREES;
+
+		if (GetOwner() && GetOwner()->IsPlayer() && VR_SHOTGUN)
+			return vrCone;
 
 		if( GetOwner() && (GetOwner()->Classify() == CLASS_PLAYER_ALLY_VITAL) )
 		{
@@ -411,6 +418,9 @@ void CWeaponShotgun::Pump( void )
 	if ( pOwner == NULL )
 		return;
 	
+	if ( !m_bNeedPump )
+		m_iClip1 -= 1;
+
 	m_bNeedPump = false;
 	
 	WeaponSound( SPECIAL1 );
@@ -449,6 +459,12 @@ void CWeaponShotgun::PrimaryAttack( void )
 	{
 		return;
 	}
+	
+	if (m_bNeedPump)
+	{
+		DryFire();
+		return;
+	}
 
 	// MUST call sound before removing a round from the clip of a CMachineGun
 	WeaponSound(SINGLE);
@@ -470,7 +486,12 @@ void CWeaponShotgun::PrimaryAttack( void )
 	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 1.0 );
 	
 	// Fire the bullets, and force the first shot to be perfectly accuracy
-	pPlayer->FireBullets( sk_plr_num_shotgun_pellets.GetInt(), vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0, -1, -1, 0, NULL, true, true );
+
+	int pellets = sk_plr_num_shotgun_pellets.GetInt();
+	if ( VR_SHOTGUN )
+		pellets = 10;
+
+	pPlayer->FireBullets(pellets, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType, 0, -1, -1, 0, NULL, true, true );
 	
 	pPlayer->ViewPunch( QAngle( random->RandomFloat( -2, -1 ), random->RandomFloat( -2, 2 ), 0 ) );
 
@@ -482,9 +503,9 @@ void CWeaponShotgun::PrimaryAttack( void )
 		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0); 
 	}
 
-	if( m_iClip1 )
+	if( m_iClip1 || VR_SHOTGUN )
 	{
-		// pump so long as some rounds are left.
+		// pump so long as some rounds are left, or if we're doing vr shotgun this'll determine after reload whether we need to pump
 		m_bNeedPump = true;
 	}
 
@@ -507,6 +528,12 @@ void CWeaponShotgun::SecondaryAttack( void )
 		return;
 	}
 
+	if (VR_SHOTGUN)
+	{
+		Pump();
+		return;
+	}
+	
 	pPlayer->m_nButtons &= ~IN_ATTACK2;
 	// MUST call sound before removing a round from the clip of a CMachineGun
 	WeaponSound(WPN_DOUBLE);
@@ -569,8 +596,8 @@ void CWeaponShotgun::ItemPostFrame( void )
 			m_bNeedPump		= false;
 			m_bDelayedFire1 = true;
 		}
-		// If I'm secondary firing and have one round stop reloading and fire
-		else if ((pOwner->m_nButtons & IN_ATTACK2 ) && (m_iClip1 >=2))
+		// If I'm secondary firing and have one round stop reloading and fire -- NOT IN VR MODE
+		else if ((pOwner->m_nButtons & IN_ATTACK2 ) && (m_iClip1 >=2) && !VR_SHOTGUN)
 		{
 			m_bInReload		= false;
 			m_bNeedPump		= false;
@@ -604,7 +631,8 @@ void CWeaponShotgun::ItemPostFrame( void )
 		SetBodygroup(1,1);
 	}
 
-	if ((m_bNeedPump) && (m_flNextPrimaryAttack <= gpGlobals->curtime))
+	// Don't autopump in VR
+	if (!VR_SHOTGUN && m_bNeedPump && (m_flNextPrimaryAttack <= gpGlobals->curtime))
 	{
 		Pump();
 		return;
@@ -620,11 +648,18 @@ void CWeaponShotgun::ItemPostFrame( void )
 			// If only one shell is left, do a single shot instead	
 			if ( m_iClip1 == 1 )
 			{
-				PrimaryAttack();
+				if ( !VR_SHOTGUN )
+					PrimaryAttack();
+				else
+					Pump();
+			}
+			else if (!pOwner->GetAmmoCount(m_iPrimaryAmmoType) && !VR_SHOTGUN)
+			{
+				DryFire();
 			}
 			else if (!pOwner->GetAmmoCount(m_iPrimaryAmmoType))
 			{
-				DryFire();
+				Pump(); // TODO: WOULD BE BETTER WITH NO SHELL
 			}
 			else
 			{
