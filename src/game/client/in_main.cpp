@@ -76,6 +76,18 @@ ConCommand in_vrshutdown("vr_shutdown", in_vrShutDown, "Shut's off all vr device
 
 ConVar vr_forward_accel("vr_forward_accel", "11", 0, "max forward acceleration value");
 ConVar vr_side_accel("vr_side_accel", "9", 0, "max side acceleration value");
+ConVar vr_movement_scale("vr_movement_scale", "3", 0, "Movement scale 1-3 for different movement speeds");
+
+static void in_vrMovementScaleUp(const CCommand &args) {
+	if (vr_movement_scale.GetInt() < 3) vr_movement_scale.SetValue(vr_movement_scale.GetInt() + 1);
+}
+
+static void in_vrMovementScaleDown(const CCommand &args) {
+	if (vr_movement_scale.GetInt() > 0) vr_movement_scale.SetValue(vr_movement_scale.GetInt() - 1);
+}
+
+ConCommand vrMovementScaleUp("vr_increase_movement_scale", in_vrMovementScaleUp, "Increments movement scale");
+ConCommand vrMovementScaleDown("vr_decrease_movement_scale", in_vrMovementScaleDown, "Decreases movement scale");
 
 ConVar cl_anglespeedkey( "cl_anglespeedkey", "0.67", 0 );
 ConVar cl_yawspeed( "cl_yawspeed", "210", 0 );
@@ -949,7 +961,17 @@ int idxMovementSmoothing = 0;
 
 void CInput::ScaleMovements( CUserCmd *cmd )
 {
-		
+	
+	// First apply movement scale factor for essentially giving user different movement "gears" for indoor, non-combat etc
+	// all the way up to hectic run-from-striders speed...
+	// TODO: The right way would have an associated hud icon or something...
+	int scale = vr_movement_scale.GetInt();
+	if (scale > 3 || scale < 0) scale = 3;
+	
+	cmd->forwardmove *= scale/3.f;
+	cmd->sidemove *= scale/3.f;
+	
+	
 	float forwardLimit = vr_forward_accel.GetFloat();
 	float sideLimit = vr_side_accel.GetFloat();
 	

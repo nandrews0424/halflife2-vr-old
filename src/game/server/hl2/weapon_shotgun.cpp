@@ -50,10 +50,10 @@ public:
 	{
 		static Vector vitalAllyCone = VECTOR_CONE_3DEGREES;
 		static Vector cone = VECTOR_CONE_10DEGREES;
-		static Vector vrCone = VECTOR_CONE_8DEGREES;
-
-		if (GetOwner() && GetOwner()->IsPlayer() && VR_SHOTGUN)
-			return vrCone;
+		// This seems a bit over the top unbalanced...
+		//static Vector vrCone = VECTOR_CONE_10DEGREES;
+		//if (GetOwner() && GetOwner()->IsPlayer() && VR_SHOTGUN)
+		//	return vrCone;
 
 		if( GetOwner() && (GetOwner()->Classify() == CLASS_PLAYER_ALLY_VITAL) )
 		{

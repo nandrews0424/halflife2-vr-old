@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include "vr_io.h"
+#include "..\..\vr_io\vr_io.h" // WTF @ THIS.... it's in the include path, I hate VS
 
 // WinBase.h does so strange defines that break 
 #undef CreateEvent

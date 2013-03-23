@@ -34,7 +34,7 @@ VrController::VrController()
 
 	if ( _vrIO->getChannelCount() > 0 )
 	{
-	
+		Msg("VR Controller intialized with %i devices...  \n", _vrIO->getChannelCount());
 	}
 	else 
 	{
@@ -93,7 +93,7 @@ void	VrController::update(float previousViewYaw)
 
 	VRIO_Channel headChannel = HEAD;
 	VRIO_Channel weaponChannel = WEAPON;
-	if ( vr_swap_trackers.GetBool() )
+	if ( vr_swap_trackers.GetBool() && _vrIO->getChannelCount() == 2 )
 	{
 		headChannel = WEAPON;
 		weaponChannel = HEAD;
@@ -106,7 +106,7 @@ void	VrController::update(float previousViewYaw)
 	_headAngle[PITCH] = message.pitch;
 	_headAngle[ROLL] = message.roll;
 	_headAngle[YAW] = message.yaw;
-	
+		
 	float previousYaw = _previousYaw[HEAD];
 	float currentYaw = _headAngle[YAW];
 	float deltaYaw = currentYaw - previousYaw;
