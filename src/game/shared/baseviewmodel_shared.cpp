@@ -396,40 +396,40 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 		// Faking this which should be configured per gun for the moment
 		
-		float pitchScale = .72;
-		float yawScale = .72;
-		Vector vmOriginOffset(8,6,4);
-		Vector baseVmOffset = forward * -1 + right*-3 + up; 
-		//Vector baseVmOffset = right*-5 + up*3.5  + forward*-3; //ironsight version
-		
+				
 		// Getting scaled viewmodel rotation (todo: extract)
-
 		QAngle headAngle = VR_Controller()->headOrientation();
 		QAngle deltaAngle = weaponAngle - headAngle;
-	
+
 		if ( deltaAngle.y < -180.f )
 			deltaAngle.y += 360.f;
 		if ( deltaAngle.y > 180.f )
 			deltaAngle.y -= 360.f;
 			
+		float pitchScale = .72;
+		float yawScale = .72;
 	
 		deltaAngle.x *= pitchScale;
 		deltaAngle.y *= yawScale;
 		
 		QAngle newWeaponAngle = headAngle + deltaAngle;
-			
-		// end getting scaled viewmodel rotation
 		
-		Vector v = VR_Controller()->calculateViewModelRotationTranslation(vmOriginOffset);
-		//v.y*=1;
-		v.z*=1.5;
+			
+		// Get the baseline configured offset for the weapon
+		Vector configuredOffset = pWeapon->GetWpnData().viewModelOffset;
+		Msg("Configured weapon VM offset is %.1f %.1f %.1f\n", configuredOffset.x, configuredOffset.y, configuredOffset.z);
+		configuredOffset = forward*configuredOffset.x + right*configuredOffset.y + up*configuredOffset.z;
+
+		// Calculate the ViewModel offset to adjust for odd VM origin		
+		Vector v = CalcViewModelOffset();
 		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
-				
+		
+		
+		// Get the head offset from the neck model to also apply
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, false);
-
-		vmorigin = vmorigin + baseVmOffset + vmRotationOffset + headOffset;
 				
+		vmorigin = vmorigin + configuredOffset + vmRotationOffset + headOffset;
 		AddViewModelBob( owner, vmorigin, newWeaponAngle );
 
 		SetLocalOrigin(vmorigin);
@@ -471,6 +471,68 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 #endif
 }
+
+
+Vector CBaseViewModel::CalcViewModelOffset()
+{
+	Vector offset(0,0,0);
+	
+#if defined( CLIENT_DLL )
+	// Calculate the angular offset value...
+	QAngle weapon = VR_Controller()->weaponOrientation();
+	QAngle head = VR_Controller()->headOrientation();
+	QAngle angles = weapon - head;
+
+	if ( angles.z < -180.f )
+		angles.z += 360.f;
+	if ( angles.z > 180.f )
+		angles.z -= 360.f;
+	
+	if ( angles.y < -180.f )
+		angles.y += 360.f;
+	if ( angles.y > 180.f )
+		angles.y -= 360.f;
+	
+	
+	// pitch effects - good enough
+	offset.x += -7 * cos(DEG2RAD(angles.x));
+	if (angles.x < 0)
+		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
+	else
+		offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
+		
+	// yaw effects 
+	offset.x += 2 * sin(DEG2RAD(angles.y));
+	offset.y += 7 * sin(DEG2RAD(angles.y)); 
+	
+	if (angles.y < 0) {
+		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
+	}
+	
+		// roll effects
+	Vector rollOffset(0,0,0);
+	
+	if (angles.z < 0) {
+		rollOffset.y += 5 * sin(DEG2RAD(angles.z)); 
+		rollOffset.z +=  (4.5 - angles.z/30.f) * sin(DEG2RAD(angles.z));
+	}	
+	else 
+	{
+		rollOffset.y +=	 8 * sin(DEG2RAD(angles.z)); 
+		rollOffset.z += (4.5 - angles.z/20.f )  * sin(DEG2RAD(angles.z));
+	}
+	
+	offset += rollOffset;
+
+	offset.z *= 1.5; // not sure where this originally came from at this point...
+
+#endif	
+
+	return offset;
+
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 

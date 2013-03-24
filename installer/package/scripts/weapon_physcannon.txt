@@ -22,9 +22,9 @@ WeaponData
 	
 	ViewModelOffsets
 	{
-		"forward"	"10"
-		"right" 	"-10"
-		"up"		"3"
+		"offsetForward"	"-1.5"
+		"offsetRight" 	"-6.5"
+		"offsetUp"		"1.75"
 	}
 	
 	SoundData

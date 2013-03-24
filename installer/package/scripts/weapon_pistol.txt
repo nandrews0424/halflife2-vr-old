@@ -19,11 +19,12 @@ WeaponData
 	
 	ViewModelOffsets
 	{
-		"forward"	"10"
-		"right" 	"-10"
-		"up"		"3"
+		"offsetForward"	"-1"
+		"offsetRight" 	"-3.8"
+		"offsetUp"		"2.5"
 	}
 
+	
 	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
 	SoundData
 	{

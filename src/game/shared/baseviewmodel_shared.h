@@ -50,7 +50,7 @@ public:
 	// Weapon client handling
 	virtual void			SendViewModelMatchingSequence( int sequence );
 	virtual void			SetWeaponModel( const char *pszModelname, CBaseCombatWeapon *weapon );
-
+	virtual Vector			CalcViewModelOffset( void );
 	virtual void			CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& original_angles );
 	virtual void			CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, 
 								const QAngle& eyeAngles );
