@@ -7,6 +7,9 @@ ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
 
 VrController* _vrController;
 
+
+#define MM_TO_UNITS(x) (x/30.f)
+
 VrController::VrController()
 {
 	Msg("Initializing VR Controller");
@@ -26,6 +29,7 @@ VrController::VrController()
 
 	_weaponAngle.Init();
 	_weaponCalibration.Init();
+	_weaponOffsetCalibration.Init();
 
 	_vrIO = _vrio_getInProcessClient();
 	_vrIO->initialize();
@@ -72,6 +76,40 @@ QAngle	VrController::bodyOrientation( void )
 {
 	return _bodyAngle;
 }
+
+
+
+bool	VrController::hydraConnected( void )
+{
+	return _vrIO->hydraConnected();
+}
+
+void	VrController::hydraRight(HydraControllerData &data)
+{
+	Hydra_Message m;
+	
+	_vrIO->hydraData(m);
+	
+	data.init();
+	data.angle.Init(m.anglesRight[0], m.anglesRight[1], m.anglesRight[2]);
+	data.pos.Init(m.posRight[0], m.posRight[1], m.posRight[2]);
+	data.xAxis = m.rightJoyX;
+	data.yAxis = m.rightJoyY;
+}
+
+void	VrController::hydraLeft(HydraControllerData &data)
+{
+	Hydra_Message m;
+	
+	_vrIO->hydraData(m);
+	
+	data.init();
+	data.angle.Init(m.anglesLeft[0], m.anglesLeft[1], m.anglesLeft[2]);
+	data.pos.Init(m.posLeft[0], m.posLeft[1], m.posLeft[2]);
+	data.xAxis = m.leftJoyX;
+	data.yAxis = m.leftJoyY;
+}
+	
 
 bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 {
@@ -151,6 +189,9 @@ void	VrController::update(float previousViewYaw)
 	_weaponAngle[YAW] = previousViewYaw + _totalAccumulatedYaw[WEAPON] - _totalAccumulatedYaw[HEAD];
 
 	_weaponAngle -= _weaponCalibration;
+
+	// Msg("Weapon angle %.1f %.1f %.1f\n", _weaponAngle.x, _weaponAngle.y, _weaponAngle.z);
+
 };
 
 void VrController::calibrate()
@@ -183,6 +224,10 @@ void VrController::calibrateWeapon() {
 	
 	_weaponCalibration[YAW] = weapon.yaw- head.yaw;
 	_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
+	
+	Vector weapOffset;
+	getWeaponOffset(weapOffset);
+	_weaponOffsetCalibration += weapOffset;
 }
 
 void VrController::shutDown()
@@ -238,88 +283,21 @@ void VrController::getShootOffset(Vector &shootOffset)
 	getHeadOffset(shootOffset);
 }
 
-void applyGestures()
+void VrController::getWeaponOffset(Vector &offset)
 {
-	// todo: a method that looks for special orientation relationships or changes and triggers input buttons...
-}
-
-Vector rotateVector(Vector &vector, QAngle &angle)
-{
-	Vector result(0,0,0);
-
-	angle.x = DEG2RAD(angle.x);
-	angle.y = DEG2RAD(angle.y);
-	angle.z = DEG2RAD(angle.z);
-	
-	result.y += vector.y*cos(angle.x) - vector.z*sin(angle.x);
-	result.z += vector.y*sin(angle.x) + vector.z*cos(angle.x);
-	
-	result.x += vector.x*cos(angle.y) + vector.z*sin(angle.y);
-	result.z += -vector.x*sin(angle.y) + vector.z*cos(angle.y);
-			
-	result.x += vector.x*cos(angle.z) - vector.y*sin(angle.z);
-	result.y += vector.x*sin(angle.z) + vector.y*cos(angle.z);
-	
-	return result;
-}
-
-
-// Viewmodels aren't properly origined and thus a translation needs to be calculated to adjust for the rotation about an invalid origin
-Vector VrController::calculateViewModelRotationTranslation(Vector desiredRotationOrigin)
-{
-	QAngle weapon = _vrController->weaponOrientation();
-	QAngle head = _vrController->headOrientation();
-	QAngle angles = weapon - head;
-
-	if ( angles.z < -180.f )
-		angles.z += 360.f;
-	if ( angles.z > 180.f )
-		angles.z -= 360.f;
-	
-	if ( angles.y < -180.f )
-		angles.y += 360.f;
-	if ( angles.y > 180.f )
-		angles.y -= 360.f;
-	
-	// Msg("Yaw angles head %.1f weap %1.f diff %.1f\n", head.y, weapon.y, angles.y);
-
-	Vector offset(0,0,0);
-	
-	// pitch effects - good enough
-	offset.x += -7 * cos(DEG2RAD(angles.x));
-	if (angles.x < 0)
-		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
-	else
-		offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
-		
-	// yaw effects 
-	offset.x += 2 * sin(DEG2RAD(angles.y));
-	offset.y += 7 * sin(DEG2RAD(angles.y)); 
-	
-	if (angles.y < 0) {
-		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
-	}
-	
-		// roll effects
-	Vector rollOffset(0,0,0);
-	
-	if (angles.z < 0) {
-		rollOffset.y += 5 * sin(DEG2RAD(angles.z)); 
-		rollOffset.z +=  (4.5 - angles.z/30.f) * sin(DEG2RAD(angles.z));
-	}	
-	else 
+	offset.Init();
+	if ( hydraConnected() )
 	{
-		rollOffset.y +=	 8 * sin(DEG2RAD(angles.z)); 
-		rollOffset.z += (4.5 - angles.z/20.f )  * sin(DEG2RAD(angles.z));
+		HydraControllerData data;
+		hydraRight(data);
+
+		offset.y = MM_TO_UNITS(data.pos.x);
+		offset.z = MM_TO_UNITS(data.pos.y);
+		offset.x = -MM_TO_UNITS(data.pos.z);
+			
+		offset -= _weaponOffsetCalibration;
+
+		// TODO: add calibration angles etc...
 	}
-
-	// Msg("%.1f deg roll offsets %.1f %.1f %.1f\n", angles.z, rollOffset.x, rollOffset.y, rollOffset.z);
-	
-	offset += rollOffset;
-	
-	return offset;
-}
-
-
-
+} 
 

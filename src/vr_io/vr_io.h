@@ -36,6 +36,11 @@ struct VRIO_Message
 	float y;
 	float z;
 
+	int axisCount;
+
+	//input axes
+	float axisVals[4];
+
 	void init( )
 	{
 		pitch = 0;
@@ -44,9 +49,49 @@ struct VRIO_Message
 		x = 0;
 		y = 0;
 		z = 0;
-	}
 
+		axisCount=0;
+		for (int i=0;i<4;i++) {
+			axisVals[i]=0;
+		}
+	}
 };
+
+
+// For now I'm just going to have a custom type for the hydra since it's becoming so prolific
+struct Hydra_Message
+{
+	// orientation
+	float anglesRight[3];
+	float anglesLeft[3];
+
+	//positions
+	float posRight[3];
+	float posLeft[3];
+
+	// joystick positions
+	float rightJoyX;
+	float rightJoyY;
+	
+	float leftJoyX;
+	float leftJoyY;
+	
+	void init( )
+	{
+		for (int i=0;i<3;i++) {
+			anglesRight[i]=0;
+			anglesLeft[i]=0;
+			posRight[i]=0;
+			posLeft[i]=0;
+		}
+
+		rightJoyX=0;
+		rightJoyY=0;
+		leftJoyX=0;
+		leftJoyY=0;
+	}
+};
+
 
 
 // Base interface for 
@@ -56,6 +101,11 @@ struct IVRIOClient
 	virtual int think( void ) = 0;
 	virtual int getOrientation( VRIO_Channel, VRIO_Message& message ) = 0;
 	virtual int getChannelCount( ) = 0;
+	
+	//hydra specific
+	virtual bool hydraConnected( ) = 0;
+	virtual void hydraData( Hydra_Message& message ) = 0;
+
 	virtual void dispose( void ) = 0;
 };
 

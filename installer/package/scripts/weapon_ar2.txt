@@ -24,9 +24,9 @@ WeaponData
 	
 	ViewModelOffsets
 	{
-		"offsetForward"	"-1.5"
-		"offsetRight" 	"-4.25"
-		"offsetUp"		"1.3"
+		"offsetForward"	"-1"
+		"offsetRight" 	"-3.75"
+		"offsetUp"		"1"
 	}
 
 

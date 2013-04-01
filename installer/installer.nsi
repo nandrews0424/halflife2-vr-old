@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.9.6'
+!define VERSION '0.9.7'
 
 Name "Half-Life VR"
 

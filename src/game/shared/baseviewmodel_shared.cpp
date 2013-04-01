@@ -417,7 +417,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			
 		// Get the baseline configured offset for the weapon
 		Vector configuredOffset = pWeapon->GetWpnData().viewModelOffset;
-		Msg("Configured weapon VM offset is %.1f %.1f %.1f\n", configuredOffset.x, configuredOffset.y, configuredOffset.z);
+		// Msg("Configured weapon VM offset is %.1f %.1f %.1f\n", configuredOffset.x, configuredOffset.y, configuredOffset.z);
 		configuredOffset = forward*configuredOffset.x + right*configuredOffset.y + up*configuredOffset.z;
 
 		// Calculate the ViewModel offset to adjust for odd VM origin		
@@ -428,12 +428,19 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		// Get the head offset from the neck model to also apply
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, false);
-				
-		vmorigin = vmorigin + configuredOffset + vmRotationOffset + headOffset;
-		AddViewModelBob( owner, vmorigin, newWeaponAngle );
+		
+		Vector trackedOffset;
+		VR_Controller()->getWeaponOffset(trackedOffset);
+		Msg("Tracked weapon offset %.1f %.1f %.1f\n", trackedOffset.x, trackedOffset.y, trackedOffset.z);
+		trackedOffset = forward*trackedOffset.x + right*trackedOffset.y + up*trackedOffset.z;
+		Msg("Applied weapon offset %.1f %.1f %.1f\n", trackedOffset.x, trackedOffset.y, trackedOffset.z);
 
+		vmorigin = vmorigin + configuredOffset + vmRotationOffset + headOffset + trackedOffset;
+		AddViewModelBob( owner, vmorigin, newWeaponAngle );
+					
 		SetLocalOrigin(vmorigin);
 		SetLocalAngles(newWeaponAngle);
+		
 
 	} else {
 

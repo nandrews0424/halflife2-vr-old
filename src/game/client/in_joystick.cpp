@@ -642,7 +642,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	if ( !m_fJoystickAdvancedInit )
 	{
 		Joystick_Advanced();
-		m_fJoystickAdvancedInit = true;
+		m_fJoystickAdvancedInit = true; 
 	}
 
 	// verify joystick is available and that the user wants to use it
@@ -697,6 +697,20 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 		gameAxes[idx].controlType = m_rgAxes[i].ControlMap;
 	}
 
+	// VR Hack for less painful hydra support....
+	if ( true || VR_Controller()->hydraConnected() )
+	{
+		HydraControllerData left,right;
+		VR_Controller()->hydraLeft(left);
+		VR_Controller()->hydraRight(right);
+
+		gameAxes[GAME_AXIS_FORWARD].value = left.yAxis * 32766;
+		gameAxes[GAME_AXIS_SIDE].value = left.xAxis * 32766;
+
+		gameAxes[GAME_AXIS_PITCH].value = right.yAxis * 32766;
+		gameAxes[GAME_AXIS_YAW].value = right.xAxis * 32766;
+	}
+
 	// Re-map the axis values if necessary, based on the joystick configuration
 	if ( (joy_advanced.GetInt() == 0) && (in_jlook.state & 1) )
 	{
@@ -719,13 +733,17 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 		gameAxes[GAME_AXIS_YAW].value = 0;
 	}
 
+	
+
+
 	float forward	= ScaleAxisValue( gameAxes[GAME_AXIS_FORWARD].value, MAX_BUTTONSAMPLE * joy_forwardthreshold.GetFloat() );
 	float side		= ScaleAxisValue( gameAxes[GAME_AXIS_SIDE].value, MAX_BUTTONSAMPLE * joy_sidethreshold.GetFloat()  );
 	float pitch		= ScaleAxisValue( gameAxes[GAME_AXIS_PITCH].value, MAX_BUTTONSAMPLE * joy_pitchthreshold.GetFloat()  );
 	float yaw		= ScaleAxisValue( gameAxes[GAME_AXIS_YAW].value, MAX_BUTTONSAMPLE * joy_yawthreshold.GetFloat()  );
 
 
-
+	// TODO: if VR_Controller has inputs get axes from there right here.....
+	
 	if (VR_Controller()->initialized()) pitch = 0;
 
 	// If we're inverting our joystick, do so

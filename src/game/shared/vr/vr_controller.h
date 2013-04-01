@@ -12,6 +12,24 @@
 
 #define SENSOR_COUNT 4
 
+struct HydraControllerData
+{
+	QAngle angle;
+	Vector pos;
+
+	float xAxis;
+	float yAxis;
+
+	void init()
+	{
+		angle.Init();
+		pos.Init();
+		xAxis=0;
+		yAxis=0;
+	}
+};
+
+
 class VrController 
 {
  
@@ -26,6 +44,10 @@ public:
 	void	update( float originalYaw );
 	void	calibrate( void );
 	void	calibrateWeapon( void );
+
+	bool	hydraConnected( void );
+	void	hydraRight(HydraControllerData &data);
+	void	hydraLeft(HydraControllerData &data);
 	
 	bool	initialized( void );
 	bool	hasWeaponTracking( void );
@@ -33,8 +55,8 @@ public:
 
 	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
 	void	getShootOffset(Vector &shootOffset);
-	Vector	calculateViewModelRotationTranslation(Vector desiredRotationOrigin);
-			
+	void	getWeaponOffset(Vector &offset);
+				
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
 
@@ -51,6 +73,7 @@ protected:
 	QAngle _weaponCalibration;
 	QAngle _bodyCalibration;
 	QAngle _bodyAngle;
+	Vector _weaponOffsetCalibration;
 	
 	float _fake[10];
 	
