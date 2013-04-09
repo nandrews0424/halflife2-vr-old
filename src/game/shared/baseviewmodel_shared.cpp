@@ -371,6 +371,9 @@ void CBaseViewModel::SendViewModelMatchingSequence( int sequence )
 #include "ivieweffects.h"
 #endif
 
+
+
+
 void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, const QAngle& eyeAngles )
 {
 	// UNDONE: Calc this on the server?  Disabled for now as it seems unnecessary to have this info on the server
@@ -379,24 +382,43 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	QAngle vmangles = eyeAngles;
 	Vector vmorigin = eyePosition;
 	
-	if (VR_Controller()->hasWeaponTracking()) {
+	if ( VR_Controller()->hydraConnected() ) {
+
+		QAngle bodyAngles = VR_Controller()->bodyOrientation();
+		QAngle weaponAngles = VR_Controller()->weaponOrientation();
+		vmangles = weaponAngles;
+		
+		// we only care about yaw 
+		bodyAngles.x=0;
+		bodyAngles.z=0;
+
+		// TODO: need to account for ducking and jumping issues
+		
+
+		Vector forward,right,up;
+		AngleVectors(bodyAngles, &forward, &right, &up);
+		
+		vmorigin = owner->GetAbsOrigin();
+		vmorigin += forward*6 + right*3 + up*55;
+				
+		Vector trackedOffset;
+		VR_Controller()->getWeaponOffset(trackedOffset);
+		trackedOffset *= .35; // really scaling this down alot, maybe the conversion is off?
+		vmorigin += trackedOffset;
+		
+		SetLocalOrigin(vmorigin);
+		SetLocalAngles(vmangles);
+		
+	} else if (VR_Controller()->hasWeaponTracking()) {
 
 		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
 		if( pWeapon == NULL )
 			return;
 			
-		// TODO: use these settings for per weapon configurations ...
-		// pWeapon->GetWpnData().viewModelOffset;
-		// pWeapon->GetWpnData().viewModelOrigin;
-		// pWeapon->GetWpnData().viewModelPitchScale;
-		
 		QAngle weaponAngle = VR_Controller()->weaponOrientation();
 		Vector forward, right, up; 
 		AngleVectors(eyeAngles, &forward, &right, &up);
 
-		// Faking this which should be configured per gun for the moment
-		
-				
 		// Getting scaled viewmodel rotation (todo: extract)
 		QAngle headAngle = VR_Controller()->headOrientation();
 		QAngle deltaAngle = weaponAngle - headAngle;
@@ -413,27 +435,24 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		deltaAngle.y *= yawScale;
 		
 		QAngle newWeaponAngle = headAngle + deltaAngle;
-		
-			
+					
 		// Get the baseline configured offset for the weapon
 		Vector configuredOffset = pWeapon->GetWpnData().viewModelOffset;
 		// Msg("Configured weapon VM offset is %.1f %.1f %.1f\n", configuredOffset.x, configuredOffset.y, configuredOffset.z);
 		configuredOffset = forward*configuredOffset.x + right*configuredOffset.y + up*configuredOffset.z;
-
-		// Calculate the ViewModel offset to adjust for odd VM origin		
-		Vector v = CalcViewModelOffset();
+				
+		Vector v = CalcViewModelOffset( !VR_Controller()->hydraConnected() ); // this should be more like hasWeaponPosition
 		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
-		
-		
+				
 		// Get the head offset from the neck model to also apply
 		Vector headOffset(0,0,0);
 		VR_Controller()->getHeadOffset(headOffset, false);
 		
 		Vector trackedOffset;
 		VR_Controller()->getWeaponOffset(trackedOffset);
-		Msg("Tracked weapon offset %.1f %.1f %.1f\n", trackedOffset.x, trackedOffset.y, trackedOffset.z);
-		trackedOffset = forward*trackedOffset.x + right*trackedOffset.y + up*trackedOffset.z;
-		Msg("Applied weapon offset %.1f %.1f %.1f\n", trackedOffset.x, trackedOffset.y, trackedOffset.z);
+		//vm scaling for vm to world FOV ratio
+		trackedOffset *= .6;
+
 
 		vmorigin = vmorigin + configuredOffset + vmRotationOffset + headOffset + trackedOffset;
 		AddViewModelBob( owner, vmorigin, newWeaponAngle );
@@ -441,6 +460,22 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		SetLocalOrigin(vmorigin);
 		SetLocalAngles(newWeaponAngle);
 		
+				
+		// rotation offset based on viewmodel reorigin value
+		/*Vector reorigin = forward*6 + right*5 + up*4;
+		Vector angularOffset;
+		QAngle angles(
+			UTIL_AngleDiff(weaponAngles.x, bodyAngles.x),
+			UTIL_AngleDiff(weaponAngles.y, bodyAngles.y),
+			UTIL_AngleDiff(weaponAngles.z, bodyAngles.z)
+		);
+
+		Msg("Angle diffs between weapon & view %.1f %.1f %.1f\n", angles.x, angles.y, angles.z);
+		VectorRotate(reorigin, angles, angularOffset);
+		Msg("Angular offset %.1f %.1f %.1f\n", angularOffset.x, angularOffset.y, angularOffset.z);
+		
+		DebugDrawLine(vmorigin, vmorigin - angularOffset, 255, 0, 0, true, 2);
+		*/
 
 	} else {
 
@@ -480,7 +515,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 }
 
 
-Vector CBaseViewModel::CalcViewModelOffset()
+Vector CBaseViewModel::CalcViewModelOffset(bool simulatePositionalOffsets)
 {
 	Vector offset(0,0,0);
 	
@@ -503,19 +538,26 @@ Vector CBaseViewModel::CalcViewModelOffset()
 	
 	// pitch effects - good enough
 	offset.x += -7 * cos(DEG2RAD(angles.x));
-	if (angles.x < 0)
-		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
-	else
-		offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
-		
+
+	if ( !simulatePositionalOffsets )
+	{
+		if (angles.x < 0)
+			offset.z +=  10.5 * sin(DEG2RAD(angles.x));
+		else
+			offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
+	}	
+	
 	// yaw effects 
 	offset.x += 2 * sin(DEG2RAD(angles.y));
-	offset.y += 7 * sin(DEG2RAD(angles.y)); 
 	
-	if (angles.y < 0) {
-		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
+	if ( simulatePositionalOffsets ) {
+		
+		offset.y += 7 * sin(DEG2RAD(angles.y));	
+	
+		if (angles.y < 0) {
+			offset.x -= 9.5 * sin(DEG2RAD(angles.y));
+		}
 	}
-	
 		// roll effects
 	Vector rollOffset(0,0,0);
 	

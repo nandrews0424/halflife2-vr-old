@@ -1,14 +1,13 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-ConVar vr_neck_length( "vr_neck_length", "12", 0 );
-ConVar vr_spine_length( "vr_spine_length", "50", 0 );
+ConVar vr_neck_length( "vr_neck_length", "6", 0 );
+ConVar vr_spine_length( "vr_spine_length", "30", 0 );
 ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
 
 VrController* _vrController;
 
-
-#define MM_TO_UNITS(x) (x/30.f)
+#define MM_TO_UNITS(x) (x/19.05)
 
 VrController::VrController()
 {
@@ -25,7 +24,6 @@ VrController::VrController()
 	
 	_bodyAngle.Init();
 	_bodyCalibration.Init();
-	_bodyCalibration[YAW] = -1; // triggers first pass initialization
 
 	_weaponAngle.Init();
 	_weaponCalibration.Init();
@@ -78,11 +76,12 @@ QAngle	VrController::bodyOrientation( void )
 }
 
 
-
 bool	VrController::hydraConnected( void )
 {
 	return _vrIO->hydraConnected();
 }
+
+// TODO: would be better to expose these not as "hydra" controllers
 
 void	VrController::hydraRight(HydraControllerData &data)
 {
@@ -118,8 +117,6 @@ bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 
 void	VrController::update(float previousViewYaw)
 {
-
-
 	if (_vrIO->getChannelCount() == 0) { //todo: check vrIO state
 		Msg("Trackers not initialized properly, nothing to do here...\n");
 		return;
@@ -156,17 +153,13 @@ void	VrController::update(float previousViewYaw)
 	_headAngle -= _headCalibration;
 	
 	// BODY ORIENTATION
-	VectorCopy(_headAngle, _bodyAngle);
 
-	_bodyAngle[YAW] = previousViewYaw - _totalAccumulatedYaw[HEAD];  // this gives us the global original value
-	
-	// if uninitialized, set initial body calibration
-	if (_bodyCalibration[YAW] < 0) {
-		_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
-	}
-	
+	// without additional tracking it is simply the head angle minus the total accumulated head yaw
+	VectorCopy(_headAngle, _bodyAngle);
+	_bodyCalibration[YAW] += deltaYaw;  // any head movement is negated from body orientation
 	_bodyAngle -= _bodyCalibration;
-	
+	_bodyAngle[YAW] = previousViewYaw - _bodyCalibration[YAW];
+
 	// WEAPON ORIENTATION
 
 	if (!hasWeaponTracking()) 
@@ -222,17 +215,20 @@ void VrController::calibrateWeapon() {
 	}
 
 	
-	_weaponCalibration[YAW] = weapon.yaw- head.yaw;
-	_bodyCalibration[YAW] = -_totalAccumulatedYaw[HEAD];
+	_weaponCalibration[YAW] = weapon.yaw - head.yaw;
+	
+	_bodyCalibration[YAW] = 0;
 	
 	Vector weapOffset;
-	getWeaponOffset(weapOffset);
-	_weaponOffsetCalibration += weapOffset;
+	getWeaponOffset(weapOffset, false);
+
+	Msg("Zeroing weapon offsets %.1f %.1f %.1f\n", weapOffset.x, weapOffset.y, weapOffset.z);
+
+	_weaponOffsetCalibration = weapOffset;
 }
 
 void VrController::shutDown()
 {
-	
 	if (_initialized)
 	{
 		Msg("Shutting down VR Controller");
@@ -256,7 +252,7 @@ void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 	float neckLength = vr_neck_length.GetFloat();
 	headOffset.z -= neckLength;
 	
-	QAngle headAngle = _vrController->headOrientation();
+	QAngle headAngle = headOrientation();
 
 	if ( ignoreRoll )	{
 		headAngle.z = 0;
@@ -266,15 +262,8 @@ void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 	AngleVectors(headAngle, NULL, NULL, &up);
 	headOffset += up*neckLength;
 	
-	// TODO: Apply the same technique to a spine length if tracking body orientation separately...
-	if (false) {
-		QAngle spineAngle = _vrController->headOrientation();
-		up;
-		AngleVectors(spineAngle, NULL, NULL, &up);
-	}
-
 	// TODO: collision detection necessary with larger sizes
-	// Msg("getHeadOffset() position %f %f %f", position.x, position.y, position.z);
+	Msg("getHeadOffset(%.1f) position %f %f %f\n", neckLength, headOffset.x, headOffset.y, headOffset.z);
 }
 
 // TODO: more we can do here....
@@ -283,7 +272,7 @@ void VrController::getShootOffset(Vector &shootOffset)
 	getHeadOffset(shootOffset);
 }
 
-void VrController::getWeaponOffset(Vector &offset)
+void VrController::getWeaponOffset(Vector &offset, bool calibrated)
 {
 	offset.Init();
 	if ( hydraConnected() )
@@ -294,10 +283,16 @@ void VrController::getWeaponOffset(Vector &offset)
 		offset.y = MM_TO_UNITS(data.pos.x);
 		offset.z = MM_TO_UNITS(data.pos.y);
 		offset.x = -MM_TO_UNITS(data.pos.z);
-			
-		offset -= _weaponOffsetCalibration;
+		
+		if (calibrated)
+		{
+			offset -= _weaponOffsetCalibration; // weapon calibration is stored in hydra-space
 
-		// TODO: add calibration angles etc...
+			// orient weapon offset with the body as the hydra base stays body relative
+			Vector forward, right, up;
+			AngleVectors(bodyOrientation(), &forward, &right, &up);
+			offset = forward*offset.x + right*offset.y + up*offset.z;
+		}
 	}
 } 
 

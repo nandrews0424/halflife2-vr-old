@@ -55,7 +55,7 @@ public:
 
 	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
 	void	getShootOffset(Vector &shootOffset);
-	void	getWeaponOffset(Vector &offset);
+	void	getWeaponOffset(Vector &offset, bool calibrated=true);
 				
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
