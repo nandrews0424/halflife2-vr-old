@@ -7,9 +7,6 @@ ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
 
 VrController* _vrController;
 
-
-#define MM_TO_UNITS(x) (x/30.f)
-
 VrController::VrController()
 {
 	Msg("Initializing VR Controller");
@@ -291,13 +288,35 @@ void VrController::getWeaponOffset(Vector &offset)
 		HydraControllerData data;
 		hydraRight(data);
 
-		offset.y = MM_TO_UNITS(data.pos.x);
-		offset.z = MM_TO_UNITS(data.pos.y);
-		offset.x = -MM_TO_UNITS(data.pos.z);
+		// convert mm to inches (engine unit)
+		offset.y = (data.pos.x/1000) * (1/METERS_PER_INCH);
+		offset.z =  (data.pos.y/1000) * (1/METERS_PER_INCH);
+		offset.x = -1 *  (data.pos.z/1000) * (1/METERS_PER_INCH);
 			
 		offset -= _weaponOffsetCalibration;
 
 		// TODO: add calibration angles etc...
 	}
 } 
+
+HmdInfo VrController::hmdInfo()
+{
+	HmdInfo h;
+
+	HMDDeviceInfo info = _vrIO->getHMDInfo();
+	
+	for (int i=0;i<4;i++)
+		h.DistortionK[i] = info.DistortionK[i];
+		
+	h.HResolution = info.HResolution;
+	h.HScreenSize = info.HScreenSize;
+	h.VResolution = info.VResolution;
+	h.VScreenSize = info.VScreenSize;
+	h.VScreenCenter = info.VScreenCenter;
+	h.InterpupillaryDistance = info.InterpupillaryDistance;
+	h.LensSeparationDistance = info.LensSeparationDistance;
+	h.EyeToScreenDistance = info.EyeToScreenDistance;
+		
+	return h;	
+}
 

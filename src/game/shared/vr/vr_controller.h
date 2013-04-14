@@ -29,6 +29,17 @@ struct HydraControllerData
 	}
 };
 
+struct HmdInfo
+{
+	unsigned  HResolution, VResolution; 
+	float     HScreenSize, VScreenSize;
+	float     VScreenCenter;
+	float     EyeToScreenDistance;
+	float     LensSeparationDistance;
+	float     InterpupillaryDistance;
+	float     DistortionK[4];
+};
+
 
 class VrController 
 {
@@ -51,6 +62,7 @@ public:
 	
 	bool	initialized( void );
 	bool	hasWeaponTracking( void );
+	HmdInfo	hmdInfo( void );
 	void	shutDown( void );
 
 	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
@@ -59,14 +71,11 @@ public:
 				
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
-
-	float _fake123124[10];
 	float _previousYaw[SENSOR_COUNT];
-	float _fak12e[10];
 	bool _initialized;
 	
 	IVRIOClient* _vrIO;
-	float _fake3[10];
+	
 	QAngle _headAngle;
 	QAngle _headCalibration;
 	QAngle _weaponAngle;
@@ -74,10 +83,6 @@ protected:
 	QAngle _bodyCalibration;
 	QAngle _bodyAngle;
 	Vector _weaponOffsetCalibration;
-	
-	float _fake[10];
-	
-	float _fake2[10];
 	unsigned int _updateCounter;
 };
 

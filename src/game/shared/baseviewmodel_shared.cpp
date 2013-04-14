@@ -379,7 +379,22 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	QAngle vmangles = eyeAngles;
 	Vector vmorigin = eyePosition;
 	
-	if (VR_Controller()->hasWeaponTracking()) {
+
+	// for properly tracked
+	if ( VR_Controller()->hydraConnected() ) {
+		
+		// passed in eye position actually has head model applied that we don't want
+
+		vmorigin = owner->EyePosition();
+
+		QAngle weaponAngle = VR_Controller()->weaponOrientation();
+		Vector forward, right, up; 
+		AngleVectors(eyeAngles, &forward, &right, &up);
+
+				
+	
+	}
+	else if ( VR_Controller()->hasWeaponTracking() ) {
 
 		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
 		if( pWeapon == NULL )

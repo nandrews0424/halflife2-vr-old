@@ -93,6 +93,22 @@ struct Hydra_Message
 };
 
 
+struct HMDDeviceInfo 
+{
+	bool active;
+
+	unsigned  HResolution, VResolution; 
+	float     HScreenSize, VScreenSize;
+	float     VScreenCenter;
+	float     EyeToScreenDistance;
+	float     LensSeparationDistance;
+	float     InterpupillaryDistance;
+	float     DistortionK[4];
+
+	HMDDeviceInfo() {
+		active = false;
+	}
+};
 
 // Base interface for 
 struct IVRIOClient
@@ -105,6 +121,8 @@ struct IVRIOClient
 	//hydra specific
 	virtual bool hydraConnected( ) = 0;
 	virtual void hydraData( Hydra_Message& message ) = 0;
+
+	virtual HMDDeviceInfo getHMDInfo( void ) = 0;
 
 	virtual void dispose( void ) = 0;
 };

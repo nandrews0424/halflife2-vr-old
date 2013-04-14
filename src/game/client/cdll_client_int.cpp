@@ -93,6 +93,7 @@
 #include "cdll_bounded_cvars.h"
 #include "matsys_controls/matsyscontrols.h"
 #include "GameStats.h"
+#include "vr/vr_controller.h"
 
 #ifdef PORTAL
 #include "PortalRender.h"
@@ -231,6 +232,8 @@ void DispatchHudText( const char *pszName );
 static ConVar s_CV_ShowParticleCounts("showparticlecounts", "0", 0, "Display number of particles drawn per frame");
 static ConVar s_cl_team("cl_team", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default team when joining a game");
 static ConVar s_cl_class("cl_class", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default class when joining a game");
+static ConVar vr_stereo("vr_stereo", "1", FCVAR_ARCHIVE, "Activates the stereo sbs render mode");
+//static ConVar vr_stereo("vr_eye_to_screen_distance", "1", FCVAR_ARCHIVE, "The distance from the player's eyes to the screen in mm, used for FOV calculations");
 
 // Physics system
 bool g_bLevelInitialized;
@@ -1147,15 +1150,18 @@ void CHLClient::View_Render( vrect_t *rect )
 	if ( rect->width == 0 || rect->height == 0 )
 		return;
 
-
-	// VR TODO: RENDER SPECIFICALLY THE RIGHT AND LEFT EYE FOR THE RIFT, THE 2D stuff needs fixing as does menus... 
-	if (false)
+	if (false && vr_stereo.GetBool())
 	{
-		rect->width = 640;
-		rect->height = 800;
+		HmdInfo hmd = VR_Controller()->hmdInfo();
+
+		rect->width = hmd.HResolution/2;
+		rect->height = hmd.VResolution;
+			
 		view->Render( rect );
 		
-		rect->x += 640;
+		rect->x += hmd.HResolution/2;
+
+		Msg("Client res: %dx%d ipd:%f eyetoscreen:%f\n", hmd.HResolution, hmd.VResolution, hmd.InterpupillaryDistance, hmd.EyeToScreenDistance);
 
 		view->Render( rect );
 	}

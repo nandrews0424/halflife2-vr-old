@@ -8,7 +8,7 @@
 #include "vgui_int.h"
 #include "hud.h"
 #include <vgui/IInput.h>
-#include <vgui/IPanel.h>
+#include <vgui/IPanel.h> 
 #include <vgui/ISurface.h>
 #include <vgui_controls/AnimationController.h>
 #include "iinput.h"
@@ -19,7 +19,7 @@
 
 extern bool g_bRollingCredits;
 
-ConVar fov_desired( "fov_desired", "75", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets the base field-of-view.", true, 75.0, true, 90.0 );
+ConVar fov_desired( "fov_desired", "75", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets the base field-of-view.", true, 75.0, true, 130.0 );
 
 //-----------------------------------------------------------------------------
 // Globals

@@ -36,6 +36,8 @@
 #include <vgui_controls/Controls.h>
 #include <vgui/ISurface.h>
 #include "ScreenSpaceEffects.h"
+#include "vr/vr_controller.h"
+
 
 #if defined( HL2_CLIENT_DLL ) || defined( CSTRIKE_DLL )
 #define USE_MONITORS
@@ -45,6 +47,8 @@
 #include "C_Prop_Portal.h" //portal surface rendering functions
 #endif
 
+#define PI 3.141592654f
+#define RADIANS_TO_DEGREES(rad) ((float) rad * (float) (180.0 / PI))
 	
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -106,6 +110,8 @@ ConVar	gl_clear_randomcolor( "gl_clear_randomcolor", "0", FCVAR_CHEAT, "Clear th
 
 static ConVar r_farz( "r_farz", "-1", FCVAR_CHEAT, "Override the far clipping plane. -1 means to use the value in env_fog_controller." );
 static ConVar cl_demoviewoverride( "cl_demoviewoverride", "0", 0, "Override view during demo playback" );
+
+static ConVar vr_eyeangle_in("vr_eyeangle_in", "3", FCVAR_ARCHIVE, "controls the eye angle in necessary for getting convergence given limited control");
 
 static Vector s_DemoView;
 static QAngle s_DemoAngle;
@@ -774,7 +780,7 @@ void CViewRender::SetUpOverView()
 // Purpose: Render current view into specified rectangle
 // Input  : *rect - 
 //-----------------------------------------------------------------------------
-void CViewRender::Render( vrect_t *rect )
+void CViewRender::Render( vrect_t *rect)
 {
 	Assert(s_DbgSetupOrigin == m_View.origin);
 	Assert(s_DbgSetupAngles == m_View.angles);
@@ -783,6 +789,16 @@ void CViewRender::Render( vrect_t *rect )
 
 	vrect_t vr = *rect;
 
+	// we can infer that we're rendering a particular eye in SBS mode this way and adjust the variables accordingly
+	bool stereo, left;
+	HmdInfo hmd = VR_Controller()->hmdInfo();
+	
+	if (false && vr.width == hmd.HResolution/2 && vr.height == hmd.VResolution)
+	{
+		stereo = true;
+		left = vr.x == 0;
+	}
+		
 	// Stub out the material system if necessary.
 	CMatStubHandler matStub;
 
@@ -792,11 +808,58 @@ void CViewRender::Render( vrect_t *rect )
 	
 	// Assume normal vis
 	m_bForceNoVis			= false;
-
-	float aspectRatio = engine->GetScreenAspectRatio() * 0.75f;	 // / (4/3)
-	m_View.fov = ScaleFOVByWidthRatio( m_View.fov,  aspectRatio );
-	m_View.fovViewmodel = ScaleFOVByWidthRatio( m_View.fovViewmodel, aspectRatio );
 	
+	float aspectRatio = 0.f;
+	
+	if ( stereo ) {
+		aspectRatio = (float) hmd.HResolution / (2*hmd.VResolution);
+		m_View.fov = RADIANS_TO_DEGREES(2 * atan( hmd.VScreenSize / (2*hmd.EyeToScreenDistance) ));
+		m_View.fovViewmodel = m_View.fov;
+		Msg("HRes: %d VRes: %d VSize: %f EyeDist: %f\n", hmd.HResolution, hmd.VResolution, hmd.VScreenSize, hmd.EyeToScreenDistance);
+	}
+	else 
+	{
+		aspectRatio = engine->GetScreenAspectRatio() * 0.75f;	 // / (4/3)
+		m_View.fov = ScaleFOVByWidthRatio( m_View.fov,  aspectRatio );
+		m_View.fovViewmodel = ScaleFOVByWidthRatio( m_View.fovViewmodel, aspectRatio );
+	}
+		
+	Vector forward, right, up;
+	AngleVectors(m_View.angles, &forward, &right, &up); 
+
+	
+	
+	// since the eyes are not in the center of the screen, an additional offset needs to be applied...
+	float eyeShift = (hmd.HScreenSize/4) - (hmd.InterpupillaryDistance/2);
+	eyeShift *= (1/METERS_PER_INCH);
+	
+	float viewCenter			= hmd.HScreenSize * .25f;
+	float eyeProjectionShift	= viewCenter - hmd.InterpupillaryDistance * .5f;
+	float projectionCenterOffset = 4.f * eyeProjectionShift / hmd.HScreenSize;
+
+	// projectionCenterOffset *= (1/METERS_PER_INCH);
+	float halfIPD = (hmd.InterpupillaryDistance * (1/ METERS_PER_INCH)) / 2;
+
+	// todo: may be m_View.m_flOffCenterRight and left here instead of an origin shift?
+	
+	// eye angle adjustment
+	
+
+	Msg("Render configuration eyeoffset: %f fov: %f a/r: %f\n", projectionCenterOffset, m_View.fov, aspectRatio); 
+
+	// offset the viewport per the ipd offset for the eye being rendered
+	if (left) 
+	{
+		m_View.origin += right * -halfIPD;
+		m_View.angles.y += vr_eyeangle_in.GetFloat();
+
+	}
+	else
+	{
+		m_View.origin += right * halfIPD;
+		m_View.angles.y -= vr_eyeangle_in.GetFloat();
+	}
+
 	// Let the client mode hook stuff.
 	g_pClientMode->PreRender(&m_View);
 
@@ -812,8 +875,12 @@ void CViewRender::Render( vrect_t *rect )
 	m_View.y				= vr.y;
 	m_View.width			= vr.width * flViewportScale;
 	m_View.height			= vr.height * flViewportScale;
-	m_View.m_flAspectRatio	= ( engineAspectRatio > 0.0f ) ? engineAspectRatio : ( (float)m_View.width / (float)m_View.height );
 
+	if ( stereo )
+		m_View.m_flAspectRatio = aspectRatio;
+	else
+		m_View.m_flAspectRatio	= ( engineAspectRatio > 0.0f ) ? engineAspectRatio : ( (float)m_View.width / (float)m_View.height );
+		
 	int nClearFlags = VIEW_CLEAR_DEPTH | VIEW_CLEAR_STENCIL;
 
 	if( gl_clear_randomcolor.GetBool() )
@@ -850,6 +917,7 @@ void CViewRender::Render( vrect_t *rect )
 	}
 
 	ApplyHeadOffset(&m_View);
+		
 	render->SetMainView( m_View.origin, m_View.angles );
 
 	int flags = RENDERVIEW_DRAWHUD;
