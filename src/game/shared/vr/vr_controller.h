@@ -31,15 +31,14 @@ struct HydraControllerData
 
 struct HmdInfo
 {
-	unsigned  HResolution, VResolution; 
-	float     HScreenSize, VScreenSize;
-	float     VScreenCenter;
-	float     EyeToScreenDistance;
-	float     LensSeparationDistance;
-	float     InterpupillaryDistance;
-	float     DistortionK[4];
+       unsigned  HResolution, VResolution;
+       float     HScreenSize, VScreenSize;
+       float     VScreenCenter;
+       float     EyeToScreenDistance;
+       float     LensSeparationDistance;
+       float     InterpupillaryDistance;
+       float     DistortionK[4];
 };
-
 
 class VrController 
 {
@@ -60,22 +59,25 @@ public:
 	void	hydraRight(HydraControllerData &data);
 	void	hydraLeft(HydraControllerData &data);
 	
+	HmdInfo hmdInfo( void );
+
 	bool	initialized( void );
 	bool	hasWeaponTracking( void );
-	HmdInfo	hmdInfo( void );
 	void	shutDown( void );
 
 	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
 	void	getShootOffset(Vector &shootOffset);
-	void	getWeaponOffset(Vector &offset);
+	void	getWeaponOffset(Vector &offset, bool calibrated=true);
 				
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
+
 	float _previousYaw[SENSOR_COUNT];
 	bool _initialized;
 	
 	IVRIOClient* _vrIO;
 	
+
 	QAngle _headAngle;
 	QAngle _headCalibration;
 	QAngle _weaponAngle;
@@ -83,6 +85,7 @@ protected:
 	QAngle _bodyCalibration;
 	QAngle _bodyAngle;
 	Vector _weaponOffsetCalibration;
+	
 	unsigned int _updateCounter;
 };
 

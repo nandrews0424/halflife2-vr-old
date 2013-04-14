@@ -646,7 +646,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// verify joystick is available and that the user wants to use it
-	if ( !in_joystick.GetInt() || 0 == inputsystem->GetJoystickCount() )
+	if ( !VR_Controller()->hydraConnected() && (!in_joystick.GetInt() || 0 == inputsystem->GetJoystickCount()) )
 		return; 
 
 	// Skip out if vgui is active
@@ -698,7 +698,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// VR Hack for less painful hydra support....
-	if ( true || VR_Controller()->hydraConnected() )
+	if ( VR_Controller()->hydraConnected() )
 	{
 		HydraControllerData left,right;
 		VR_Controller()->hydraLeft(left);
@@ -733,16 +733,10 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 		gameAxes[GAME_AXIS_YAW].value = 0;
 	}
 
-	
-
-
 	float forward	= ScaleAxisValue( gameAxes[GAME_AXIS_FORWARD].value, MAX_BUTTONSAMPLE * joy_forwardthreshold.GetFloat() );
 	float side		= ScaleAxisValue( gameAxes[GAME_AXIS_SIDE].value, MAX_BUTTONSAMPLE * joy_sidethreshold.GetFloat()  );
 	float pitch		= ScaleAxisValue( gameAxes[GAME_AXIS_PITCH].value, MAX_BUTTONSAMPLE * joy_pitchthreshold.GetFloat()  );
 	float yaw		= ScaleAxisValue( gameAxes[GAME_AXIS_YAW].value, MAX_BUTTONSAMPLE * joy_yawthreshold.GetFloat()  );
-
-
-	// TODO: if VR_Controller has inputs get axes from there right here.....
 	
 	if (VR_Controller()->initialized()) pitch = 0;
 
