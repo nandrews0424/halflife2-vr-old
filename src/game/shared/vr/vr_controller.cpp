@@ -4,6 +4,7 @@
 ConVar vr_neck_length( "vr_neck_length", "4", 0 );
 ConVar vr_spine_length( "vr_spine_length", "30", 0 );
 ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
+ConVar vr_weapon_movement_scale( "vr_weapon_movement_scale", ".75", FCVAR_ARCHIVE, "Scales tracked weapon positional tracking");
 
 VrController* _vrController;
 
@@ -214,17 +215,25 @@ void VrController::calibrateWeapon() {
 		_vrIO->getOrientation(HEAD, weapon);
 	}
 
+	// zero out the calibrations except yaw, all the trackers I'm 
+
+	if ( hydraConnected() ) {
+		_weaponCalibration[PITCH] = 0;
+		_weaponCalibration[ROLL] = 0;
+	}
 	
 	_weaponCalibration[YAW] = weapon.yaw - head.yaw;
-	
 	_bodyCalibration[YAW] = 0;
 	
+	// todo: if weapon tracking only 
+
 	Vector weapOffset;
 	getWeaponOffset(weapOffset, false);
 
 	Msg("Zeroing weapon offsets %.1f %.1f %.1f\n", weapOffset.x, weapOffset.y, weapOffset.z);
-
-	_weaponOffsetCalibration = weapOffset;
+	// todo: here we want to do a bit of offset handling for calibrating at the shoulder as that seems to be the standard with a hydra
+	Vector shoulderCalibrationOffset(-10, -5, 5);
+	_weaponOffsetCalibration = weapOffset + shoulderCalibrationOffset;
 }
 
 void VrController::shutDown()
@@ -263,7 +272,7 @@ void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 	headOffset += up*neckLength;
 	
 	// TODO: collision detection necessary with larger sizes
-	Msg("getHeadOffset(%.1f) position %f %f %f\n", neckLength, headOffset.x, headOffset.y, headOffset.z);
+	// Msg("getHeadOffset(%.1f) position %f %f %f\n", neckLength, headOffset.x, headOffset.y, headOffset.z);
 }
 
 // TODO: more we can do here....
@@ -292,6 +301,9 @@ void VrController::getWeaponOffset(Vector &offset, bool calibrated)
 			Vector forward, right, up;
 			AngleVectors(bodyOrientation(), &forward, &right, &up);
 			offset = forward*offset.x + right*offset.y + up*offset.z;
+
+			offset *= vr_weapon_movement_scale.GetFloat();
+
 		}
 	}
 } 

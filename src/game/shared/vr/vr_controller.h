@@ -58,7 +58,7 @@ public:
 	bool	hydraConnected( void );
 	void	hydraRight(HydraControllerData &data);
 	void	hydraLeft(HydraControllerData &data);
-	
+	 
 	HmdInfo hmdInfo( void );
 
 	bool	initialized( void );

@@ -391,16 +391,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		// we only care about yaw 
 		bodyAngles.x=0;
 		bodyAngles.z=0;
-
-		// TODO: need to account for ducking and jumping issues
-		
-
-		Vector forward,right,up;
-		AngleVectors(bodyAngles, &forward, &right, &up);
-		
-		vmorigin = owner->GetAbsOrigin();
-		vmorigin += forward*6 + right*3 + up*55;
-				
+								
 		Vector trackedOffset;
 		VR_Controller()->getWeaponOffset(trackedOffset);
 		vmorigin += trackedOffset;

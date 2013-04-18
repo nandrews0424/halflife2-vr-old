@@ -112,6 +112,7 @@ static ConVar r_farz( "r_farz", "-1", FCVAR_CHEAT, "Override the far clipping pl
 static ConVar cl_demoviewoverride( "cl_demoviewoverride", "0", 0, "Override view during demo playback" );
 
 static ConVar vr_eyeangle_in("vr_eyeangle_in", "3", FCVAR_ARCHIVE, "controls the eye angle in necessary for getting convergence given limited control");
+static ConVar vr_aspectratio_override("vr_aspectratio_override", "-1", FCVAR_ARCHIVE, "If given a positive number, overrides the calculated aspect ratio");
 
 static Vector s_DemoView;
 static QAngle s_DemoAngle;
@@ -823,6 +824,11 @@ void CViewRender::Render( vrect_t *rect)
 		m_View.fov = ScaleFOVByWidthRatio( m_View.fov,  aspectRatio );
 		m_View.fovViewmodel = ScaleFOVByWidthRatio( m_View.fovViewmodel, aspectRatio );
 	}
+
+
+	float aspectRatioOverride = vr_aspectratio_override.GetFloat();
+	if ( aspectRatioOverride > 0 )
+		aspectRatio = aspectRatioOverride;
 		
 	Vector forward, right, up;
 	AngleVectors(m_View.angles, &forward, &right, &up); 
@@ -845,7 +851,7 @@ void CViewRender::Render( vrect_t *rect)
 	// eye angle adjustment
 	
 
-	Msg("Render configuration eyeoffset: %f fov: %f a/r: %f\n", projectionCenterOffset, m_View.fov, aspectRatio); 
+	// Msg("Render configuration eyeoffset: %f fov: %f a/r: %f\n", projectionCenterOffset, m_View.fov, aspectRatio); 
 
 	// offset the viewport per the ipd offset for the eye being rendered
 	if (left) 
