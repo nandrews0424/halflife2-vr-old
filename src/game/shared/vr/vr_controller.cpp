@@ -297,9 +297,10 @@ void VrController::getWeaponOffset(Vector &offset, bool calibrated)
 		{
 			offset -= _weaponOffsetCalibration; // weapon calibration is stored in hydra-space
 
-			// orient weapon offset with the body as the hydra base stays body relative
+			// orient weapon offset with the body as the hydra base stays body relative (but dump any pitch & roll, only care about yaw)
+			QAngle body(0, bodyOrientation().y, 0);
 			Vector forward, right, up;
-			AngleVectors(bodyOrientation(), &forward, &right, &up);
+			AngleVectors(body, &forward, &right, &up);
 			offset = forward*offset.x + right*offset.y + up*offset.z;
 
 			offset *= vr_weapon_movement_scale.GetFloat();
