@@ -271,7 +271,7 @@ void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
 	AngleVectors(headAngle, NULL, NULL, &up);
 	headOffset += up*neckLength;
 	
-	// TODO: collision detection necessary with larger sizes
+	// TODO: collision detection necessary with larger sizes 
 	// Msg("getHeadOffset(%.1f) position %f %f %f\n", neckLength, headOffset.x, headOffset.y, headOffset.z);
 }
 
