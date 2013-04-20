@@ -99,6 +99,8 @@ void C_PropJeep::Simulate( void )
 //-----------------------------------------------------------------------------
 void C_PropJeep::UpdateViewAngles( C_BasePlayer *pLocalPlayer, CUserCmd *pCmd )
 {
+	return;
+
 	if ( r_JeepViewBlendTo.GetInt() )
 	{
 		// Check to see if the mouse has been touched in a bit or that we are not throttling.

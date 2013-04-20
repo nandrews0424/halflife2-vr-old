@@ -28,7 +28,7 @@
 
 			<!--Secondary fire-->
 			<trigger>pressed</trigger>
-			<mouse_button>c</mouse_button>
+			<key>c</key>
 			
 			<button>bumper</button>
 			<key>space</key>

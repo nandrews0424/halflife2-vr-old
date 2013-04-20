@@ -278,6 +278,8 @@ void C_PropAirboat::DrawHudElements( )
 //-----------------------------------------------------------------------------
 void C_PropAirboat::UpdateViewAngles( C_BasePlayer *pLocalPlayer, CUserCmd *pCmd )
 {
+	return;
+
 	if ( r_AirboatViewBlendTo.GetInt() )
 	{
 		//
