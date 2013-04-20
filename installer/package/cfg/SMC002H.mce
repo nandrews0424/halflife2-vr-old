@@ -1,0 +1,92 @@
+<!--
+  
+   SIXENSE CONFIDENTIAL
+  
+   Copyright (C) 2011 Sixense Entertainment Inc.
+   All Rights Reserved 
+ 
+-->
+
+<game_list>
+
+  <game>
+
+	<version>1.0</version>
+	<requires_schema_version>1.0</requires_schema_version>  
+  
+    <exe_name>hl2.exe</exe_name>
+	<window_title_match>HALF-LIFE 2</window_title_match>	
+    <full_name>Half-Life 2</full_name>
+    <controller_manager_mode>1P2C</controller_manager_mode>
+    
+    <!-- directly links one action on the controller to one action on the mouse/keyboard -->
+    <quick_bindings>
+
+		<!-- Left Controller -->
+		<controller>
+			<which>P1L</which>
+
+			<!--Secondary fire-->
+			<trigger>pressed</trigger>
+			<mouse_button>c</mouse_button>
+			
+			<button>bumper</button>
+			<key>space</key>
+
+			<button>start</button>
+			<key>esc</key> <!-- menu -->
+
+			<button>1</button>
+			<key>j</key> <!-- toggle walk -->
+
+			<button>3</button>
+			<key>e</key> <!-- use -->
+
+			<button>2</button>
+			<key>g</key> <!-- grav gun -->
+
+			<button>2</button>
+			<key>q</key> <!-- prev weapon -->
+
+			<button>joystick</button>
+			<key>left_shift</key> <!-- sprint -->
+			
+			
+		</controller>
+
+		<!-- Right Controller -->
+		<controller>
+			<which>P1R</which>
+
+			<button>bumper</button>
+			<mouse_button>left</mouse_button> 
+			
+			<trigger>pressed</trigger>
+			<mouse_button>right</mouse_button> 
+			
+			<button>joystick</button>
+			<key>f</key> 
+			
+			<button>1</button>
+			<key>r</key> 
+
+			<button>2</button>
+			<key>h</key> 
+			
+			<button>3</button>
+			<key>g</key>
+			
+			<button>4</button>
+			<key>y</key>
+			
+			<button>start</button>
+			<key>l</key> 
+
+		</controller>
+
+    </quick_bindings>
+
+  </game>
+
+</game_list>
+
