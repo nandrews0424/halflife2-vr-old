@@ -1,10 +1,10 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-ConVar vr_neck_length( "vr_neck_length", "4", 0 );
+ConVar vr_neck_length( "vr_neck_length", "3", 0 );
 ConVar vr_spine_length( "vr_spine_length", "30", 0 );
 ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
-ConVar vr_weapon_movement_scale( "vr_weapon_movement_scale", ".75", FCVAR_ARCHIVE, "Scales tracked weapon positional tracking");
+ConVar vr_weapon_movement_scale( "vr_weapon_movement_scale", "1", FCVAR_ARCHIVE, "Scales tracked weapon positional tracking");
 
 VrController* _vrController;
 
@@ -14,6 +14,8 @@ VrController::VrController()
 {
 	Msg("Initializing VR Controller");
 	
+	_initialized = false;
+
 	for (int i=0; i<SENSOR_COUNT; i++)
 	{
 		_previousYaw[i] = 0;
@@ -30,23 +32,31 @@ VrController::VrController()
 	_weaponCalibration.Init();
 	_weaponOffsetCalibration.Init();
 
-	_vrIO = _vrio_getInProcessClient();
-	_vrIO->initialize();
-
-	_vrController = this;
-
-	if ( _vrIO->getChannelCount() > 0 )
+	try 
 	{
-		Msg("VR Controller intialized with %i devices...  \n", _vrIO->getChannelCount());
-	}
-	else 
-	{
-		Msg("VR Controller initialized with no devices");
-	}
 
-	_initialized = true;
+		_vrIO = _vrio_getInProcessClient();
+		_vrIO->initialize();
+
+		_vrController = this;
+
+		if ( _vrIO->getChannelCount() > 0 )
+		{
+			Msg("VR Controller intialized with %i devices...  \n", _vrIO->getChannelCount());
+		}
+		else 
+		{
+			Msg("VR Controller initialized with no devices");
+		}
+
+		_initialized = true;
+		Msg("VR Controller initialized");
+	}
+	catch (...)
+	{
+		Msg("VR Controller not initialized correctly, unable to instantiate VRIO devices");
+	}
 	
-	Msg("VR Controller initialized");
 } 
 
 
@@ -79,7 +89,7 @@ QAngle	VrController::bodyOrientation( void )
 
 bool	VrController::hydraConnected( void )
 {
-	return _vrIO->hydraConnected();
+	return _initialized && _vrIO->hydraConnected();
 }
 
 // TODO: would be better to expose these not as "hydra" controllers

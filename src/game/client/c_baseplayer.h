@@ -114,6 +114,7 @@ public:
 	virtual Vector			Weapon_ShootDirection();
 	virtual	bool			Weapon_Tracking();
 	virtual Vector			SetWeaponAngle(QAngle& angle);
+	virtual void			SetWeaponOffset(Vector& offset);
 	virtual	void			SetWeaponTracking(bool tracking);
 	bool					weapontracking;
 
@@ -433,7 +434,8 @@ protected:
 	// Did we just enter a vehicle this frame?
 	bool			JustEnteredVehicle();
 	Vector			weaponangle;  //VR Source
-	
+	Vector			weaponoffset;
+
 // DATA
 	int				m_iObserverMode;	// if in spectator mode != 0
 	EHANDLE			m_hObserverTarget;	// current observer target

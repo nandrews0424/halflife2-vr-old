@@ -107,6 +107,39 @@ void WriteUsercmd( bf_write *buf, const CUserCmd *to, const CUserCmd *from )
 		buf->WriteOneBit( 0 );
 	}
 
+	// Write weapon offset
+
+	if ( to->weaponoffset[ 0 ] != from->weaponoffset[ 0 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponoffset[ 0 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+	if ( to->weaponoffset[ 1 ] != from->weaponoffset[ 1 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponoffset[ 1 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+	if ( to->weaponoffset[ 2 ] != from->weaponoffset[ 2 ] )
+	{
+		buf->WriteOneBit( 1 );
+		buf->WriteFloat( to->weaponoffset[ 2 ] );
+	}
+	else
+	{
+		buf->WriteOneBit( 0 );
+	}
+
+	
 	buf->WriteOneBit( to->weapontracking ? 1 : 0 );
 
 	// Write moveangles
@@ -316,6 +349,23 @@ void ReadUsercmd( bf_read *buf, CUserCmd *move, CUserCmd *from )
 	{
 		move->weaponangles[2] = buf->ReadFloat();
 	}
+
+	// Read weapon offset
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponoffset[0] = buf->ReadFloat();
+	}
+
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponoffset[1] = buf->ReadFloat();
+	}
+
+	if ( buf->ReadOneBit() )
+	{
+		move->weaponoffset[2] = buf->ReadFloat();
+	}
+	
 
 	move->weapontracking = buf->ReadOneBit();
 	

@@ -397,6 +397,7 @@ public:
 	// Weapon stuff
 	virtual Vector			Weapon_ShootPosition( );
 	virtual Vector			SetWeaponAngle( QAngle& angle );
+	virtual void			SetWeaponOffset( Vector& offset );
 	virtual Vector			Weapon_ShootDirection( );
 	virtual void			SetWeaponTracking( bool tracking );
 	virtual bool			Weapon_Tracking( );
@@ -843,6 +844,7 @@ protected:
 	Vector					m_vecCameraPVSOrigin;
 
 	Vector					weaponangle; //VR Source
+	Vector					weaponoffset;
 	bool					weapontracking;
 	
 	CNetworkHandle( CBaseEntity, m_hUseEntity );			// the player is currently controlling this entity because of +USE latched, NULL if no entity

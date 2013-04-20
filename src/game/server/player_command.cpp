@@ -319,6 +319,7 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	// VR SOURCE - setting the player info for weapon and view angles
 	player->SetWeaponAngle(ucmd->weaponangles);
 	player->SetWeaponTracking(ucmd->weapontracking);
+	player->SetWeaponOffset(ucmd->weaponoffset);
 //	player->SetMoveAngle(ucmd->moveangles);
 	
 	// Set globals appropriately

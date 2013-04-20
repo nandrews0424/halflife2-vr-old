@@ -383,14 +383,9 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	Vector vmorigin = eyePosition;
 	
 	if ( VR_Controller()->hydraConnected() ) {
-
-		QAngle bodyAngles = VR_Controller()->bodyOrientation();
+				
 		QAngle weaponAngles = VR_Controller()->weaponOrientation();
 		vmangles = weaponAngles;
-		
-		// we only care about yaw 
-		bodyAngles.x=0;
-		bodyAngles.z=0;
 								
 		Vector trackedOffset;
 		VR_Controller()->getWeaponOffset(trackedOffset);
@@ -399,74 +394,6 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		SetLocalOrigin(vmorigin);
 		SetLocalAngles(vmangles);
 		
-	} else if (VR_Controller()->hasWeaponTracking()) {
-
-		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
-		if( pWeapon == NULL )
-			return;
-			
-		QAngle weaponAngle = VR_Controller()->weaponOrientation();
-		Vector forward, right, up; 
-		AngleVectors(eyeAngles, &forward, &right, &up);
-
-		// Getting scaled viewmodel rotation (todo: extract)
-		QAngle headAngle = VR_Controller()->headOrientation();
-		QAngle deltaAngle = weaponAngle - headAngle;
-
-		if ( deltaAngle.y < -180.f )
-			deltaAngle.y += 360.f;
-		if ( deltaAngle.y > 180.f )
-			deltaAngle.y -= 360.f;
-			
-		float pitchScale = .72;
-		float yawScale = .72;
-	
-		deltaAngle.x *= pitchScale;
-		deltaAngle.y *= yawScale;
-		
-		QAngle newWeaponAngle = headAngle + deltaAngle;
-					
-		// Get the baseline configured offset for the weapon
-		Vector configuredOffset = pWeapon->GetWpnData().viewModelOffset;
-		// Msg("Configured weapon VM offset is %.1f %.1f %.1f\n", configuredOffset.x, configuredOffset.y, configuredOffset.z);
-		configuredOffset = forward*configuredOffset.x + right*configuredOffset.y + up*configuredOffset.z;
-				
-		Vector v = CalcViewModelOffset(); 
-		Vector vmRotationOffset = forward*v.x + right*v.y + up*v.z;
-				
-		// Get the head offset from the neck model to also apply
-		Vector headOffset(0,0,0);
-		VR_Controller()->getHeadOffset(headOffset, false);
-		
-		Vector trackedOffset;
-		VR_Controller()->getWeaponOffset(trackedOffset);
-		//vm scaling for vm to world FOV ratio
-		trackedOffset *= .6;
-
-
-		vmorigin = vmorigin + configuredOffset + vmRotationOffset + headOffset + trackedOffset;
-		AddViewModelBob( owner, vmorigin, newWeaponAngle );
-					
-		SetLocalOrigin(vmorigin);
-		SetLocalAngles(newWeaponAngle);
-		
-				
-		// rotation offset based on viewmodel reorigin value
-		/*Vector reorigin = forward*6 + right*5 + up*4;
-		Vector angularOffset;
-		QAngle angles(
-			UTIL_AngleDiff(weaponAngles.x, bodyAngles.x),
-			UTIL_AngleDiff(weaponAngles.y, bodyAngles.y),
-			UTIL_AngleDiff(weaponAngles.z, bodyAngles.z)
-		);
-
-		Msg("Angle diffs between weapon & view %.1f %.1f %.1f\n", angles.x, angles.y, angles.z);
-		VectorRotate(reorigin, angles, angularOffset);
-		Msg("Angular offset %.1f %.1f %.1f\n", angularOffset.x, angularOffset.y, angularOffset.z);
-		
-		DebugDrawLine(vmorigin, vmorigin - angularOffset, 255, 0, 0, true, 2);
-		*/
-
 	} else {
 
 		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
@@ -503,69 +430,6 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 
 #endif
 }
-
-
-Vector CBaseViewModel::CalcViewModelOffset()
-{
-	Vector offset(0,0,0);
-	
-#if defined( CLIENT_DLL )
-	// Calculate the angular offset value...
-	QAngle weapon = VR_Controller()->weaponOrientation();
-	QAngle head = VR_Controller()->headOrientation();
-	QAngle angles = weapon - head;
-
-	if ( angles.z < -180.f )
-		angles.z += 360.f;
-	if ( angles.z > 180.f )
-		angles.z -= 360.f;
-	
-	if ( angles.y < -180.f )
-		angles.y += 360.f;
-	if ( angles.y > 180.f )
-		angles.y -= 360.f;
-	
-	
-	// pitch effects - good enough
-	offset.x += -7 * cos(DEG2RAD(angles.x));
-
-	if (angles.x < 0)
-		offset.z +=  10.5 * sin(DEG2RAD(angles.x));
-	else
-		offset.z += (10.5 - angles.x/4) * sin(DEG2RAD(angles.x));
-		
-	
-	// yaw effects 
-	offset.x += 2 * sin(DEG2RAD(angles.y));
-	
-	offset.y += 7 * sin(DEG2RAD(angles.y));	
-	
-	if (angles.y < 0) {
-		offset.x -= 9.5 * sin(DEG2RAD(angles.y));
-	}
-	// roll effects
-	Vector rollOffset(0,0,0);
-	
-	if (angles.z < 0) {
-		rollOffset.y += 5 * sin(DEG2RAD(angles.z)); 
-		rollOffset.z +=  (4.5 - angles.z/30.f) * sin(DEG2RAD(angles.z));
-	}	
-	else 
-	{
-		rollOffset.y +=	 8 * sin(DEG2RAD(angles.z)); 
-		rollOffset.z += (4.5 - angles.z/20.f )  * sin(DEG2RAD(angles.z));
-	}
-	
-	offset += rollOffset;
-
-	offset.z *= 1.5; // not sure where this originally came from at this point...
-
-#endif	
-
-	return offset;
-
-}
-
 
 
 //-----------------------------------------------------------------------------

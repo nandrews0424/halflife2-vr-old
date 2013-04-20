@@ -826,6 +826,10 @@ void VR_UpdateTracking( CUserCmd *cmd )
 		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
 		VectorCopy(bodyRelativeMovement ? vrController->bodyOrientation() : vrController->headOrientation(), cmd->moveangles);
 		cmd->weapontracking = vrController->hasWeaponTracking();
+		
+		Vector weapOffset;
+		vrController->getWeaponOffset(weapOffset);
+		VectorCopy(weapOffset, cmd->weaponoffset);
 	}
 	
 	engine->SetViewAngles( viewangles );

@@ -722,19 +722,10 @@ void CBasePlayer::SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalki
 
 Vector CBasePlayer::Weapon_ShootPosition( )
 {
-	Vector forward, right, up;
-	
-	// todo: hacked in for now... this apparently only happens on the server...
-
-	EyeVectors(&forward, &right, &up);
-	float neckLength = 10;  // we're going to have to actually pass the lean 
-	
-	Vector eyes = EyePosition();
-
-	eyes.z -= neckLength;
-	eyes += up*neckLength;
-		
-	return eyes;
+	Vector shootPosition;
+	VectorCopy(EyePosition(), shootPosition);
+	shootPosition += weaponoffset;
+	return shootPosition;
 }
 
 Vector CBasePlayer::Weapon_ShootDirection( )
@@ -753,6 +744,11 @@ Vector CBasePlayer::SetWeaponAngle(QAngle& angle)
 {
 	AngleVectors(angle, &weaponangle);
 	return weaponangle;
+}
+
+void CBasePlayer::SetWeaponOffset(Vector& offset) 
+{
+	weaponoffset = offset;
 }
 
 bool CBasePlayer::Weapon_Tracking( )

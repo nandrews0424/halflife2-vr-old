@@ -44,6 +44,7 @@ public:
 		tick_count = 0;
 		viewangles.Init();
 		weaponangles.Init();
+		weaponoffset.Init();
 		moveangles.Init();
 		weapontracking = false;
 		forwardmove = 0.0f;
@@ -72,6 +73,7 @@ public:
 		tick_count			= src.tick_count;
 		viewangles			= src.viewangles;
 		weaponangles		= src.weaponangles;
+		weaponoffset		= src.weaponoffset;
 		moveangles			= src.moveangles;
 		weapontracking		= src.weapontracking;
 		forwardmove			= src.forwardmove;
@@ -108,6 +110,7 @@ public:
 		CRC32_ProcessBuffer( &crc, &tick_count, sizeof( tick_count ) );
 		CRC32_ProcessBuffer( &crc, &viewangles, sizeof( viewangles ) );    
 		CRC32_ProcessBuffer( &crc, &weaponangles, sizeof( weaponangles ) );   
+		CRC32_ProcessBuffer( &crc, &weaponoffset, sizeof( weaponoffset ) );   
 		CRC32_ProcessBuffer( &crc, &moveangles , sizeof( moveangles ) );   
 		CRC32_ProcessBuffer( &crc, &weapontracking, sizeof( weapontracking ) );    
 		CRC32_ProcessBuffer( &crc, &forwardmove, sizeof( forwardmove ) );   
@@ -134,6 +137,7 @@ public:
 	// Player instantaneous view angles.
 	QAngle	viewangles;     
 	QAngle	weaponangles;
+	Vector  weaponoffset;
 	QAngle	moveangles;
 	bool	weapontracking;
 
