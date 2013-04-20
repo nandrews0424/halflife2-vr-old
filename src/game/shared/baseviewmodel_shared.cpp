@@ -381,22 +381,26 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 	QAngle vmangoriginal = eyeAngles;
 	QAngle vmangles = eyeAngles;
 	Vector vmorigin = eyePosition;
-	
+	CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
+
 	if ( VR_Controller()->hydraConnected() ) {
-				
-		QAngle weaponAngles = VR_Controller()->weaponOrientation();
-		vmangles = weaponAngles;
-								
-		Vector trackedOffset;
-		VR_Controller()->getWeaponOffset(trackedOffset);
-		vmorigin += trackedOffset;
+			
+		if ( pWeapon != NULL )
+		{
+			QAngle weaponAngles = VR_Controller()->weaponOrientation();
+			vmangles = weaponAngles;
 		
+			Vector trackedOffset;
+			VR_Controller()->getWeaponOffset(trackedOffset);
+			vmorigin += trackedOffset;
+		}
+
 		SetLocalOrigin(vmorigin);
 		SetLocalAngles(vmangles);
 		
 	} else {
 
-		CBaseCombatWeapon *pWeapon = m_hWeapon.Get();
+		
 		//Allow weapon lagging
 		if ( pWeapon != NULL )
 		{
@@ -416,15 +420,8 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			// Let the viewmodel shake at about 10% of the amplitude of the player's view
 			vieweffects->ApplyShake( vmorigin, vmangles, 0.1 );	
 		}
-
-		Vector playerOrigin = owner->GetAbsOrigin();
-	
-		Vector headOffset(0,0,0); // from lean/neck model
-		VR_Controller()->getHeadOffset(headOffset, false);
-		
-		SetLocalOrigin(vmorigin + headOffset);
-		
-		//Msg("No weapon tracking - using original vm angles", vmangles.x, vmangles.y, vmangles.z);
+				
+		SetLocalOrigin(vmorigin);
 		SetLocalAngles(vmangles);
 	}
 

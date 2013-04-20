@@ -120,9 +120,21 @@ void CHudCrosshair::Paint( void )
 	float x, y;
 	x = ScreenWidth()/2;
 	y = ScreenHeight()/2;
-
-	// VR SOURCE - Adjust crosshairs based on weapon angle...
-	if (VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking())
+		
+	// VR HACK - VIREIO Locks up when crosshair is outside the view area and no weapon is equipped... (only really applicable to the intro)
+	// so for the moment I'm drawing a transparent crosshair since you have no weapon anyhow....
+	bool weaponEquipped = false;
+	C_BasePlayer* pPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( pPlayer ) 
+	{
+		C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+		if ( pWeapon )
+		{
+			weaponEquipped = true;
+		}
+	}
+	
+	if (weaponEquipped && VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking())
 	{
 		QAngle angles;
 		Vector forward;
