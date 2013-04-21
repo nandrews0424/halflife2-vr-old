@@ -160,9 +160,9 @@ void	VrController::update(float previousViewYaw)
 	_headAngle[YAW] = deltaYaw + previousViewYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
-		
 	_headAngle -= _headCalibration;
-	
+	Msg("Head angle %.1f %.1f %.1f\n", _headAngle.x, _headAngle.y, _headAngle.z);
+
 	// BODY ORIENTATION
 
 	// without additional tracking it is simply the head angle minus the total accumulated head yaw
@@ -194,7 +194,7 @@ void	VrController::update(float previousViewYaw)
 
 	_weaponAngle -= _weaponCalibration;
 
-	// Msg("Weapon angle %.1f %.1f %.1f\n", _weaponAngle.x, _weaponAngle.y, _weaponAngle.z);
+	Msg("Weapon angle %.1f %.1f %.1f\n", _weaponAngle.x, _weaponAngle.y, _weaponAngle.z);
 
 };
 

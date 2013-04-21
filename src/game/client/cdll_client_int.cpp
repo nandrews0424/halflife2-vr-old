@@ -1150,25 +1150,8 @@ void CHLClient::View_Render( vrect_t *rect )
 	if ( rect->width == 0 || rect->height == 0 )
 		return;
 
-	if (false && vr_stereo.GetBool())
-	{
-		HmdInfo hmd = VR_Controller()->hmdInfo();
-
-		rect->width = hmd.HResolution/2;
-		rect->height = hmd.VResolution;
-			
-		view->Render( rect );
-		
-		rect->x += hmd.HResolution/2;
-
-		Msg("Client res: %dx%d ipd:%f eyetoscreen:%f\n", hmd.HResolution, hmd.VResolution, hmd.InterpupillaryDistance, hmd.EyeToScreenDistance);
-
-		view->Render( rect );
-	}
-	else
-	{
-		view->Render( rect );
-	}
+	view->Render( rect );
+	
 
 	UpdatePerfStats();
 }

@@ -789,17 +789,7 @@ void CViewRender::Render( vrect_t *rect)
 	VPROF_BUDGET( "CViewRender::Render", "CViewRender::Render" );
 
 	vrect_t vr = *rect;
-
-	// we can infer that we're rendering a particular eye in SBS mode this way and adjust the variables accordingly
-	bool stereo, left;
-	HmdInfo hmd = VR_Controller()->hmdInfo();
-	
-	if (false && vr.width == hmd.HResolution/2 && vr.height == hmd.VResolution)
-	{
-		stereo = true;
-		left = vr.x == 0;
-	}
-		
+			
 	// Stub out the material system if necessary.
 	CMatStubHandler matStub;
 
@@ -812,18 +802,10 @@ void CViewRender::Render( vrect_t *rect)
 	
 	float aspectRatio = 0.f;
 	
-	if ( stereo ) {
-		aspectRatio = (float) hmd.HResolution / (2*hmd.VResolution);
-		m_View.fov = RADIANS_TO_DEGREES(2 * atan( hmd.VScreenSize / (2*hmd.EyeToScreenDistance) ));
-		m_View.fovViewmodel = m_View.fov;
-		Msg("HRes: %d VRes: %d VSize: %f EyeDist: %f\n", hmd.HResolution, hmd.VResolution, hmd.VScreenSize, hmd.EyeToScreenDistance);
-	}
-	else 
-	{
-		aspectRatio = engine->GetScreenAspectRatio() * 0.75f;	 // / (4/3)
-		m_View.fov = ScaleFOVByWidthRatio( m_View.fov,  aspectRatio );
-		m_View.fovViewmodel = ScaleFOVByWidthRatio( m_View.fovViewmodel, aspectRatio );
-	}
+	aspectRatio = engine->GetScreenAspectRatio() * 0.75f;	 // / (4/3)
+	m_View.fov = ScaleFOVByWidthRatio( m_View.fov,  aspectRatio );
+	m_View.fovViewmodel = ScaleFOVByWidthRatio( m_View.fovViewmodel, aspectRatio );
+	
 
 
 	float aspectRatioOverride = vr_aspectratio_override.GetFloat();
@@ -832,39 +814,6 @@ void CViewRender::Render( vrect_t *rect)
 		
 	Vector forward, right, up;
 	AngleVectors(m_View.angles, &forward, &right, &up); 
-
-	
-	
-	// since the eyes are not in the center of the screen, an additional offset needs to be applied...
-	float eyeShift = (hmd.HScreenSize/4) - (hmd.InterpupillaryDistance/2);
-	eyeShift *= (1/METERS_PER_INCH);
-	
-	float viewCenter			= hmd.HScreenSize * .25f;
-	float eyeProjectionShift	= viewCenter - hmd.InterpupillaryDistance * .5f;
-	float projectionCenterOffset = 4.f * eyeProjectionShift / hmd.HScreenSize;
-
-	// projectionCenterOffset *= (1/METERS_PER_INCH);
-	float halfIPD = (hmd.InterpupillaryDistance * (1/ METERS_PER_INCH)) / 2;
-
-	// todo: may be m_View.m_flOffCenterRight and left here instead of an origin shift?
-	
-	// eye angle adjustment
-	
-
-	// Msg("Render configuration eyeoffset: %f fov: %f a/r: %f\n", projectionCenterOffset, m_View.fov, aspectRatio); 
-
-	// offset the viewport per the ipd offset for the eye being rendered
-	if (left) 
-	{
-		m_View.origin += right * -halfIPD;
-		m_View.angles.y += vr_eyeangle_in.GetFloat();
-
-	}
-	else
-	{
-		m_View.origin += right * halfIPD;
-		m_View.angles.y -= vr_eyeangle_in.GetFloat();
-	}
 
 	// Let the client mode hook stuff.
 	g_pClientMode->PreRender(&m_View);
@@ -882,10 +831,7 @@ void CViewRender::Render( vrect_t *rect)
 	m_View.width			= vr.width * flViewportScale;
 	m_View.height			= vr.height * flViewportScale;
 
-	if ( stereo )
-		m_View.m_flAspectRatio = aspectRatio;
-	else
-		m_View.m_flAspectRatio	= ( engineAspectRatio > 0.0f ) ? engineAspectRatio : ( (float)m_View.width / (float)m_View.height );
+	m_View.m_flAspectRatio	= ( engineAspectRatio > 0.0f ) ? engineAspectRatio : ( (float)m_View.width / (float)m_View.height );
 		
 	int nClearFlags = VIEW_CLEAR_DEPTH | VIEW_CLEAR_STENCIL;
 
