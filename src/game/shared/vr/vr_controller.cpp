@@ -123,7 +123,7 @@ void	VrController::hydraLeft(HydraControllerData &data)
 
 bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
 {
-	return _initialized && _vrIO->getChannelCount() > 1;  // TODO: && _vrIO->channelHasOrientation(HEAD);
+	return _initialized && (_vrIO->getChannelCount() > 1 || _vrIO->hydraConnected());  // TODO: && _vrIO->channelHasOrientation(HEAD);
 }
 
 void	VrController::update(float previousViewYaw)
@@ -161,7 +161,7 @@ void	VrController::update(float previousViewYaw)
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
 	_headAngle -= _headCalibration;
-	Msg("Head angle %.1f %.1f %.1f\n", _headAngle.x, _headAngle.y, _headAngle.z);
+	// Msg("Head angle %.1f %.1f %.1f\n", _headAngle.x, _headAngle.y, _headAngle.z);
 
 	// BODY ORIENTATION
 
@@ -194,7 +194,7 @@ void	VrController::update(float previousViewYaw)
 
 	_weaponAngle -= _weaponCalibration;
 
-	Msg("Weapon angle %.1f %.1f %.1f\n", _weaponAngle.x, _weaponAngle.y, _weaponAngle.z);
+	// Msg("Weapon angle %.1f %.1f %.1f\n", _weaponAngle.x, _weaponAngle.y, _weaponAngle.z);
 
 };
 
