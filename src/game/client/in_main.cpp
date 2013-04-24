@@ -813,7 +813,6 @@ void CInput::AdjustAngles ( CUserCmd *cmd, float frametime )
 }
 
 
-
 void VR_UpdateTracking( CUserCmd *cmd )
 {
 	QAngle viewangles;
@@ -822,7 +821,10 @@ void VR_UpdateTracking( CUserCmd *cmd )
 	if (vrController->initialized()) {
 	
 		vrController->update(viewangles[YAW]);
-		VectorCopy(vrController->headOrientation(), viewangles);
+
+		if ( vrController->hasHeadTracking() ) 
+			VectorCopy(vrController->headOrientation(), viewangles);
+		
 		VectorCopy(vrController->weaponOrientation(), cmd->weaponangles);
 		VectorCopy(bodyRelativeMovement ? vrController->bodyOrientation() : vrController->headOrientation(), cmd->moveangles);
 		cmd->weapontracking = vrController->hasWeaponTracking();

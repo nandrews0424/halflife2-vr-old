@@ -102,6 +102,8 @@ static ConVar joy_inverty_default( "joy_inverty_default", "0", FCVAR_ARCHIVE_XBO
 static ConVar joy_movement_stick_default( "joy_movement_stick_default", "0", FCVAR_ARCHIVE_XBOX );	// Extracted & saved from profile
 static ConVar sv_stickysprint_default( "sv_stickysprint_default", "0", FCVAR_NONE );
 
+static ConVar vr_analog_input_override( "vr_analog_input_override", "1", FCVAR_ARCHIVE, "Override analog stick inputs from vr api data (razer hydra thumbsticks or other custom integrated devices)");
+
 void joy_movement_stick_Callback( IConVar *var, const char *pOldString, float flOldValue )
 {
 	engine->ClientCmd( "joyadvancedupdate" );
@@ -646,7 +648,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// verify joystick is available and that the user wants to use it
-	if ( !VR_Controller()->hydraConnected() && (!in_joystick.GetInt() || 0 == inputsystem->GetJoystickCount()) )
+	if ( !( VR_Controller()->hydraConnected() && vr_analog_input_override.GetBool() ) && (!in_joystick.GetInt() || 0 == inputsystem->GetJoystickCount()) )
 		return; 
 
 	// Skip out if vgui is active
@@ -698,7 +700,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// VR Hack for less painful hydra support....
-	if ( VR_Controller()->hydraConnected() )
+	if ( VR_Controller()->hydraConnected() && vr_analog_input_override.GetBool() )
 	{
 		HydraControllerData left,right;
 		VR_Controller()->hydraLeft(left);
@@ -738,7 +740,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	float pitch		= ScaleAxisValue( gameAxes[GAME_AXIS_PITCH].value, MAX_BUTTONSAMPLE * joy_pitchthreshold.GetFloat()  );
 	float yaw		= ScaleAxisValue( gameAxes[GAME_AXIS_YAW].value, MAX_BUTTONSAMPLE * joy_yawthreshold.GetFloat()  );
 	
-	if (VR_Controller()->initialized()) pitch = 0;
+	if (VR_Controller()->hasHeadTracking()) pitch = 0;
 
 	// If we're inverting our joystick, do so
 	if ( joy_inverty.GetBool() )
@@ -880,7 +882,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	}
 
 	// Bound pitch
-	if (!VR_Controller()->initialized())
+	if (!VR_Controller()->hasHeadTracking())
 		viewangles[PITCH] = clamp( viewangles[ PITCH ], -cl_pitchup.GetFloat(), cl_pitchdown.GetFloat() );
 
 	engine->SetViewAngles( viewangles );

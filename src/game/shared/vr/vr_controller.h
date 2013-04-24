@@ -62,11 +62,12 @@ public:
 	HmdInfo hmdInfo( void );
 
 	bool	initialized( void );
+	bool	hasHeadTracking( void );
 	bool	hasWeaponTracking( void );
+	
 	void	shutDown( void );
 
-	void	getHeadOffset(Vector &headOffset, bool ignoreRoll);
-	void	getShootOffset(Vector &shootOffset);
+	void	getHeadOffset(Vector &headOffset, bool calibrated=true);
 	void	getWeaponOffset(Vector &offset, bool calibrated=true);
 				
 protected:

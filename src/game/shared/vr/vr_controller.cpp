@@ -1,10 +1,11 @@
 #include "cbase.h"
 #include "vr/vr_controller.h"
 
-ConVar vr_neck_length( "vr_neck_length", "3", 0 );
-ConVar vr_spine_length( "vr_spine_length", "30", 0 );
-ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
-ConVar vr_weapon_movement_scale( "vr_weapon_movement_scale", "1", FCVAR_ARCHIVE, "Scales tracked weapon positional tracking");
+static ConVar vr_neck_length( "vr_neck_length", "3", 0 );
+static ConVar vr_spine_length( "vr_spine_length", "30", 0 );
+static ConVar vr_swap_trackers( "vr_swap_trackers", "0", 0 );
+static ConVar vr_weapon_movement_scale( "vr_weapon_movement_scale", "1", FCVAR_ARCHIVE, "Scales tracked weapon positional tracking");
+static ConVar vr_offset_calibration("vr_offset_calibration", "1", FCVAR_ARCHIVE, "Toggles offset (right and forward calibration), 0 is less convenient but necessary for 360 setup where there is no frame of reference for forward and side");
 
 VrController* _vrController;
 
@@ -120,10 +121,14 @@ void	VrController::hydraLeft(HydraControllerData &data)
 	data.yAxis = m.leftJoyY;
 }
 	
-
-bool VrController::hasWeaponTracking( void ) //TODO: should be orientation
+bool VrController::hasHeadTracking( void )
 {
-	return _initialized && (_vrIO->getChannelCount() > 1 || _vrIO->hydraConnected());  // TODO: && _vrIO->channelHasOrientation(HEAD);
+	return _initialized && ( (_vrIO->getChannelCount() >  1) || ( _vrIO->getChannelCount() == 1 && !hydraConnected() ) );
+}
+
+bool VrController::hasWeaponTracking( void ) 
+{
+	return _initialized && (_vrIO->getChannelCount() > 1 || _vrIO->hydraConnected());  
 }
 
 void	VrController::update(float previousViewYaw)
@@ -147,6 +152,7 @@ void	VrController::update(float previousViewYaw)
 	
 	// HEAD ORIENTATION
 	
+	
 	_vrIO->getOrientation(headChannel, message);
 		
 	_headAngle[PITCH] = message.pitch;
@@ -160,7 +166,8 @@ void	VrController::update(float previousViewYaw)
 	_headAngle[YAW] = deltaYaw + previousViewYaw;
 	_previousYaw[HEAD] = currentYaw; 
 	_totalAccumulatedYaw[HEAD] += deltaYaw;
-	_headAngle -= _headCalibration;
+	_headAngle -= _headCalibration; 
+
 	// Msg("Head angle %.1f %.1f %.1f\n", _headAngle.x, _headAngle.y, _headAngle.z);
 
 	// BODY ORIENTATION
@@ -242,7 +249,13 @@ void VrController::calibrateWeapon() {
 
 	Msg("Zeroing weapon offsets %.1f %.1f %.1f\n", weapOffset.x, weapOffset.y, weapOffset.z);
 	// todo: here we want to do a bit of offset handling for calibrating at the shoulder as that seems to be the standard with a hydra
-	Vector shoulderCalibrationOffset(-10, -5, 5);
+	
+	Vector shoulderCalibrationOffset;
+	if ( vr_offset_calibration.GetBool() )
+		shoulderCalibrationOffset.Init(-10, -5, 5);
+	else
+		shoulderCalibrationOffset.Init(0, 0, 5);  // no forward or side offset for 360 setup until we can explicitly track body frame to apply "forward" and "side" to
+	
 	_weaponOffsetCalibration = weapOffset + shoulderCalibrationOffset;
 }
 
@@ -266,29 +279,19 @@ extern VrController* VR_Controller()
 	return _vrController;
 }
 
-void VrController::getHeadOffset(Vector &headOffset, bool ignoreRoll = false)
+void VrController::getHeadOffset(Vector &headOffset, bool calibrated)
 {
 	float neckLength = vr_neck_length.GetFloat();
 	headOffset.z -= neckLength;
 	
 	QAngle headAngle = headOrientation();
-
-	if ( ignoreRoll )	{
-		headAngle.z = 0;
-	}
-
+		
 	Vector up;
 	AngleVectors(headAngle, NULL, NULL, &up);
 	headOffset += up*neckLength;
 	
 	// TODO: collision detection necessary with larger sizes 
 	// Msg("getHeadOffset(%.1f) position %f %f %f\n", neckLength, headOffset.x, headOffset.y, headOffset.z);
-}
-
-// TODO: more we can do here....
-void VrController::getShootOffset(Vector &shootOffset)
-{
-	getHeadOffset(shootOffset);
 }
 
 void VrController::getWeaponOffset(Vector &offset, bool calibrated)
