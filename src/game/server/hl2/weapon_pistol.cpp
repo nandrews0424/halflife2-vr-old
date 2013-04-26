@@ -50,6 +50,7 @@ public:
 	void	ItemBusyFrame( void );
 	void	PrimaryAttack( void );
 	void	AddViewKick( void );
+	bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	void	DryFire( void );
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 	void	UpdateLaserPosition( void );
@@ -346,6 +347,8 @@ void	CWeaponPistol::UpdateLaserPosition( void )
 	if ( !pPlayer )
 		return;
 
+	p_laserSight->TurnOn();
+
 	Vector vecMuzzlePos = pPlayer->Weapon_ShootPosition();
 	Vector	forward;
 	VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
@@ -383,6 +386,14 @@ void	CWeaponPistol::UpdateLaserPosition( void )
 	}
 }
 
+bool CWeaponPistol::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+	if ( p_laserSight != NULL)
+		p_laserSight->TurnOff();
+
+	return BaseClass::Holster( pSwitchingTo );
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -409,6 +420,7 @@ bool CWeaponPistol::Reload( void )
 	bool fRet = DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
 	if ( fRet )
 	{
+		p_laserSight->TurnOff();
 		WeaponSound( RELOAD );
 		m_flAccuracyPenalty = 0.0f;
 	}

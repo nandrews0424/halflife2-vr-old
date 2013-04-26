@@ -69,7 +69,7 @@ CLaserCrosshair *CLaserCrosshair::Create( const Vector &origin, CBaseEntity *pOw
 
 	pLaserDot->SetName( AllocPooledString("TEST") );
 
-	pLaserDot->SetTransparency( kRenderGlow, 255, 255, 255, 255, kRenderFxNoDissipation );
+	pLaserDot->SetTransparency( kRenderGlow, 255, 255, 255, 225, kRenderFxNoDissipation );
 	pLaserDot->SetScale( 0.1f );
 
 	pLaserDot->SetOwnerEntity( pOwner );
