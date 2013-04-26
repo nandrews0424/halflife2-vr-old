@@ -41,7 +41,7 @@ public:
 	DECLARE_CLASS( CWeaponPistol, CBaseHLCombatWeapon );
 
 	CWeaponPistol(void);
-
+	~CWeaponPistol(void);
 	DECLARE_SERVERCLASS();
 
 	void	Precache( void );
@@ -52,6 +52,7 @@ public:
 	void	AddViewKick( void );
 	void	DryFire( void );
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
+	void	UpdateLaserPosition( void );
 
 	void	UpdatePenaltyTime( void );
 
@@ -78,12 +79,12 @@ public:
 											1.0f ); 
 
 			// We lerp from very accurate to inaccurate over time
-			VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_6DEGREES, ramp, cone );
+			VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_3DEGREES, ramp, cone );
 		}
 		else
 		{
 			// Old value
-			cone = VECTOR_CONE_4DEGREES;
+			cone = VECTOR_CONE_3DEGREES;
 		}
 
 		return cone;
@@ -111,6 +112,7 @@ private:
 	float	m_flLastAttackTime;
 	float	m_flAccuracyPenalty;
 	int		m_nNumShotsFired;
+	CLaserCrosshair* p_laserSight;
 };
 
 
@@ -164,6 +166,21 @@ CWeaponPistol::CWeaponPistol( void )
 	m_fMaxRange2		= 200;
 
 	m_bFiresUnderwater	= true;
+
+	p_laserSight = CLaserCrosshair::Create( GetAbsOrigin(), GetOwnerEntity() );
+	p_laserSight->TurnOn();
+
+	UpdateLaserPosition();
+
+}
+
+CWeaponPistol::~CWeaponPistol( void )
+{
+	if ( p_laserSight != NULL )
+	{
+		UTIL_Remove( p_laserSight );
+		p_laserSight = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -319,7 +336,53 @@ void CWeaponPistol::ItemPostFrame( void )
 	{
 		DryFire();
 	}
+
+	UpdateLaserPosition();
 }
+
+void	CWeaponPistol::UpdateLaserPosition( void )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	if ( !pPlayer )
+		return;
+
+	Vector vecMuzzlePos = pPlayer->Weapon_ShootPosition();
+	Vector	forward;
+	VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
+	Vector vecEndPos = vecMuzzlePos + ( forward * MAX_TRACE_LENGTH );
+
+	//Move the laser dot, if active
+	trace_t	tr;
+
+	// Trace out for the endpoint
+	UTIL_TraceLine( vecMuzzlePos, vecEndPos, (MASK_SHOT & ~CONTENTS_WINDOW), this, COLLISION_GROUP_NONE, &tr );
+
+	// Move the laser sprite
+	if ( p_laserSight != NULL )
+	{
+		Vector	laserPos = tr.endpos;
+		p_laserSight->SetLaserPosition( laserPos, tr.plane.normal );
+		
+		if ( tr.DidHitNonWorldEntity() )
+		{
+			CBaseEntity *pHit = tr.m_pEnt;
+
+			if ( ( pHit != NULL ) && ( pHit->m_takedamage ) )
+			{
+				p_laserSight->SetTargetEntity( pHit );
+			}
+			else
+			{
+				p_laserSight->SetTargetEntity( NULL );
+			}
+		}
+		else
+		{
+			p_laserSight->SetTargetEntity( NULL );
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 

@@ -5,12 +5,58 @@
 //=============================================================================//
 
 #include "basehlcombatweapon_shared.h"
+#include "Sprite.h"
 
 #ifndef BASEHLCOMBATWEAPON_H
 #define BASEHLCOMBATWEAPON_H
 #ifdef _WIN32
 #pragma once
 #endif
+
+
+
+class CLaserCrosshair : public CSprite 
+{
+	DECLARE_CLASS( CLaserCrosshair, CSprite );
+public:
+
+	CLaserCrosshair( void );
+	~CLaserCrosshair( void );
+
+	static CLaserCrosshair *Create( const Vector &origin, CBaseEntity *pOwner = NULL, bool bVisibleDot = true );
+
+	void	SetTargetEntity( CBaseEntity *pTarget ) { m_hTargetEnt = pTarget; }
+	CBaseEntity *GetTargetEntity( void ) { return m_hTargetEnt; }
+
+	void	SetLaserPosition( const Vector &origin, const Vector &normal );
+	Vector	GetChasePosition();
+	void	TurnOn( void );
+	void	TurnOff( void );
+	bool	IsOn() const { return m_bIsOn; }
+
+	void	Toggle( void );
+
+	void	LaserThink( void );
+
+	void	MakeInvisible( void );
+
+protected:
+	Vector				m_vecSurfaceNormal;
+	EHANDLE				m_hTargetEnt;
+	bool				m_bVisibleLaserDot;
+	bool				m_bIsOn;
+
+	DECLARE_DATADESC();
+public:
+	CLaserCrosshair			*m_pNext;
+};
+
+
+
+
+
+
+
 
 //=========================================================
 // Machine gun base class
