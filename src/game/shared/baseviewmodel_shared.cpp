@@ -371,9 +371,6 @@ void CBaseViewModel::SendViewModelMatchingSequence( int sequence )
 #include "ivieweffects.h"
 #endif
 
-
-
-
 void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, const QAngle& eyeAngles )
 {
 	// UNDONE: Calc this on the server?  Disabled for now as it seems unnecessary to have this info on the server
@@ -388,11 +385,24 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 		if ( pWeapon != NULL )
 		{
 			QAngle weaponAngles = VR_Controller()->weaponOrientation();
-			vmangles = weaponAngles;
-		
+			
+			float dX = AngleDiff(weaponAngles.x, eyeAngles.x);
+			float dY = AngleDiff(weaponAngles.y, eyeAngles.y);
+
+			float xScale = 1.16;
+			float yScale = 1.13;
+			Msg("Scaling Angle diffs %.1f %.1f by %f and %f\n", dX, dY, xScale, yScale);
+
+			vmangles.x = eyeAngles.x + (dX*xScale);
+			vmangles.y = eyeAngles.y + (dY*yScale) - 1.6;
+			vmangles.z = weaponAngles.z;
+
 			Vector trackedOffset;
 			VR_Controller()->getWeaponOffset(trackedOffset);
 			vmorigin += trackedOffset;
+			
+		
+		
 		}
 
 		SetLocalOrigin(vmorigin);
