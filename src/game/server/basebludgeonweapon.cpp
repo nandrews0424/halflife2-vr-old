@@ -116,7 +116,7 @@ void CBaseHLBludgeonWeapon::ItemPostFrame( void )
 
 
 #define MOTION_CHECK_RATE .1
-#define MOTION_SWING_THRESHOLD 45
+#define MOTION_SWING_THRESHOLD 60
 
 bool CBaseHLBludgeonWeapon::CheckSwingMotion( )
 {
@@ -128,28 +128,27 @@ bool CBaseHLBludgeonWeapon::CheckSwingMotion( )
 	if ( pOwner == NULL )
 		return false;
 
-
-	// TODO: take into account item rotation movement as well.... and player rotation
-	Vector currentMotionPosition = pOwner->Weapon_ShootPosition() - pOwner->EyePosition();
+	// Get the head of the actual crowbar
+	Vector up, right;
+	VectorVectors(pOwner->Weapon_ShootDirection(), right, up); 
+	Vector position = pOwner->Weapon_ShootPosition() + (12 * up); // adjust the position up a bit to match the head of the actual crobar
 	
-
+	// TODO: take into account player rotation
+	Vector currentMotionPosition = position - pOwner->EyePosition();
+	
 	if ( m_prevMotionPosition.IsZero() ) m_prevMotionPosition = currentMotionPosition;
-
-	
+		
 	// Get vector differences and calculate velocity
 	Vector motion = currentMotionPosition - m_prevMotionPosition;
 	float velocity = ( motion.Length() / MOTION_CHECK_RATE ); //inches per second
 		
 	bool isSwinging = velocity > MOTION_SWING_THRESHOLD;
 		
+	/*
 	motion = motion/motion.Length();
 	motion = (motion + pOwner->Weapon_ShootDirection()) / 2;  // Get the average vector between the aim dir and motion dir
-
-	Vector up, right;
-	VectorVectors(pOwner->Weapon_ShootDirection(), right, up); 
+	*/
 	
-	Vector position = pOwner->Weapon_ShootPosition() + (12 * up); // adjust the position up a bit to match the head of the actual crobar
-
 	if ( isSwinging ) 
 	{
 		MotionSwing(position, motion, velocity);
@@ -436,8 +435,6 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 }
 
 
-
-
 void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, float velocity )
 {
 	trace_t traceHit;
@@ -450,13 +447,10 @@ void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, f
 	Vector v;
 	
 	Vector swingStart = pos;
-	Vector forward = dir; //dir*velocity;
+	Vector forward = dir/dir.Length(); //dir*velocity;
 	
-	
-	// DebugDrawLine(pos, forward*GetRange(), 0, 255, 0, true, 2);
+	Vector swingEnd = swingStart + forward * (GetRange()*.75);
 
-
-	Vector swingEnd = swingStart + forward * GetRange();
 	UTIL_TraceLine( swingStart, swingEnd, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit );
 	Activity nHitActivity = ACT_VM_HITCENTER;
 
@@ -499,6 +493,9 @@ void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, f
 	// -------------------------
 	//	Miss
 	// -------------------------
+	
+	float motionFireRate = GetFireRate()*.75;
+	
 	if ( traceHit.fraction == 1.0f )
 	{
 		nHitActivity = ACT_VM_MISSCENTER;
@@ -508,7 +505,7 @@ void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, f
 				
 		// See if we happened to hit water
 		if ( ImpactWater( swingStart, testEnd ) )
-			m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
+			m_flNextPrimaryAttack = gpGlobals->curtime + motionFireRate;
 	
 	}
 	else
@@ -516,8 +513,8 @@ void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, f
 		Hit( traceHit, nHitActivity, false ? true : false );
 		
 		//Setup our next attack times
-		m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
-		m_flNextSecondaryAttack = gpGlobals->curtime + GetFireRate();
+		m_flNextPrimaryAttack = gpGlobals->curtime + motionFireRate;
+		m_flNextSecondaryAttack = gpGlobals->curtime + motionFireRate;
 
 	}
 }
