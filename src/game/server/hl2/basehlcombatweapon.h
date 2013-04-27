@@ -24,8 +24,10 @@ public:
 	~CLaserCrosshair( void );
 
 	static CLaserCrosshair *Create( const Vector &origin, CBaseEntity *pOwner = NULL, bool bVisibleDot = true );
-
+	
+	void	UpdateLaserPosition( CBaseCombatWeapon *weap );
 	void	SetTargetEntity( CBaseEntity *pTarget ) { m_hTargetEnt = pTarget; }
+	
 	CBaseEntity *GetTargetEntity( void ) { return m_hTargetEnt; }
 
 	void	SetLaserPosition( const Vector &origin, const Vector &normal );

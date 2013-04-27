@@ -30,6 +30,7 @@ public:
 	DECLARE_CLASS( CWeaponSMG1, CHLSelectFireMachineGun );
 
 	CWeaponSMG1();
+	~CWeaponSMG1();
 
 	DECLARE_SERVERCLASS();
 	
@@ -37,6 +38,10 @@ public:
 	void	AddViewKick( void );
 	void	SecondaryAttack( void );
 
+
+	void	ItemPostFrame( void );
+	bool	Holster( CBaseCombatWeapon *pSwitchingTo );
+	
 	int		GetMinBurst() { return 2; }
 	int		GetMaxBurst() { return 5; }
 
@@ -63,7 +68,7 @@ public:
 	DECLARE_ACTTABLE();
 
 protected:
-
+	CLaserCrosshair* p_laserSight;
 	Vector	m_vecTossVelocity;
 	float	m_flNextGrenadeCheck;
 };
@@ -142,6 +147,37 @@ CWeaponSMG1::CWeaponSMG1( )
 	m_fMaxRange1		= 1400;
 
 	m_bAltFiresUnderwater = false;
+
+	p_laserSight = CLaserCrosshair::Create( GetAbsOrigin(), GetOwnerEntity() );
+	p_laserSight->TurnOn();
+	p_laserSight->UpdateLaserPosition(this);
+}
+
+CWeaponSMG1::~CWeaponSMG1( void )
+{
+	if ( p_laserSight != NULL )
+	{
+		UTIL_Remove( p_laserSight );
+		p_laserSight = NULL;
+	}
+}
+
+bool CWeaponSMG1::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+	if ( p_laserSight != NULL)
+		p_laserSight->TurnOff();
+
+	return BaseClass::Holster( pSwitchingTo );
+}
+
+void CWeaponSMG1::ItemPostFrame( void )
+{
+	BaseClass::ItemPostFrame();
+	
+	if ( m_bInReload )
+		return;
+	
+	p_laserSight->UpdateLaserPosition(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -289,6 +325,8 @@ bool CWeaponSMG1::Reload( void )
 	fRet = DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
 	if ( fRet )
 	{
+		p_laserSight->TurnOff();
+
 		// Undo whatever the reload process has done to our secondary
 		// attack timer. We allow you to interrupt reloading to fire
 		// a grenade.

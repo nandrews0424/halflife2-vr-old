@@ -33,14 +33,23 @@ class CWeapon357 : public CBaseHLCombatWeapon
 public:
 
 	CWeapon357( void );
+	~CWeapon357( void );
 
 	void	PrimaryAttack( void );
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
+
+	void	ItemPostFrame( void );
+	bool	Holster( CBaseCombatWeapon *pSwitchingTo );
+	bool	Reload( void );
 
 	float	WeaponAutoAimScale()	{ return 0.6f; }
 
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+
+private:
+	CLaserCrosshair* p_laserSight;
+
 };
 
 LINK_ENTITY_TO_CLASS( weapon_357, CWeapon357 );
@@ -60,7 +69,47 @@ CWeapon357::CWeapon357( void )
 {
 	m_bReloadsSingly	= false;
 	m_bFiresUnderwater	= false;
+
+	p_laserSight = CLaserCrosshair::Create( GetAbsOrigin(), GetOwnerEntity() );
+	p_laserSight->TurnOn();
+	p_laserSight->UpdateLaserPosition(this);
 }
+
+CWeapon357::~CWeapon357( void )
+{
+	if ( p_laserSight != NULL )
+	{
+		UTIL_Remove( p_laserSight );
+		p_laserSight = NULL;
+	}
+}
+
+
+bool CWeapon357::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+	if ( p_laserSight != NULL)
+		p_laserSight->TurnOff();
+
+	return BaseClass::Holster( pSwitchingTo );
+}
+
+void CWeapon357::ItemPostFrame( void )
+{
+	BaseClass::ItemPostFrame();
+	
+	if ( m_bInReload )
+		return;
+	
+	p_laserSight->UpdateLaserPosition(this);
+}
+
+bool CWeapon357::Reload( void )
+{
+	bool r = BaseClass::Reload();
+	p_laserSight->TurnOff();
+	return r;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -159,3 +208,7 @@ void CWeapon357::PrimaryAttack( void )
 		pPlayer->SetSuitUpdate( "!HEV_AMO0", FALSE, 0 ); 
 	}
 }
+
+
+
+

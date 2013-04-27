@@ -23,6 +23,7 @@ public:
 	DECLARE_CLASS( CWeaponAR2, CHLMachineGun );
 
 	CWeaponAR2();
+	~CWeaponAR2();
 
 	DECLARE_SERVERCLASS();
 
@@ -45,6 +46,7 @@ public:
 	int		GetMaxBurst( void ) { return 5; }
 	float	GetFireRate( void ) { return 0.1f; }
 
+	bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	bool	CanHolster( void );
 	bool	Reload( void );
 
@@ -70,6 +72,7 @@ protected:
 	float					m_flDelayedFire;
 	bool					m_bShotDelayed;
 	int						m_nVentPose;
+	CLaserCrosshair* p_laserSight;
 	
 	DECLARE_ACTTABLE();
 	DECLARE_DATADESC();

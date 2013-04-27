@@ -118,6 +118,27 @@ CWeaponAR2::CWeaponAR2( )
 	m_nVentPose		= -1;
 
 	m_bAltFiresUnderwater = false;
+
+	p_laserSight = CLaserCrosshair::Create( GetAbsOrigin(), GetOwnerEntity() );
+	p_laserSight->TurnOn();
+	p_laserSight->UpdateLaserPosition(this);
+}
+
+CWeaponAR2::~CWeaponAR2( )
+{
+	if ( p_laserSight != NULL )
+	{
+		UTIL_Remove( p_laserSight );
+		p_laserSight = NULL;
+	}
+}
+
+bool CWeaponAR2::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+	if ( p_laserSight != NULL)
+		p_laserSight->TurnOff();
+
+	return BaseClass::Holster( pSwitchingTo );
 }
 
 void CWeaponAR2::Precache( void )
@@ -159,6 +180,11 @@ void CWeaponAR2::ItemPostFrame( void )
 	}
 
 	BaseClass::ItemPostFrame();
+
+	if ( m_bInReload )
+		return;
+	
+	p_laserSight->UpdateLaserPosition(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -315,6 +341,7 @@ bool CWeaponAR2::Reload( void )
 	if ( m_bShotDelayed )
 		return false;
 
+	p_laserSight->TurnOff();
 	return BaseClass::Reload();
 }
 

@@ -53,8 +53,7 @@ public:
 	bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	void	DryFire( void );
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
-	void	UpdateLaserPosition( void );
-
+	
 	void	UpdatePenaltyTime( void );
 
 	int		CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
@@ -170,9 +169,7 @@ CWeaponPistol::CWeaponPistol( void )
 
 	p_laserSight = CLaserCrosshair::Create( GetAbsOrigin(), GetOwnerEntity() );
 	p_laserSight->TurnOn();
-
-	UpdateLaserPosition();
-
+	p_laserSight->UpdateLaserPosition(this);
 }
 
 CWeaponPistol::~CWeaponPistol( void )
@@ -338,53 +335,9 @@ void CWeaponPistol::ItemPostFrame( void )
 		DryFire();
 	}
 
-	UpdateLaserPosition();
+	p_laserSight->UpdateLaserPosition(this);
 }
 
-void	CWeaponPistol::UpdateLaserPosition( void )
-{
-	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
-	if ( !pPlayer )
-		return;
-
-	p_laserSight->TurnOn();
-
-	Vector vecMuzzlePos = pPlayer->Weapon_ShootPosition();
-	Vector	forward;
-	VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
-	Vector vecEndPos = vecMuzzlePos + ( forward * MAX_TRACE_LENGTH );
-
-	//Move the laser dot, if active
-	trace_t	tr;
-
-	// Trace out for the endpoint
-	UTIL_TraceLine( vecMuzzlePos, vecEndPos, (MASK_SHOT & ~CONTENTS_WINDOW), this, COLLISION_GROUP_NONE, &tr );
-
-	// Move the laser sprite
-	if ( p_laserSight != NULL )
-	{
-		Vector	laserPos = tr.endpos;
-		p_laserSight->SetLaserPosition( laserPos, tr.plane.normal );
-		
-		if ( tr.DidHitNonWorldEntity() )
-		{
-			CBaseEntity *pHit = tr.m_pEnt;
-
-			if ( ( pHit != NULL ) && ( pHit->m_takedamage ) )
-			{
-				p_laserSight->SetTargetEntity( pHit );
-			}
-			else
-			{
-				p_laserSight->SetTargetEntity( NULL );
-			}
-		}
-		else
-		{
-			p_laserSight->SetTargetEntity( NULL );
-		}
-	}
-}
 
 bool CWeaponPistol::Holster( CBaseCombatWeapon *pSwitchingTo )
 {

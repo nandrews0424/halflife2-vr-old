@@ -69,7 +69,7 @@ CLaserCrosshair *CLaserCrosshair::Create( const Vector &origin, CBaseEntity *pOw
 
 	pLaserDot->SetName( AllocPooledString("TEST") );
 
-	pLaserDot->SetTransparency( kRenderGlow, 255, 255, 255, 225, kRenderFxNoDissipation );
+	pLaserDot->SetTransparency( kRenderGlow, 255, 255, 255, 255, kRenderFxNoDissipation );
 	pLaserDot->SetScale( 0.1f );
 
 	pLaserDot->SetOwnerEntity( pOwner );
@@ -84,6 +84,56 @@ CLaserCrosshair *CLaserCrosshair::Create( const Vector &origin, CBaseEntity *pOw
 
 	return pLaserDot;
 }
+
+// TODO: add position static method
+
+void	CLaserCrosshair::UpdateLaserPosition( CBaseCombatWeapon *weap )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( weap->GetOwner() );
+	if ( !pPlayer )
+		return;
+
+	this->TurnOn();
+
+	Vector vecMuzzlePos = pPlayer->Weapon_ShootPosition();
+	Vector	forward;
+	VectorCopy(pPlayer->Weapon_ShootDirection(), forward);
+	vecMuzzlePos += forward*10; //stepping laser trace forward a bit since it seems to hit something invisible when too close
+	Vector vecEndPos = vecMuzzlePos + ( forward * MAX_TRACE_LENGTH );
+
+	//Move the laser dot, if active
+	trace_t	tr;
+
+	// Trace out for the endpoint
+	UTIL_TraceLine( vecMuzzlePos, vecEndPos, (MASK_SHOT & ~CONTENTS_WINDOW), this, COLLISION_GROUP_NONE, &tr );
+
+	// Move the laser sprite
+	Vector	laserPos = tr.endpos;
+	this->SetLaserPosition( laserPos, tr.plane.normal );
+		
+	if ( tr.DidHitNonWorldEntity() )
+	{
+		CBaseEntity *pHit = tr.m_pEnt;
+
+		if ( ( pHit != NULL ) && ( pHit->m_takedamage ) )
+		{
+			this->SetTargetEntity( pHit );
+		}
+		else
+		{
+			this->SetTargetEntity( NULL );
+		}
+	}
+	else
+	{
+		this->SetTargetEntity( NULL );
+	}
+	
+}
+
+
+
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
