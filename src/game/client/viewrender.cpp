@@ -5,6 +5,7 @@
 //===========================================================================//
 
 #include "cbase.h"
+
 #include "view.h"
 #include "iviewrender.h"
 #include "view_shared.h"
@@ -49,6 +50,7 @@
 #include "renderparm.h"
 #include "con_nprint.h"
 
+
 #ifdef PORTAL
 //#include "C_Portal_Player.h"
 #include "portal_render_targets.h"
@@ -68,6 +70,7 @@
 // Projective textures
 #include "c_env_projected_texture.h"
 
+#include "vr/vr_controller.h"
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1916,7 +1919,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		}
 		else
 		{
-			ViewDrawScene_Intro( view, nClearFlags, *g_pIntroData );
+			CViewSetup unconstView = (CViewSetup)view;
+			ViewDrawScene_Intro( unconstView, nClearFlags, *g_pIntroData );
 		}
 
 		// We can still use the 'current view' stuff set up in ViewDrawScene
@@ -2611,7 +2615,7 @@ void CViewRender::GetWaterLODParams( float &flCheapWaterStartDistance, float &fl
 // Input  : &view - 
 //			&introData - 
 //-----------------------------------------------------------------------------
-void CViewRender::ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, const IntroData_t &introData )
+void CViewRender::ViewDrawScene_Intro( CViewSetup &view, int nClearFlags, const IntroData_t &introData )
 {
 	VPROF( "CViewRender::ViewDrawScene" );
 
@@ -2636,16 +2640,23 @@ void CViewRender::ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, 
 	// NOTE: We only increment this once since time doesn't move forward.
 	ParticleMgr()->IncrementFrameCode();
 
+	Msg("Rendering an intro scene in ViewDrawScene_Intro\n");
+
+
 	if( introData.m_bDrawPrimary  )
 	{
 		CViewSetup playerView( view );
 		playerView.origin = introData.m_vecCameraView;
 		playerView.angles = introData.m_vecCameraViewAngles;
-		if ( introData.m_playerViewFOV )
-		{
-			playerView.fov = ScaleFOVByWidthRatio( introData.m_playerViewFOV, engine->GetScreenAspectRatio() / ( 4.0f / 3.0f ) );
-		}
 
+		
+		/* VR MOD - Override view angles with tracked values???
+		if ( VR_Controller()->hasHeadTracking() )
+		{
+			Msg("Updating intro camera orientation per head tracking in ViewRender::DrawScene_Intro...\n");
+			playerView.angles = VR_Controller()->headOrientation();
+		}*/
+				
 		g_pClientShadowMgr->PreRender();
 
 		// Shadowed flashlights supported on ps_2_b and up...
@@ -2690,7 +2701,18 @@ void CViewRender::ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, 
 	// -----------------------------------------------------------------------
 	// Draw the secondary scene and copy it to the second framebuffer texture
 	// -----------------------------------------------------------------------
-	SetupCurrentView( view.origin, view.angles, VIEW_INTRO_CAMERA );
+
+	// VR MOD - Override view angles with tracked values???
+	/* if ( VR_Controller()->hasHeadTracking() )
+	{
+		Msg("Updating intro camera orientation per head tracking in ViewRender::DrawScene_Intro...\n");
+		VectorCopy(VR_Controller()->headOrientation(), view.angles);
+	} 
+		Msg("DrawScene_Intro view angles %.1f %.1f %.1f...\n", view.angles.x, view.angles.y, view.angles.z);
+	*/
+		
+	
+	SetupCurrentView( view.origin, view.angles, VIEW_MAIN );
 
 	// Invoke pre-render methods
 	IGameSystem::PreRenderAllSystems();

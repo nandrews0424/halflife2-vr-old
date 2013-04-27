@@ -244,34 +244,7 @@ void C_PropAirboat::DrawHudElements( )
 	CHudTexture *pIcon = gHUD.GetIcon( IsX360() ? "crosshair_default" : "plushair" );
 	if ( pIcon != NULL )
 	{
-		/*float x, y;
-		Vector screen;
-
-		x = ScreenWidth()/2;
-		y = ScreenHeight()/2;
-
-		int eyeAttachmentIndex = LookupAttachment( "vehicle_driver_eyes" );
-		Vector vehicleEyeOrigin;
-		QAngle vehicleEyeAngles;
-		GetAttachment( eyeAttachmentIndex, vehicleEyeOrigin, vehicleEyeAngles );
-
-		// Only worry about yaw.
-		vehicleEyeAngles.x = vehicleEyeAngles.z = 0.0f;
-
-		Vector vecForward;
-		AngleVectors( vehicleEyeAngles, &vecForward );
-		VectorMA( vehicleEyeOrigin, 100.0f, vecForward, vehicleEyeOrigin );
-
-		ScreenTransform( vehicleEyeOrigin, screen );
-		x += 0.5 * screen[0] * ScreenWidth() + 0.5;
-		y -= 0.5 * screen[1] * ScreenHeight() + 0.5;
-
-		x -= pIcon->Width() / 2; 
-		y -= pIcon->Height() / 2; 
-		*/
-
-		// TODO: verify this doesn't break the crosshair for the mounted gun, drawing off visible screen space but still on screen to prevent vireio bug....
-
+		// Vireio hack, draw off to the side where player can't see it in rift, so it's always on screen and prevents vireio lockup without being in the way
 		pIcon->DrawSelf( pIcon->Width()+1, pIcon->Height()+1, gHUD.m_clrNormal );
 	}
 }

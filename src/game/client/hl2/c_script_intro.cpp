@@ -10,6 +10,7 @@
 #include "iviewrender.h"
 #include "view_shared.h"
 #include "viewrender.h"
+#include "vr/vr_controller.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -225,6 +226,8 @@ void C_ScriptIntro::PostDataUpdate( DataUpdateType_t updateType )
 
 	if ( m_iPrevFOV != m_iFOV )
 	{
+
+
 		m_IntroData.m_playerViewFOV = m_iFOV;
 		m_iPrevFOV = m_iFOV;
 	}
@@ -299,6 +302,8 @@ extern float ScriptInfo_CalculateFOV( float flFOVBlendStartTime, float flNextFOV
 //-----------------------------------------------------------------------------
 void C_ScriptIntro::CalculateFOV( void )
 {
+	// TODO: vr we don't want FOV adjustments...
+
 	// We're past our blending time so we're at our target
 	if ( m_flNextFOVBlendTime >= gpGlobals->curtime )
 	{
