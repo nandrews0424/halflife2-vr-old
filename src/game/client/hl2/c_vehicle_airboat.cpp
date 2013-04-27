@@ -244,7 +244,7 @@ void C_PropAirboat::DrawHudElements( )
 	CHudTexture *pIcon = gHUD.GetIcon( IsX360() ? "crosshair_default" : "plushair" );
 	if ( pIcon != NULL )
 	{
-		float x, y;
+		/*float x, y;
 		Vector screen;
 
 		x = ScreenWidth()/2;
@@ -268,8 +268,11 @@ void C_PropAirboat::DrawHudElements( )
 
 		x -= pIcon->Width() / 2; 
 		y -= pIcon->Height() / 2; 
-		
-		pIcon->DrawSelf( x, y, gHUD.m_clrNormal );
+		*/
+
+		// TODO: verify this doesn't break the crosshair for the mounted gun, drawing off visible screen space but still on screen to prevent vireio bug....
+
+		pIcon->DrawSelf( pIcon->Width()+1, pIcon->Height()+1, gHUD.m_clrNormal );
 	}
 }
 

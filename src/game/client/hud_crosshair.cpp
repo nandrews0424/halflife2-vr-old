@@ -61,16 +61,23 @@ bool CHudCrosshair::ShouldDraw( void )
 {
 	bool bNeedsDraw;
 
-	if ( m_bHideCrosshair )
-		return false;
-
 	C_BasePlayer* pPlayer = C_BasePlayer::GetLocalPlayer();
 	if ( !pPlayer )
 		return false;
 
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+	
+	if ( !pWeapon && CHudElement::ShouldDraw() ) // vireio hack, always need to draw a crosshair when no viewmodel is present (but we can draw it out of view on the rift)
+		return true;
+	
 	if ( pWeapon && !pWeapon->ShouldDrawCrosshair() )
 		return false;
+
+
+	if ( m_bHideCrosshair )
+		return false;
+
+
 
 	/* disabled to avoid assuming it's an HL2 player.
 	// suppress crosshair in zoom.
@@ -134,7 +141,12 @@ void CHudCrosshair::Paint( void )
 		}
 	}
 	
-	if (weaponEquipped && VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking())
+	if (!weaponEquipped) // this should move it out of the visible screen space but still draw it so vireio doesn't lock up....
+	{
+		x =  m_pCrosshair->Width() + 1;
+		y =  m_pCrosshair->Height() + 1;
+	}
+	else if (weaponEquipped && VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking())
 	{
 		QAngle angles;
 		Vector forward;
