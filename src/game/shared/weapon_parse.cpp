@@ -453,28 +453,18 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 	}
 
 	// VR SOURCE - Load additional data for weapon view model offsets...
-	// Vector baseVmOffset = forward * -1 + right*-3 + up; 
-	// Vector baseVmOffset = right*-5 + up*3.5  + forward*-3; //ironsight version
-
-	viewModelOffset.Init(-1.f, -3.f, 1.f);
-	viewModelOrigin.Init(5.5f, 5.f, 3.5f);
-	viewModelPitchScale.Init(.72, .72, 0.f);
 	
-	KeyValues *offsets = pKeyValuesData->FindKey( "ViewModelOffsets" );
+	viewModelAngleScale.Init(1.16, 1.13, 0); // scale factor
+	viewModelAngleOffset.Init(0, 0, 0);  // baseline angle offset subtracted from vm angle (adjusts up or right)
+
+	KeyValues *offsets = pKeyValuesData->FindKey( "ViewModelAngles" );
 	if(offsets)
 	{
-		viewModelOffset.x			= offsets->GetFloat( "offsetForward", -1.f );
-		viewModelOffset.y			= offsets->GetFloat( "offsetRight", -3.f );
-		viewModelOffset.z			= offsets->GetFloat( "offsetUp", 1.f );
-
-		viewModelOrigin.x			= offsets->GetFloat( "originForward", 5.5f );
-		viewModelOrigin.y			= offsets->GetFloat( "originRight", 5.f );
-		viewModelOrigin.z			= offsets->GetFloat( "originUp", 3.5f );
+		viewModelAngleScale.x			= offsets->GetFloat( "scaleX", viewModelAngleScale.x );
+		viewModelAngleScale.y			= offsets->GetFloat( "scaleY", viewModelAngleScale.y );
 		
-		viewModelPitchScale.x		= offsets->GetFloat( "pitchScaleX", .72 );
-		viewModelPitchScale.y		= offsets->GetFloat( "pitchScaleY", .72 );
-		viewModelPitchScale.z		= offsets->GetFloat( "pitchScaleZ", 0.f );
-		
+		viewModelAngleOffset.x			= offsets->GetFloat( "offsetX", viewModelAngleOffset.x );
+		viewModelAngleOffset.y			= offsets->GetFloat( "offsetY", viewModelAngleOffset.y );
 	}
 }
 

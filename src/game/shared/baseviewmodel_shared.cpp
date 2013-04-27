@@ -389,12 +389,11 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			float dX = AngleDiff(weaponAngles.x, eyeAngles.x);
 			float dY = AngleDiff(weaponAngles.y, eyeAngles.y);
 
-			float xScale = 1.16;
-			float yScale = 1.13;
-			Msg("Scaling Angle diffs %.1f %.1f by %f and %f\n", dX, dY, xScale, yScale);
-
-			vmangles.x = eyeAngles.x + (dX*xScale);
-			vmangles.y = eyeAngles.y + (dY*yScale) - 1.6;
+			Vector scale = pWeapon->GetWpnData().viewModelAngleScale;
+			Vector offsets = pWeapon->GetWpnData().viewModelAngleOffset;
+			
+			vmangles.x = eyeAngles.x + (dX*scale.x) - offsets.x;  
+			vmangles.y = eyeAngles.y + (dY*scale.y) - offsets.y;
 			vmangles.z = weaponAngles.z;
 
 			Vector trackedOffset;
