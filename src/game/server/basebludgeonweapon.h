@@ -50,6 +50,13 @@ protected:
 private:
 	bool			ImpactWater( const Vector &start, const Vector &end );
 	void			Swing( int bIsSecondary );
+	
+	// VR motion controller swing logic
+	bool			CheckSwingMotion( void );
+	void			MotionSwing( const Vector &pos, const Vector &dir, float velocity );
+	float			m_flNextMotionCheck;
+	Vector			m_prevMotionPosition;
+	
 	void			Hit( trace_t &traceHit, Activity nHitActivity, bool bIsSecondary );
 	Activity		ChooseIntersectionPointAndActivity( trace_t &hitTrace, const Vector &mins, const Vector &maxs, CBasePlayer *pOwner );
 };

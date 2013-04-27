@@ -39,6 +39,8 @@ static const Vector g_bludgeonMaxs(BLUDGEON_HULL_DIM,BLUDGEON_HULL_DIM,BLUDGEON_
 CBaseHLBludgeonWeapon::CBaseHLBludgeonWeapon()
 {
 	m_bFiresUnderwater = true;
+	m_flNextMotionCheck = 0;
+	m_prevMotionPosition.Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -93,7 +95,11 @@ void CBaseHLBludgeonWeapon::ItemPostFrame( void )
 	if ( pOwner == NULL )
 		return;
 
-	if ( (pOwner->m_nButtons & IN_ATTACK) && (m_flNextPrimaryAttack <= gpGlobals->curtime) )
+	if ( CheckSwingMotion() )
+	{
+		// Handles it's own animation....
+	} 
+	else if ( (pOwner->m_nButtons & IN_ATTACK) && (m_flNextPrimaryAttack <= gpGlobals->curtime) )
 	{
 		PrimaryAttack();
 	} 
@@ -107,6 +113,56 @@ void CBaseHLBludgeonWeapon::ItemPostFrame( void )
 		return;
 	}
 }
+
+
+#define MOTION_CHECK_RATE .1
+#define MOTION_SWING_THRESHOLD 45
+
+bool CBaseHLBludgeonWeapon::CheckSwingMotion( )
+{
+	if ( m_flNextMotionCheck > gpGlobals->curtime || m_flNextPrimaryAttack > gpGlobals->curtime )
+		return false;
+
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	
+	if ( pOwner == NULL )
+		return false;
+
+
+	// TODO: take into account item rotation movement as well.... and player rotation
+	Vector currentMotionPosition = pOwner->Weapon_ShootPosition() - pOwner->EyePosition();
+	
+
+	if ( m_prevMotionPosition.IsZero() ) m_prevMotionPosition = currentMotionPosition;
+
+	
+	// Get vector differences and calculate velocity
+	Vector motion = currentMotionPosition - m_prevMotionPosition;
+	float velocity = ( motion.Length() / MOTION_CHECK_RATE ); //inches per second
+		
+	bool isSwinging = velocity > MOTION_SWING_THRESHOLD;
+		
+	motion = motion/motion.Length();
+	motion = (motion + pOwner->Weapon_ShootDirection()) / 2;  // Get the average vector between the aim dir and motion dir
+
+	Vector up, right;
+	VectorVectors(pOwner->Weapon_ShootDirection(), right, up); 
+	
+	Vector position = pOwner->Weapon_ShootPosition() + (12 * up); // adjust the position up a bit to match the head of the actual crobar
+
+	if ( isSwinging ) 
+	{
+		MotionSwing(position, motion, velocity);
+	}
+	
+	// update prev motion position
+	m_prevMotionPosition = currentMotionPosition;
+	m_flNextMotionCheck = gpGlobals->curtime + MOTION_CHECK_RATE;
+
+	return isSwinging;
+}
+
+
 
 //------------------------------------------------------------------------------
 // Purpose :
@@ -136,10 +192,6 @@ void CBaseHLBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity, bool 
 {
 	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
 	
-	//Do view kick
-	//VR SOURCE -- No Thanks...
-	//AddViewKick();
-
 	//Make sound for the AI
 	CSoundEnt::InsertSound( SOUND_BULLET_IMPACT, traceHit.endpos, 400, 0.2f, pPlayer );
 
@@ -151,8 +203,7 @@ void CBaseHLBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity, bool 
 	//Apply damage to a hit target
 	if ( pHitEntity != NULL )
 	{
-		Vector hitDirection;
-		pPlayer->EyeVectors( &hitDirection, NULL, NULL );
+		Vector hitDirection = pPlayer->Weapon_ShootDirection();
 		VectorNormalize( hitDirection );
 
 		CTakeDamageInfo info( GetOwner(), GetOwner(), GetDamageForActivity( nHitActivity ), DMG_CLUB );
@@ -303,9 +354,9 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 
 	Vector swingStart = pOwner->Weapon_ShootPosition( );
 	Vector forward;
-
-	forward = pOwner->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT, GetRange() );
-
+	
+	forward = pOwner->Weapon_ShootDirection();
+	
 	Vector swingEnd = swingStart + forward * GetRange();
 	UTIL_TraceLine( swingStart, swingEnd, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit );
 	Activity nHitActivity = ACT_VM_HITCENTER;
@@ -383,3 +434,106 @@ void CBaseHLBludgeonWeapon::Swing( int bIsSecondary )
 	//Play swing sound
 	WeaponSound( SINGLE );
 }
+
+
+
+
+void CBaseHLBludgeonWeapon::MotionSwing( const Vector &pos, const Vector &dir, float velocity )
+{
+	trace_t traceHit;
+
+	// Try a ray
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	if ( !pOwner )
+		return;
+	
+	Vector v;
+	
+	Vector swingStart = pos;
+	Vector forward = dir; //dir*velocity;
+	
+	
+	// DebugDrawLine(pos, forward*GetRange(), 0, 255, 0, true, 2);
+
+
+	Vector swingEnd = swingStart + forward * GetRange();
+	UTIL_TraceLine( swingStart, swingEnd, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit );
+	Activity nHitActivity = ACT_VM_HITCENTER;
+
+	// Like bullets, bludgeon traces have to trace against triggers.
+	CTakeDamageInfo triggerInfo( GetOwner(), GetOwner(), GetDamageForActivity( nHitActivity ), DMG_CLUB );
+	triggerInfo.SetDamagePosition( traceHit.startpos );
+	triggerInfo.SetDamageForce( forward );
+	TraceAttackToTriggers( triggerInfo, traceHit.startpos, traceHit.endpos, forward );
+
+	if ( traceHit.fraction == 1.0 )
+	{
+		float bludgeonHullRadius = 1.732f * BLUDGEON_HULL_DIM;  // hull is +/- 16, so use cuberoot of 2 to determine how big the hull is from center to the corner point
+
+		// Back off by hull "radius"
+		swingEnd -= forward * bludgeonHullRadius;
+
+		UTIL_TraceHull( swingStart, swingEnd, g_bludgeonMins, g_bludgeonMaxs, MASK_SHOT_HULL, pOwner, COLLISION_GROUP_NONE, &traceHit );
+		if ( traceHit.fraction < 1.0 && traceHit.m_pEnt )
+		{
+			Vector vecToTarget = traceHit.m_pEnt->GetAbsOrigin() - swingStart;
+			VectorNormalize( vecToTarget );
+
+			float dot = vecToTarget.Dot( forward );
+
+			// YWB:  Make sure they are sort of facing the guy at least...
+			if ( dot < 0.70721f )
+			{
+				// Force amiss
+				traceHit.fraction = 1.0f;
+			}
+			else
+			{
+				nHitActivity = ChooseIntersectionPointAndActivity( traceHit, g_bludgeonMins, g_bludgeonMaxs, pOwner );
+			}
+		}
+	}
+	
+	gamestats->Event_WeaponFired( pOwner, true, GetClassname() );
+
+	// -------------------------
+	//	Miss
+	// -------------------------
+	if ( traceHit.fraction == 1.0f )
+	{
+		nHitActivity = ACT_VM_MISSCENTER;
+
+		// We want to test the first swing again
+		Vector testEnd = swingStart + forward * GetRange();
+				
+		// See if we happened to hit water
+		if ( ImpactWater( swingStart, testEnd ) )
+			m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
+	
+	}
+	else
+	{
+		Hit( traceHit, nHitActivity, false ? true : false );
+		
+		//Setup our next attack times
+		m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
+		m_flNextSecondaryAttack = gpGlobals->curtime + GetFireRate();
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
