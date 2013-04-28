@@ -17,11 +17,9 @@ WeaponData
 	"weight"			"2"
 	"item_flags"		"0"
 	
-	ViewModelOffsets
+	ViewModelAngles
 	{
-		"offsetForward"	"-1"
-		"offsetRight" 	"-3.8"
-		"offsetUp"		"2.5"
+		"offsetY"		"1.4"
 	}
 
 	
