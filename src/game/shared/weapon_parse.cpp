@@ -454,7 +454,7 @@ void FileWeaponInfo_t::Parse( KeyValues *pKeyValuesData, const char *szWeaponNam
 
 	// VR SOURCE - Load additional data for weapon view model offsets...
 	
-	viewModelAngleScale.Init(1.16, 1.13, 0); // scale factor
+	viewModelAngleScale.Init(1.15, 1.11, 0); // scale factor
 	viewModelAngleOffset.Init(0, 0, 0);  // baseline angle offset subtracted from vm angle (adjusts up or right)
 
 	KeyValues *offsets = pKeyValuesData->FindKey( "ViewModelAngles" );

@@ -1128,6 +1128,12 @@ void CFuncTank::StopControl()
 //-----------------------------------------------------------------------------
 void CFuncTank::ControllerPostFrame( void )
 {
+	 
+
+
+	// VRTODO: FIX MOUNTED MACHINE GUN FIRE BEHAVIOR......
+
+
 	// Make sure we have a contoller.
 	Assert( m_hController != NULL );
 
@@ -1648,6 +1654,8 @@ QAngle CFuncTank::AimBarrelAt( const Vector &parentTarget )
 	// Target is too close!  Can't aim at it
 	if ( quadTarget <= m_barrelPos.LengthSqr() )
 	{
+		Msg("Target considered too close.... \n");
+
 		return GetLocalAngles();
 	}
 	else
@@ -1684,18 +1692,11 @@ void CFuncTank::CalcPlayerCrosshairTarget( Vector *pVecTarget )
 	Vector vecStart, vecDir;
 	trace_t	tr;
 	
-	vecStart = pPlayer->EyePosition();
+	Msg("Calculating target for mounted machine gun player aim\n");
 
-	if ( !IsX360() )
-	{
-		vecDir = pPlayer->EyeDirection3D();
-	}
-	else
-	{
-		// Use autoaim as the eye dir.
-		vecDir = pPlayer->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT );
-	}
-	
+	vecStart = pPlayer->EyePosition();
+	AngleVectors(pPlayer->EyeAngles(), &vecDir);
+
 	// Make sure to start the trace outside of the player's bbox!
 	UTIL_TraceLine( vecStart + vecDir * 24, vecStart + vecDir * 8192, MASK_BLOCKLOS_AND_NPCS, this, COLLISION_GROUP_NONE, &tr );
 
