@@ -638,6 +638,7 @@ copy "$(SolutionDir)vr_io\*.dll" "C:\Program Files (x86)\Steam\steamapps\sourcem
     <ClCompile Include="text_message.cpp" />
     <ClCompile Include="texturescrollmaterialproxy.cpp" />
     <ClCompile Include="timematerialproxy.cpp" />
+    <ClCompile Include="tne_RenderTargets.cpp" />
     <ClCompile Include="toggletextureproxy.cpp" />
     <ClCompile Include="train.cpp" />
     <ClCompile Include="..\shared\usercmd.cpp" />
@@ -869,6 +870,7 @@ copy "$(SolutionDir)vr_io\*.dll" "C:\Program Files (x86)\Steam\steamapps\sourcem
     <ClInclude Include="..\shared\particle_parse.h" />
     <ClInclude Include="..\shared\particle_property.h" />
     <ClInclude Include="..\shared\point_bonusmaps_accessor.h" />
+    <ClInclude Include="tne_RenderTargets.h" />
     <ClInclude Include="vgui_avatarimage.h" />
     <ClInclude Include="viewdebug.h" />
     <ClInclude Include="viewpostprocess.h" />
