@@ -50,21 +50,21 @@ Scheme
 		"Caution"			"255 48 0 16"
 
 		// Top-left corner of the "Half-Life 2" on the main screen
-		"Main.Title1.X"				"76"
-		"Main.Title1.Y"				"145"
-		"Main.Title1.Y_hidef"		"130"
+		"Main.Title1.X"				"236"
+		"Main.Title1.Y"				"200"
+		"Main.Title1.Y_hidef"		"150"
 		"Main.Title1.Color"	"255 255 255 255"
 
 		// Top-left corner of secondary title e.g. "DEMO" on the main screen
-		"Main.Title2.X"				"76"
-		"Main.Title2.Y"				"190"
-		"Main.Title2.Y_hidef"		"174"
+		"Main.Title2.X"				"236"
+		"Main.Title2.Y"				"240"
+		"Main.Title2.Y_hidef"		"200"
 		"Main.Title2.Color"	"255 255 255 200"
 
 		// Top-left corner of the menu on the main screen
-		"Main.Menu.X"			"53"
-		"Main.Menu.X_hidef"		"76"
-		"Main.Menu.Y"			"240"
+		"Main.Menu.X"			"365"
+		"Main.Menu.X_hidef"		"365"
+		"Main.Menu.Y"			"250"
 
 		// Blank space to leave beneath the menu on the main screen
 		"Main.BottomBorder"	"32"
