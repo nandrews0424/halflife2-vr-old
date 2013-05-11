@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\SuperPhysCannon"
+$cd "D:\valve-toolkit\weapons\SuperPhysCannon"
 $origin -12 -28.5 58
 $modelname "weapons/v_physcannon.mdl"
 $model "studio" "SuperPhyscannon_reference.smd"

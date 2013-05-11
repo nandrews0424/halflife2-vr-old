@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\BugBait"
+$cd "D:\valve-toolkit\weapons\BugBait"
 $modelname "weapons/V_bugbait.mdl"
 $model "studio" "Bugbait_reference.smd"
 $cdmaterials "models\Weapons\V_hand\"

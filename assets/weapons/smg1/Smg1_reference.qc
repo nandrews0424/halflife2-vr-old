@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\SMG"
+$cd "D:\valve-toolkit\weapons\SMG"
 $origin 15.5 -7 -6.5
 $modelname "weapons/v_smg1.mdl"
 $model "studio" "Smg1_reference.smd"

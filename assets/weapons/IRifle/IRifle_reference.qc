@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\IRifle"
+$cd "D:\valve-toolkit\weapons\IRifle"
 $origin -18 8 -8
 
 $modelname "weapons/v_IRifle.mdl"
