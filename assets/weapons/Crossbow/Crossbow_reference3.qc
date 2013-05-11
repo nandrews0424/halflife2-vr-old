@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\Crossbow"
+$cd "D:\valve-toolkit\weapons\Crossbow"
 $origin -7 -19 -6.8
 $modelname "Weapons/v_crossbow.mdl"
 $model "studio" "Crossbow_reference3.smd"
