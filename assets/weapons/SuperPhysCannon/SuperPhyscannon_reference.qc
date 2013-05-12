@@ -1,9 +1,9 @@
-$cd "D:\valve-toolkit\weapons\physcannon"
+$cd "D:\valve-toolkit\weapons\SuperPhysCannon"
 
-$origin -12 -35.5 58
+$origin -12 -28.5 58
 
-$modelname "weapons/v_physcannon.mdl"
-$model "studio" "Physcannon_reference.smd"
+$modelname "weapons/v_superphyscannon.mdl"
+$model "studio" "SuperPhyscannon_reference.smd"
 
 $poseparameter active 0.00 1.00
 
@@ -19,7 +19,7 @@ $hbox 0 "Handle" -3.116  -3.526  -10.562  3.400  1.962  2.144
 $hbox 0 "square" -0.034  -5.232  -7.112  5.406  0.799  0.644
 
 // Model uses material "v_hand_sheet.vmt"
-// Model uses material "v_physcannon_sheet.vmt"
+// Model uses material "v_superphyscannon_sheet.vmt"
 
 $attachment "muzzle" "Muzzle" -0.00 0.25 -2.00 rotate 0.00 0.00 0.00
 $attachment "fork1b" "Base_A" -0.00 -0.00 -0.00 rotate 0.00 0.00 0.00
