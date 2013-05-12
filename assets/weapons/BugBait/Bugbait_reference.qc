@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\BugBait"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\BugBait"
 
 $modelname "weapons/V_bugbait.mdl"
 $model "studio" "Bugbait_reference.smd"

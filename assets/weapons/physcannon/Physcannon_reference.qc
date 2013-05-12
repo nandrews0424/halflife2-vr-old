@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\physcannon"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\physcannon"
 
 $origin -12 -35.5 58
 

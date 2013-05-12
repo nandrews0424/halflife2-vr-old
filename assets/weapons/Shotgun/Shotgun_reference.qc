@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\Shotgun"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\Shotgun"
 
 $origin -10 -20 -4.5
 

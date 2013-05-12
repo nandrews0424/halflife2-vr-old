@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\Hands"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\Hands"
 
 $modelname "weapons/V_hands.mdl"
 $model "studio" "Hands_reference.smd"

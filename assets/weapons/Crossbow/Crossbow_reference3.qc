@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\Crossbow"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\Crossbow"
 
 $origin -7 -19 -6.8
 
