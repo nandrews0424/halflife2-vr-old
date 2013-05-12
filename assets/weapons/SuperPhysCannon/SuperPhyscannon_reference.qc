@@ -1,10 +1,11 @@
-$cd "D:\valve-toolkit\weapons\SuperPhysCannon"
+$cd "E:\Work\Rift Hydra Mods\HL2\SuperPhysCannon"
 $origin -12 -28.5 58
-$modelname "weapons/v_physcannon.mdl"
+$modelname "weapons/v_superphyscannon.mdl"
 $model "studio" "SuperPhyscannon_reference.smd"
 $poseparameter active 0.00 1.00
 $cdmaterials "models\weapons\v_physcannon\"
 $cdmaterials "models\weapons\v_hand\"
+
 $hboxset "default"
 $hbox 0 "Base" -6.977  -8.508  -15.484  14.471  5.898  18.091
 $hbox 0 "Prong_B" -1.620  -5.240  -1.378  4.704  1.820  11.821
@@ -14,7 +15,8 @@ $hbox 0 "Handle" -3.116  -3.526  -10.562  3.400  1.962  2.144
 $hbox 0 "square" -0.034  -5.232  -7.112  5.406  0.799  0.644
 
 // Model uses material "v_hand_sheet.vmt"
-// Model uses material "v_physcannon_sheet.vmt"
+// Model uses material "v_superphyscannon_sheet.vmt"
+
 $attachment "muzzle" "Muzzle" -0.00 0.25 -2.00 rotate 0.00 0.00 0.00
 $attachment "fork1b" "Base_A" -0.00 -0.00 -0.00 rotate 0.00 0.00 0.00
 $attachment "fork1m" "Prong_A" 0.00 0.00 -0.00 rotate -0.00 0.00 0.00
@@ -27,7 +29,7 @@ $attachment "fork3m" "Prong_C" 0.00 0.00 0.00 rotate -0.00 0.00 0.00
 $attachment "fork3t" "Tip_C" -0.00 -0.00 0.00 rotate 0.00 0.00 0.00
 $surfaceprop "default"
 
-$illumposition 47.232 -8.546 -11.292
+$illumposition 47.092 -8.506 -11.369
 
 $sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00
 $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00
@@ -39,5 +41,5 @@ $sequence prong_blend "ProngsShut" fps 30.00 {
   blendwidth 2
   blend active 0.000000 1.000000
   autoplay
- ProngsShut ProngsOpen
+ ProngsOpen
 }
