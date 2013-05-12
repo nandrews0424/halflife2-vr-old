@@ -1,7 +1,10 @@
 $cd "D:\valve-toolkit\weapons\Hands"
+
 $modelname "weapons/V_hands.mdl"
 $model "studio" "Hands_reference.smd"
+
 $cdmaterials "models\Weapons\V_hand\"
+
 $hboxset "default"
 $hbox 0 "ValveBiped.Bip01_Spine4" 0.000  0.000  -1.938  2.033  1.001  1.938
 $hbox 0 "ValveBiped.Bip01_L_UpperArm" -1.385  -3.578  -3.093  11.693  2.942  2.846
@@ -22,7 +25,11 @@ $hbox 0 "ValveBiped.Bip01_R_Finger1" -0.600  -1.278  -0.498  1.856  0.536  0.537
 $hbox 0 "ValveBiped.Bip01_R_Finger0" -0.258  -0.468  -1.086  1.934  2.045  1.416
 $hbox 0 "ValveBiped.Bip01_R_Finger01" -1.117  -0.433  -0.381  1.659  1.188  1.061
 $hbox 0 "ValveBiped.Bip01_R_Finger02" -0.497  -0.258  -0.364  1.661  0.753  0.696
+
 // Model uses material "v_hand_sheet.vmt"
+
 $surfaceprop "default"
+
 $illumposition 20.311 0.959 -15.440
+
 $sequence admire "admire" ACT_VM_IDLE 1 fps 30.00

@@ -1,8 +1,12 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\SuperPhysCannon"
+$cd "D:\valve-toolkit\weapons\SuperPhysCannon"
+
 $origin -12 -28.5 58
+
 $modelname "weapons/v_superphyscannon.mdl"
 $model "studio" "SuperPhyscannon_reference.smd"
+
 $poseparameter active 0.00 1.00
+
 $cdmaterials "models\weapons\v_physcannon\"
 $cdmaterials "models\weapons\v_hand\"
 
@@ -27,14 +31,17 @@ $attachment "fork2t" "Tip_B" -0.00 -0.00 0.00 rotate 0.00 0.00 0.00
 $attachment "fork3b" "Base_C" -0.00 0.00 0.00 rotate 0.00 0.00 0.00
 $attachment "fork3m" "Prong_C" 0.00 0.00 0.00 rotate -0.00 0.00 0.00
 $attachment "fork3t" "Tip_C" -0.00 -0.00 0.00 rotate 0.00 0.00 0.00
+
 $surfaceprop "default"
 
 $illumposition 47.092 -8.506 -11.369
 
 $sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00
+
 $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00
 
 $animation ProngsShut "ProngsShut" fps 30.000000
+
 $animation ProngsOpen "ProngsOpen" fps 30.000000
 
 $sequence prong_blend "ProngsShut" fps 30.00 {

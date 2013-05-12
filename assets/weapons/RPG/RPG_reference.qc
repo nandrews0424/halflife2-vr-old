@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\RPG"
+$cd "D:\valve-toolkit\weapons\RPG"
 
 $modelname "Weapons/v_RPG.mdl"
 $model "studio" "RPG_reference.smd"

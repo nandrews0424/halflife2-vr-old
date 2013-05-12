@@ -1,4 +1,5 @@
 $cd "D:\valve-toolkit\weapons\pistol"
+
 $origin 22 -7 -5.5
 
 $modelname "weapons/v_Pistol.mdl"

@@ -1,7 +1,10 @@
 $cd "D:\valve-toolkit\weapons\Crossbow"
+
 $origin -7 -19 -6.8
+
 $modelname "Weapons/v_crossbow.mdl"
 $model "studio" "Crossbow_reference3.smd"
+
 $cdmaterials "models\weapons\v_crossbow\"
 $cdmaterials "models\Weapons\V_hand\"
 
