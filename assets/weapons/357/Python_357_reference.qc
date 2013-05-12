@@ -1,6 +1,6 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\357"
 
-$origin 13.5 -6.5 -5.5
+$origin -5.5 -16.5 -7
 
 $modelname "weapons/v_357.mdl"
 $model "studio" "Python_357_reference.smd"
@@ -27,11 +27,11 @@ $surfaceprop "default"
 $illumposition 12.453 -3.224 -9.997
 
 
-$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 snap rotate -90 fps 30.00 node Fire {
+$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30 node Fire {
   { event AE_MUZZLEFLASH 0 "357 muzzle" }
 }
 
-$sequence reload "reload" ACT_VM_RELOAD 1 snap rotate -90 fps 30.00 node Ready {
+$sequence reload "reload" ACT_VM_RELOAD 1 fps 30 node Ready {
   { event AE_CL_PLAYSOUND 28 "Weapon_357.OpenLoader" }
   { event AE_CL_PLAYSOUND 39 "Weapon_357.RemoveLoader" }
   { event 3015 55 }

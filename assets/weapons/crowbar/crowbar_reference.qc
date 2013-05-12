@@ -1,6 +1,6 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\Crowbar"
 
-$origin 25 -12 -12.5
+$origin -31 12 -14
 
 $modelname "Weapons/v_crowbar.mdl"
 $model "studio" "crowbar_reference.smd"
@@ -25,9 +25,9 @@ $surfaceprop "default"
 
 $illumposition 0.00 0.00 0.00
 
-$sequence misscenter1 "misscenter1" ACT_VM_MISSCENTER 1 snap rotate -90 fps 30.00
-$sequence misscenter2 "misscenter2" ACT_VM_MISSCENTER 1 snap rotate -90 fps 30.00
-$sequence hitcenter1 "hitcenter1" ACT_VM_HITCENTER 1 snap rotate -90 fps 30.00
-$sequence hitcenter2 "hitcenter2" ACT_VM_HITCENTER 1 snap rotate -90 fps 30.00
-$sequence hitcenter3 "hitcenter3" ACT_VM_HITCENTER 1 snap rotate -90 fps 30.00
-$sequence hitkill1 "hitkill1" ACT_VM_HITKILL 1 snap rotate -90 fps 30.00
+$sequence misscenter1 "misscenter1" ACT_VM_MISSCENTER 1 snap rotate 90 fps 30.00
+$sequence misscenter2 "misscenter2" ACT_VM_MISSCENTER 1 snap rotate 90 fps 30.00
+$sequence hitcenter1 "hitcenter1" ACT_VM_HITCENTER 1 snap rotate 90 fps 30.00
+$sequence hitcenter2 "hitcenter2" ACT_VM_HITCENTER 1 snap rotate 90 fps 30.00
+$sequence hitcenter3 "hitcenter3" ACT_VM_HITCENTER 1 snap rotate 90 fps 30.00
+$sequence hitkill1 "hitkill1" ACT_VM_HITKILL 1 snap rotate 90 fps 30.00
