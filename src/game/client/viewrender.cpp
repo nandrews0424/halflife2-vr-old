@@ -2101,10 +2101,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		CDebugViewRender::GenerateOverdrawForTesting();
 	}
 
-	if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 )
+	/*if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 )
 	{
 		DrawScope( view );
-	}
+	}*/
 
 	render->PopView( GetFrustum() );
 	g_WorldListCache.Flush();

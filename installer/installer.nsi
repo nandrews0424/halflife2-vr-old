@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '1.0.5-pre'
+!define VERSION '1.0.6'
 
 Name "Half-Life VR"
 
@@ -49,6 +49,8 @@ Section ""
 	Rename $INSTDIR\halflife-vr-ep1\Scenes\ep1-scenes.image $INSTDIR\halflife-vr-ep1\Scenes\scenes.image
 	SetOutPath $INSTDIR\halflife-vr-ep1\cfg
 	File .\package\cfg\chapters-ep1\*
+	RMDir /r $INSTDIR\halflife-vr-ep1\resource
+	Rename $INSTDIR\halflife-vr-ep1\resource-ep1 $INSTDIR\halflife-vr-ep1\resource
 
 	SetOutPath $INSTDIR\halflife-vr-ep2
 	File /r .\package\*
@@ -58,6 +60,8 @@ Section ""
 	Rename $INSTDIR\halflife-vr-ep2\Scenes\ep2-scenes.image $INSTDIR\halflife-vr-ep2\Scenes\scenes.image
 	SetOutPath $INSTDIR\halflife-vr-ep2\cfg
 	File .\package\cfg\chapters-ep2\*
+	RMDir /r $INSTDIR\halflife-vr-ep2\resource
+	Rename $INSTDIR\halflife-vr-ep2\resource-ep2 $INSTDIR\halflife-vr-ep2\resource
 
 	WriteUninstaller $INSTDIR\Uninstall.exe
 

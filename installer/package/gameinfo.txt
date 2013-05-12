@@ -1,9 +1,11 @@
 "GameInfo"
 {
+	gamelogo 1
 	game 			"Half-Life VR"
-	title 			"H@   LF-LIFE"
+	title 			"HALF-LIFE"
+
 	
-	developer		"Nathan Andrews"
+	developer		"Nathan Andrews + Wormslayer"
 	developer_url	"http://www.halflife-vr.com/"
 	
 	type			singleplayer_only
@@ -15,17 +17,11 @@
 		SteamAppId				218	
 		ToolsAppId				211	
 		
-		// AdditionalContentId 420 //Ep2
 		AdditionalContentId 220 //HL2
-		// AdditionalContentId 340 //HL2 Lost Coast
-		// AdditionalContentId 380 //Ep1
 		
 		SearchPaths
 		{
 			Game	|gameinfo_path|.
-			Game	|all_source_engine_paths|ep2
-			Game	|all_source_engine_paths|episodic	// Ep2 also uses some Ep1 content
-			Game	|all_source_engine_paths|portal
 			Game	|all_source_engine_paths|hl2	// HL2 should always come last
 		}
 	}
