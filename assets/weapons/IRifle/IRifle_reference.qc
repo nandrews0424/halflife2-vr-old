@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\IRifle"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\IRifle"
 
 $origin -18 8 -8
 

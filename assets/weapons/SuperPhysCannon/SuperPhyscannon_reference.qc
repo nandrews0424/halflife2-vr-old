@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\SuperPhysCannon"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\SuperPhysCannon"
 
 $origin -12 -28.5 58
 

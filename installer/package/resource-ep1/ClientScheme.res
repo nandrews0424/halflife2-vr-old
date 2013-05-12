@@ -23,63 +23,49 @@ Scheme
 	// controls use these to determine their settings
 	BaseSettings
 	{
-		"FgColor"			"255 220 0 0"
-		"BgColor"			"0 0 0 0"
+		"FgColor"			"255 220 0 100"
+		"BgColor"			"0 0 0 76"
 
-		"Panel.FgColor"			"255 220 0 0"
-		"Panel.BgColor"			"0 0 0 0"
+		"Panel.FgColor"			"255 220 0 100"
+		"Panel.BgColor"			"0 0 0 76"
 		
-		"BrightFg"		"255 220 0 60"
+		"BrightFg"		"255 220 0 255"
 
-		"DamagedBg"			"160 0 0 32"
-		"DamagedFg"			"160 0 0 96"
-		"BrightDamagedFg"		"255 0 0 110"
+		"DamagedBg"			"180 0 0 200"
+		"DamagedFg"			"180 0 0 230"
+		"BrightDamagedFg"		"255 0 0 255"
 
 		// weapon selection colors
-		"SelectionNumberFg"		"255 220 0 24"
-		"SelectionTextFg"		"255 220 0 24"
-		"SelectionEmptyBoxBg" 	"0 0 0 40"
-		"SelectionBoxBg" 		"0 0 0 40"
+		"SelectionNumberFg"		"255 220 0 255"
+		"SelectionTextFg"		"255 220 0 255"
+		"SelectionEmptyBoxBg" 	"0 0 0 80"
+		"SelectionBoxBg" 		"0 0 0 80"
 		"SelectionSelectedBoxBg" "0 0 0 80"
 		
-		"ZoomReticleColor"	"255 220 0 16"
+		"ZoomReticleColor"	"255 220 0 255"
 
 		// HL1-style HUD colors
-		"Yellowish"			"255 160 0 16"
-		"Normal"			"255 208 64 150"
-		"Caution"			"255 48 0 16"
+		"Yellowish"			"255 160 0 255"
+		"Normal"			"255 208 64 255"
+		"Caution"			"255 48 0 255"
 
 		// Top-left corner of the "Half-Life 2" on the main screen
-		"Main.Title1.X"				"236"
-		"Main.Title1.Y"				"200"
-		"Main.Title1.Y_hidef"		"150"
+		"Main.Title1.X"		"247"
+		"Main.Title1.Y"		"160"
 		"Main.Title1.Color"	"255 255 255 255"
 
 		// Top-left corner of secondary title e.g. "DEMO" on the main screen
-		"Main.Title2.X"				"236"
-		"Main.Title2.Y"				"240"
-		"Main.Title2.Y_hidef"		"200"
+		"Main.Title2.X"		"223"
+		"Main.Title2.Y"		"190"
 		"Main.Title2.Color"	"255 255 255 200"
 
 		// Top-left corner of the menu on the main screen
-		"Main.Menu.X"			"365"
-		"Main.Menu.X_hidef"		"365"
-		"Main.Menu.Y"			"250"
+		"Main.Menu.X"		"350"
+		"Main.Menu.Y"		"230"
 
 		// Blank space to leave beneath the menu on the main screen
 		"Main.BottomBorder"	"32"
 	}
-
-
-	//////////////////////// BITMAP FONT FILES /////////////////////////////
-	//
-	// Bitmap Fonts are ****VERY*** expensive static memory resources so they are purposely sparse
-	BitmapFontFiles
-	{
-		// UI buttons, custom font, (256x64)
-		"Buttons"		"materials/vgui/fonts/buttons_32.vbf"
-	}
-
 	
 	//////////////////////// FONTS /////////////////////////////
 	//
@@ -767,6 +753,7 @@ Scheme
 		}
 	}
 
+
 	
 	//////////////////////// CUSTOM FONT FILES /////////////////////////////
 	//
@@ -775,6 +762,7 @@ Scheme
 	{
 		"1"		"resource/HALFLIFE2.ttf"
 		"2"		"resource/HL2crosshairs.ttf"
+		"3"		"resource/HL2EP1.ttf"		
 	}
 
 }

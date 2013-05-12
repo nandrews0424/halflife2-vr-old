@@ -1,15 +1,16 @@
 "GameInfo"
 {
+	gamelogo 1
 	game 			"Half-Life VR: Episode One"
-	title 			"H@   LF-LIFE"
+	title 			"HALF-LIFE"
 	title2			"== episode one =="
 
 	
 	developer		"Nathan Andrews"
-	developer_url	"http://www.halflife-vr.com/"
+	developer_url		"http://www.halflife-vr.com/"
 	
 	type			singleplayer_only
-	icon            "resource/hl2vr"
+	icon            	"resource/hl2vr"
 	nomodels		0	
 
 	FileSystem
@@ -23,9 +24,7 @@
 		SearchPaths
 		{
 			Game	|gameinfo_path|.
-			Game	|all_source_engine_paths|ep2
-			Game	|all_source_engine_paths|episodic	// Ep2 also uses some Ep1 content
-			Game	|all_source_engine_paths|portal
+			Game	|all_source_engine_paths|episodic
 			Game	|all_source_engine_paths|hl2	// HL2 should always come last
 		}
 	}

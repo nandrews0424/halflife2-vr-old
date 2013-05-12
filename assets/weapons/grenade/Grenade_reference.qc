@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\Grenade"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\Grenade"
 
 $origin 24 -7 -8
 

@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\RPG"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\RPG"
 
 $modelname "Weapons/v_RPG.mdl"
 $model "studio" "RPG_reference.smd"
