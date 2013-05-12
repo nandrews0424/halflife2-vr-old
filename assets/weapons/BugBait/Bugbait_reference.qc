@@ -29,8 +29,15 @@ $surfaceprop "default"
 
 $illumposition 14.448 -8.144 -16.050
 
+$sequence drawback "drawback" ACT_VM_HAULBACK 1 fps 30.00 {
+  { event 3900 4 }
+}
+
 $sequence throw "throw" ACT_VM_THROW 1 fps 30.00 {
   { event 3005 1 }
 }
 
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00
 $sequence squeeze "squeeze" ACT_VM_SECONDARYATTACK 1 fps 30.00

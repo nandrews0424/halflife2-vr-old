@@ -27,14 +27,21 @@ $surfaceprop "default"
 $illumposition 12.453 -3.224 -9.997
 
 
-$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 snap rotate -90 fps 30.00 node Fire {
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00 node Ready
+$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00 node Fire {
   { event AE_MUZZLEFLASH 0 "357 muzzle" }
 }
 
-$sequence reload "reload" ACT_VM_RELOAD 1 snap rotate -90 fps 30.00 node Ready {
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node Ready
+$sequence reload "reload" ACT_VM_RELOAD 1 fps 30.00 node Ready {
   { event AE_CL_PLAYSOUND 28 "Weapon_357.OpenLoader" }
   { event AE_CL_PLAYSOUND 39 "Weapon_357.RemoveLoader" }
   { event 3015 55 }
   { event AE_CL_PLAYSOUND 67 "Weapon_357.ReplaceLoader" }
   { event AE_CL_PLAYSOUND 92 "Weapon_357.Spin" }
 }
+
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node Ready
+$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition Ready Low
+$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition Low Ready
+$sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node Low

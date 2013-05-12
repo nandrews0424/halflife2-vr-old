@@ -33,26 +33,25 @@ $surfaceprop "default"
 
 $illumposition 15.495 -1.044 -17.007
 
-$sequence idle01 "idle01" loop ACT_VM_IDLE 1 snap rotate -90 fps 30.00
-
-$sequence drawbackhigh "drawbackhigh" ACT_VM_PULLBACK_HIGH 1 snap rotate -90 fps 20.00 {
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00
+$sequence drawbackhigh "drawbackhigh" ACT_VM_PULLBACK_HIGH 1 fps 20.00 {
   { event 3900 4 }
 }
 
-$sequence drawbacklow "drawbacklow" ACT_VM_PULLBACK_LOW 1 snap rotate -90 fps 20.00 {
+$sequence drawbacklow "drawbacklow" ACT_VM_PULLBACK_LOW 1 fps 20.00 {
   { event 3900 4 }
 }
 
-$sequence throw "throw" ACT_VM_THROW 1 snap rotate -90 fps 20.00 {
+$sequence throw "throw" ACT_VM_THROW 1 fps 20.00 {
   { event 3005 1 }
 }
 
-$sequence roll "roll" ACT_VM_SECONDARYATTACK 1 snap rotate -90 fps 20.00 {
+$sequence roll "roll" ACT_VM_SECONDARYATTACK 1 fps 20.00 {
   { event 3013 2 }
 }
 
-$sequence lob "lob" ACT_VM_HAULBACK 1 snap rotate -90 fps 20.00 {
+$sequence lob "lob" ACT_VM_HAULBACK 1 fps 20.00 {
   { event 3016 2 }
 }
 
-$sequence draw "draw" ACT_VM_DRAW 1 snap rotate -90 fps 30.00
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00

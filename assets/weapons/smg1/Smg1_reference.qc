@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\smg1"
+$cd "D:\valve-toolkit\weapons\SMG"
 
 $origin 15.5 -7 -6.5
 
@@ -32,26 +32,31 @@ $surfaceprop "default"
 
 $illumposition 17.271 -1.154 -16.696
 
-$sequence fire01 "fire01" ACT_VM_PRIMARYATTACK 1 snap rotate -90 fps 30.00 node Fire {
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00 node Ready
+$sequence fire01 "fire01" ACT_VM_PRIMARYATTACK 1 fps 30.00 node Fire {
   { event AE_MUZZLEFLASH 0 "SMG1 MUZZLE" }
   { event 6001 0 "0" }
 }
 
-$sequence fire02 "fire02" ACT_VM_RECOIL1 1 snap rotate -90 fps 30.00 node Fire {
+$sequence fire02 "fire02" ACT_VM_RECOIL1 1 fps 30.00 node Fire {
   { event AE_MUZZLEFLASH 0 "SMG1 MUZZLE" }
   { event 6001 0 "0" }
 }
 
-$sequence fire03 "fire03" ACT_VM_RECOIL2 1 snap rotate -90 fps 30.00 node Fire {
+$sequence fire03 "fire03" ACT_VM_RECOIL2 1 fps 30.00 node Fire {
   { event AE_MUZZLEFLASH 0 "SMG1 MUZZLE" }
   { event 6001 0 "0" }
 }
 
-$sequence fire04 "fire04" ACT_VM_RECOIL3 1 snap rotate -90 fps 30.00 node Fire {
+$sequence fire04 "fire04" ACT_VM_RECOIL3 1 fps 30.00 node Fire {
   { event AE_MUZZLEFLASH 0 "SMG1 MUZZLE" }
   { event 6001 0 "0" }
 }
 
-$sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 snap rotate -90 fps 30.00 node Fire
-
-$sequence reload "reload" ACT_VM_RELOAD 1 snap rotate -90 fps 30.00 node Ready
+$sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00 node Fire
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node Ready
+$sequence reload "reload" ACT_VM_RELOAD 1 fps 30.00 node Ready
+$sequence dryfire "dryfire" ACT_VM_DRYFIRE 1 fps 30.00 node Fire
+$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition Ready Low
+$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition Low Ready
+$sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node Low

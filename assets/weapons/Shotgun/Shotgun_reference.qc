@@ -36,12 +36,7 @@ $surfaceprop "default"
 
 $illumposition 28.541 -4.919 -16.577
 
-$sequence fire "fire" ACT_RANGE_ATTACK_SHOTGUN 1 fps 5.00 {
-  { event AE_MUZZLEFLASH 0 "SHOTGUN MUZZLE" }
-  { event 6001 0 "3" }
-  { event 3004 0 }
-}
-
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00 node 0
 $sequence fire01 "fire01" ACT_VM_PRIMARYATTACK 1 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "SHOTGUN MUZZLE" }
 }
@@ -50,10 +45,21 @@ $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "SHOTGUN MUZZLE" }
 }
 
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node 0
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node 0
+$sequence reload1 "reload1" ACT_SHOTGUN_RELOAD_START 1 fps 30.00 node 0
+$sequence reload2 "reload2" ACT_VM_RELOAD 1 fps 30.00 node 0
+$sequence reload3 "reload3" ACT_SHOTGUN_RELOAD_FINISH 1 fps 30.00 node 0
 $sequence pump "pump" ACT_SHOTGUN_PUMP 1 fps 30.00 node 0 {
   { event 6001 5 "2" }
 }
 
-$sequence reload1 "reload1" ACT_SHOTGUN_RELOAD_START 1 fps 30.00 node 0
-$sequence reload2 "reload2" ACT_VM_RELOAD 1 fps 30.00 node 0
-$sequence reload3 "reload3" ACT_SHOTGUN_RELOAD_FINISH 1 fps 30.00 node 0
+$sequence dryfire "dryfire" ACT_VM_DRYFIRE 1 fps 30.00 node 2
+$sequence lowered "lowered" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node 1
+$sequence lowered_to_idle "lowered_to_idle" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition 1 0
+$sequence idle_to_lowered "idle_to_lowered" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition 0 1
+$sequence fire "fire" ACT_RANGE_ATTACK_SHOTGUN 1 fps 5.00 {
+  { event AE_MUZZLEFLASH -2147483648 "SHOTGUN MUZZLE" }
+  { event 6001 -2147483648 "3" }
+  { event 3004 -2147483648 }
+}

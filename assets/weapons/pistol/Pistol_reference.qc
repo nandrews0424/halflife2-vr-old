@@ -33,16 +33,30 @@ $surfaceprop "default"
 
 $illumposition 12.972 0.702 -35.781
 
-$sequence fire1 "fire1" ACT_VM_RECOIL1 1 snap rotate -90 fps 30.00 node 2 {
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00 node 0
+$sequence idle01empty "idle01empty" loop ACT_VM_IDLE_EMPTY 1 fps 30.00 node 0
+$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fire2 "fire2" ACT_VM_RECOIL2 1 snap rotate -90 fps 30.00 node 2 {
+$sequence fire1 "fire1" ACT_VM_RECOIL1 1 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fire3 "fire3" ACT_VM_RECOIL3 1 snap rotate -90 fps 30.00 node 2 {
+$sequence fire2 "fire2" ACT_VM_RECOIL2 1 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence reload "reload" ACT_VM_RELOAD 1 snap rotate -90 fps 30.00 node 0
+$sequence fire3 "fire3" ACT_VM_RECOIL3 1 fps 30.00 node 2 {
+  { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
+}
+
+$sequence fireempty "fireempty" ACT_VM_DRYFIRE 1 fps 30.00 node 2
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node 0
+$sequence drawempty "drawempty" fps 30.00 node 0
+$sequence reload "reload" ACT_VM_RELOAD 1 fps 30.00 node 0
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node 0
+$sequence holsterempty "holsterempty" ACT_VM_HOLSTER 1 fps 30.00 node 0
+$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition 0 1
+$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition 1 0
+$sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node 1

@@ -44,10 +44,21 @@ $surfaceprop "default"
 
 $illumposition 23.040 -5.678 -13.336
 
-$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00 node Ready
+$sequence idle "idle" loop ACT_VM_IDLE 1 fps 30.00 node Ready
+$sequence idle_empty "idle_empty" loop ACT_VM_FIDGET 1 fps 30.00 node Ready
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node Ready {
+  { event 3013 14 }
+  { event 3016 28 }
+}
 
+$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00 node Ready
 $sequence reload "reload" ACT_VM_RELOAD 1 fps 30.00 node Ready {
   { event 3005 28 }
   { event 3013 35 }
   { event 3016 55 }
 }
+
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node Ready
+$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition Ready Low
+$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition Low Ready
+$sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node Low
