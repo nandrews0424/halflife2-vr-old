@@ -1,6 +1,6 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\Crossbow"
 
-$origin -7 -19 -6.8
+$origin -6 -12 56
 
 $modelname "Weapons/v_crossbow.mdl"
 $model "studio" "Crossbow_reference3.smd"
