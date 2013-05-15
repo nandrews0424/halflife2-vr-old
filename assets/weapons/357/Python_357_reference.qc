@@ -1,6 +1,7 @@
 $cd "D:\valve-toolkit\weapons\357"
 
-$origin 13.5 -6.5 -5.5
+// right/left forward/back down/up
+$origin -9 -18 -5.5
 
 $modelname "weapons/v_357.mdl"
 $model "studio" "Python_357_reference.smd"

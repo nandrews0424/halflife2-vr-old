@@ -1,6 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\physcannon"
 
-$origin -12 -35.5 58
+// right/left forward/back down/up
+$origin -15 -25 -20
 
 $modelname "weapons/v_physcannon.mdl"
 $model "studio" "Physcannon_reference.smd"
@@ -42,12 +43,14 @@ $sequence draw "draw" ACT_VM_DRAW 1 fps 30.00
 $sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00
 $sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00
 $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00
+
 $animation ProngsShut "ProngsShut" fps 30.000000
 $animation ProngsOpen "ProngsOpen" fps 30.000000
-$sequence prong_blend "ProngsShut" fps 30.00 {
-  blendwidth 2
-  blend active 0.000000 1.000000
-  blend active 0.000000 1.000000
-  autoplay
- ProngsShut ProngsOpen
-}
+
+//$sequence prong_blend "ProngsShut" fps 30.00 {
+//  ProngsShut ProngsOpen
+//  blendwidth 2
+//  blend active 0.000000 1.000000
+//  blend active 0.000000 1.000000
+//  autoplay
+//}

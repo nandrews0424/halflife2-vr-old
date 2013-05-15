@@ -1,9 +1,13 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\pistol"
 
-$origin 22 -7 -5.5
+// forward/back left/right up/down
+$origin -25 5 -5
 
 $modelname "weapons/v_Pistol.mdl"
 $model "studio" "Pistol_reference.smd"
+
+// Model uses material "v_hand_sheet.vmt"
+// Model uses material "v_pistol_sheet.vmt"
 
 $cdmaterials "models\Weapons\V_hand\"
 $cdmaterials "models\Weapons\V_Pistol\"
@@ -23,9 +27,6 @@ $hbox 0 "ValveBiped.base" -0.738  -3.635  -4.366  0.783  3.122  5.938
 $hbox 0 "ValveBiped.square" -0.704  -0.635  -4.287  0.672  1.017  4.029
 $hbox 0 "ValveBiped.clip" -0.711  -2.509  -1.420  0.517  2.634  1.139
 
-// Model uses material "v_hand_sheet.vmt"
-// Model uses material "v_pistol_sheet.vmt"
-
 $attachment "muzzle" "ValveBiped.muzzle" -0.00 -0.00 -0.00 rotate -0.00 -0.00 0.00
 $attachment "1" "ValveBiped.eject" -1.00 -0.00 -0.00 rotate -0.00 90.00 180.00
 
@@ -33,30 +34,30 @@ $surfaceprop "default"
 
 $illumposition 12.972 0.702 -35.781
 
-$sequence idle01 "idle01" loop ACT_VM_IDLE 1 fps 30.00 node 0
-$sequence idle01empty "idle01empty" loop ACT_VM_IDLE_EMPTY 1 fps 30.00 node 0
-$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00 node 2 {
+$sequence idle01 "idle01" loop ACT_VM_IDLE 1 rotate 90 fps 30.00 node 0
+$sequence idle01empty "idle01empty" loop ACT_VM_IDLE_EMPTY 1 rotate 90 fps 30.00 node 0
+$sequence fire "fire" ACT_VM_PRIMARYATTACK 1 rotate 90 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fire1 "fire1" ACT_VM_RECOIL1 1 fps 30.00 node 2 {
+$sequence fire1 "fire1" ACT_VM_RECOIL1 1 rotate 90 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fire2 "fire2" ACT_VM_RECOIL2 1 fps 30.00 node 2 {
+$sequence fire2 "fire2" ACT_VM_RECOIL2 1 rotate 90 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fire3 "fire3" ACT_VM_RECOIL3 1 fps 30.00 node 2 {
+$sequence fire3 "fire3" ACT_VM_RECOIL3 1 rotate 90 fps 30.00 node 2 {
   { event AE_MUZZLEFLASH 0 "PISTOL MUZZLE" }
 }
 
-$sequence fireempty "fireempty" ACT_VM_DRYFIRE 1 fps 30.00 node 2
-$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node 0
-$sequence drawempty "drawempty" fps 30.00 node 0
-$sequence reload "reload" ACT_VM_RELOAD 1 fps 30.00 node 0
-$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node 0
-$sequence holsterempty "holsterempty" ACT_VM_HOLSTER 1 fps 30.00 node 0
-$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition 0 1
-$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition 1 0
-$sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node 1
+$sequence fireempty "fireempty" ACT_VM_DRYFIRE 1 rotate 90 fps 30.00 node 2
+$sequence draw "draw" ACT_VM_DRAW 1 rotate 90 fps 30.00 node 0
+$sequence drawempty "drawempty" rotate 90 fps 30.00 node 0
+$sequence reload "reload" ACT_VM_RELOAD 1 rotate 90 fps 30.00 node 0
+$sequence holster "holster" ACT_VM_HOLSTER 1 rotate 90 fps 30.00 node 0
+$sequence holsterempty "holsterempty" ACT_VM_HOLSTER 1 rotate 90 fps 30.00 node 0
+$sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 rotate 90 fps 30.00 transition 0 1
+$sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 rotate 90 fps 30.00 transition 1 0
+$sequence lowidle "lowidle" loop ACT_VM_IDLE_LO

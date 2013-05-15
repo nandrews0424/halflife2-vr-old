@@ -1,6 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\IRifle"
 
-$origin -18 8 -8
+// forward/back right/left down/up
+$origin -10 -10 -10
 
 $modelname "weapons/v_IRifle.mdl"
 $model "studio" "IRifle_reference.smd"
@@ -57,15 +58,15 @@ $sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 fps 30.00 transition Re
 $sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 fps 30.00 transition Low Ready
 $sequence lowidle "lowidle" loop ACT_VM_IDLE_LOWERED 1 fps 30.00 node Low
 $sequence shake "shake" loop ACT_VM_FIDGET 1 fps 30.00 node Fire
-$animation mdldecompiler_delta.smd "mdldecompiler_delta.smd" fps 30
-$animation a_vent_open "a_vent_open" fps 30.000000 subtract mdldecompiler_delta.smd 0
 
-$animation a_vent_closed "a_vent_closed" fps 30.000000 subtract mdldecompiler_delta.smd 0
+$animation IR_delta "IR_delta" fps 30
+$animation a_vent_open "a_vent_open" fps 30.000000 subtract IR_delta 0
+$animation a_vent_closed "a_vent_closed" fps 30.000000 subtract IR_delta 0
 
-$sequence VentPoses "a_vent_open" fps 30.00 {
-  blendwidth 2
-  blend VentPoses 0.000000 1.000000
-  delta
-  autoplay
- a_vent_open a_vent_closed
-}
+//$sequence VentPoses "a_vent_open" fps 30.00 {
+//  a_vent_open a_vent_closed
+//  blendwidth 2
+//  blend VentPoses 0.000000 1.000000
+//  delta
+//  autoplay
+//}

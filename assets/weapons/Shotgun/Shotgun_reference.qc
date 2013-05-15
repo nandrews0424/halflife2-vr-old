@@ -1,6 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\Shotgun"
 
-$origin -10 -20 -4.5
+// right/left forward/back down/up
+$origin -11 -9 -6
 
 $modelname "weapons/v_shotgun.mdl"
 $model "studio" "Shotgun_reference.smd"
@@ -47,9 +48,9 @@ $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00 node 2 {
 
 $sequence draw "draw" ACT_VM_DRAW 1 fps 30.00 node 0
 $sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00 node 0
-$sequence reload1 "reload1" ACT_SHOTGUN_RELOAD_START 1 fps 30.00 node 0
-$sequence reload2 "reload2" ACT_VM_RELOAD 1 fps 30.00 node 0
-$sequence reload3 "reload3" ACT_SHOTGUN_RELOAD_FINISH 1 fps 30.00 node 0
+$sequence reload1 "reload1" ACT_SHOTGUN_RELOAD_START 1 snap fps 30.00 node 0
+$sequence reload2 "reload2" ACT_VM_RELOAD 1 snap fps 30.00 node 0
+$sequence reload3 "reload3" ACT_SHOTGUN_RELOAD_FINISH 1 snap fps 30.00 node 0
 $sequence pump "pump" ACT_SHOTGUN_PUMP 1 fps 30.00 node 0 {
   { event 6001 5 "2" }
 }

@@ -1,6 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\SuperPhysCannon"
 
-$origin -12 -28.5 58
+// right/left forward/back down/up
+$origin -15 -25 -20
 
 $modelname "weapons/v_superphyscannon.mdl"
 $model "studio" "SuperPhyscannon_reference.smd"
@@ -36,17 +37,20 @@ $surfaceprop "default"
 
 $illumposition 47.092 -8.506 -11.369
 
+$sequence idle "idle" loop ACT_VM_IDLE 1 fps 30.00
+$sequence hold_idle "hold_idle" loop ACT_VM_RELOAD 1 fps 30.00
+$sequence draw "draw" ACT_VM_DRAW 1 fps 30.00
+$sequence holster "holster" ACT_VM_HOLSTER 1 fps 30.00
 $sequence fire "fire" ACT_VM_PRIMARYATTACK 1 fps 30.00
-
 $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00
 
 $animation ProngsShut "ProngsShut" fps 30.000000
-
 $animation ProngsOpen "ProngsOpen" fps 30.000000
 
-$sequence prong_blend "ProngsShut" fps 30.00 {
-  blendwidth 2
-  blend active 0.000000 1.000000
-  autoplay
- ProngsOpen
-}
+//$sequence prong_blend "ProngsShut" fps 30.00 {
+//  ProngsShut ProngsOpen
+//  blendwidth 2
+//  blend active 0.000000 1.000000
+//  blend active 0.000000 1.000000
+//  autoplay
+//}

@@ -1,5 +1,8 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\RPG"
 
+// right/left forward/back down/up
+$origin -22 -32 -12
+
 $modelname "Weapons/v_RPG.mdl"
 $model "studio" "RPG_reference.smd"
 

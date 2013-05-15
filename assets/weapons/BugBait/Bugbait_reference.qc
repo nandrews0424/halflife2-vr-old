@@ -1,4 +1,7 @@
-$cd "D:\dev\hl2-vr-bkp\assets\weapons\BugBait"
+$cd "D:\valve-toolkit\weapons\BugBait"
+
+// right/left forward/back down/up
+$origin -6 -23 -12
 
 $modelname "weapons/V_bugbait.mdl"
 $model "studio" "Bugbait_reference.smd"
