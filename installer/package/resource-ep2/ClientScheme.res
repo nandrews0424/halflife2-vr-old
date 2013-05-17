@@ -55,7 +55,7 @@ Scheme
 		"Main.Title1.Color"	"255 255 255 255"
 
 		// Top-left corner of secondary title e.g. "DEMO" on the main screen
-		"Main.Title2.X"		"223"
+		"Main.Title2.X"		"255"
 		"Main.Title2.Y"		"190"
 		"Main.Title2.Color"	"255 255 255 200"
 
@@ -789,7 +789,7 @@ Scheme
 	{
 		"1"		"resource/HALFLIFE2.ttf"
 		"2"		"resource/HL2crosshairs.ttf"
-		"3"	"resource/HL2EP2.ttf"		
+		"3"		"resource/HL2EP2.ttf"		
 	}
 
 }

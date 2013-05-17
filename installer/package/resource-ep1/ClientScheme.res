@@ -55,7 +55,7 @@ Scheme
 		"Main.Title1.Color"	"255 255 255 255"
 
 		// Top-left corner of secondary title e.g. "DEMO" on the main screen
-		"Main.Title2.X"		"223"
+		"Main.Title2.X"		"255"
 		"Main.Title2.Y"		"190"
 		"Main.Title2.Color"	"255 255 255 200"
 
@@ -79,9 +79,9 @@ Scheme
 			"1"
 			{
 				"name"		"Courier New"
-				"tall"		"15"
+				"tall"		"14"
 				"weight"	"400"
-				"antialias" "0"
+				"antialias" "1"
 			}
 		}
 		// fonts are used in order that they are listed
@@ -90,44 +90,37 @@ Scheme
 			"1"
 			{
 				"name"		"Courier New"
-				"tall"		"15"
+				"tall"		"14"
 				"weight"	"400"
-				"antialias" "0"
+				"antialias" "1"
 			}
 		}
 		// fonts listed later in the order will only be used if they fulfill a range not already filled
 		// if a font fails to load then the subsequent fonts will replace
 		Default
 		{
-			"1"	[$X360]
+			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"12"
+				"tall"		"9"
 				"weight"	"700"
 				"antialias" "1"
-			}
-			"1"	[$WIN32]
-			{
-				"name"		"Verdana"
-				"tall"		"14"
-				"weight"	"700"
-				"antialias" "0"
 				"yres"	"1 599"
 			}
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"12"
 				"weight"	"700"
-				"antialias" "0"
+				"antialias" "1"
 				"yres"	"600 767"
 			}
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"17"
+				"tall"		"14"
 				"weight"	"900"
-				"antialias" "0"
+				"antialias" "1"
 				"yres"	"768 1023"
 			}
 			"4"
@@ -153,7 +146,7 @@ Scheme
 			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"14"
+				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"480 599"
@@ -161,7 +154,7 @@ Scheme
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"13"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"600 767"
@@ -169,7 +162,7 @@ Scheme
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"768 1023"
@@ -206,7 +199,7 @@ Scheme
 			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"13"
+				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"480 599"
@@ -214,7 +207,7 @@ Scheme
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"13"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"600 767"
@@ -222,7 +215,7 @@ Scheme
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"768 1023"
@@ -266,8 +259,7 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"54"
-				"tall_hidef"	"48"
+				"tall"		"64"
 				"weight"	"0"
 				"antialias" "1"
 				"additive"	"1"
@@ -279,24 +271,11 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"54"
-				"tall_hidef"	"48"
+				"tall"		"64"
 				"weight"	"0"
 				"antialias" "1"
 				"blur"		"5"
 				"scanlines"	"2"
-				"additive"	"1"
-				"custom"	"1"
-			}
-		}
-		WeaponIconsSmall
-		{
-			"1"
-			{
-				"name"		"HalfLife2"
-				"tall"		"28"
-				"weight"	"0"
-				"antialias" "1"
 				"additive"	"1"
 				"custom"	"1"
 			}
@@ -306,7 +285,7 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"36"
+				"tall"		"40"
 				"weight"	"0"
 				"antialias" "0"
 				"additive"	"1"
@@ -316,19 +295,10 @@ Scheme
 		}
 		QuickInfo
 		{
-			"1"	[$X360]
+			"1"
 			{
 				"name"		"HL2cross"
-				"tall"		"48"
-				"weight"	"0"
-				"antialias" 	"1"
-				"additive"	"1"
-				"custom"	"1"
-			}
-			"1"	[$WIN32]
-			{
-				"name"		"HL2cross"
-				"tall"		"24"
+				"tall"		"28"
 				"weight"	"0"
 				"antialias" "1"
 				"additive"	"1"
@@ -340,20 +310,7 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"28"	[$WIN32]
-				"tall"		"32"	[$X360]
-				"weight"	"0"
-				"antialias" "1"
-				"additive"	"1"
-				"custom"	"1"
-			}
-		}
-		SquadIcon	[$X360]
-		{
-			"1"
-			{
-				"name"		"HalfLife2"
-				"tall"		"42"
+				"tall"		"32"
 				"weight"	"0"
 				"antialias" "1"
 				"additive"	"1"
@@ -365,8 +322,7 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"28"	[$WIN32]
-				"tall"		"32"	[$X360]
+				"tall"		"32"
 				"weight"	"0"
 				"blur"		"4"
 				"scanlines" "2"
@@ -380,8 +336,7 @@ Scheme
 			"1"
 			{
 				"name"		"HalfLife2"
-				"tall"		"14"	[$WIN32]
-				"tall"		"18"	[$X360]
+				"tall"		"16"
 				"weight"	"1000"
 				"additive"	"1"
 				"antialias" "1"
@@ -393,7 +348,7 @@ Scheme
 			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"10"
+				"tall"		"11"
 				"weight"	"700"
 				"antialias" "1"
 				"additive"	"1"
@@ -401,14 +356,7 @@ Scheme
 		}
 		HudHintTextLarge
 		{
-			"1"	[$X360]
-			{
-				"bitmap"	"1"
-				"name"		"Buttons"
-				"scalex"	"1.0"
-				"scaley"	"1.0"
-			}
-			"1"	[$WIN32]
+			"1"
 			{
 				"name"		"Verdana"
 				"tall"		"14"
@@ -419,19 +367,11 @@ Scheme
 		}
 		HudHintTextSmall
 		{
-			"1"	[$WIN32]
+			"1"
 			{
 				"name"		"Verdana"
 				"tall"		"11"
 				"weight"	"0"
-				"antialias" "1"
-				"additive"	"1"
-			}
-			"1"	[$X360]
-			{
-				"name"		"Verdana"
-				"tall"		"12"
-				"weight"	"700"
 				"antialias" "1"
 				"additive"	"1"
 			}
@@ -479,18 +419,6 @@ Scheme
 				"yres"	"1200 10000"
 			}
 		}
-		GameUIButtons
-		{
-			"1"	[$X360]
-			{
-				"bitmap"	"1"
-				"name"		"Buttons"
-				"scalex"	"0.63"
-				"scaley"	"0.63"
-				"scalex_hidef"	"1.0"
-				"scaley_hidef"	"1.0"
-			}
-		}
 		BudgetLabel
 		{
 			"1"
@@ -503,18 +431,11 @@ Scheme
 		}
 		DebugOverlay
 		{
-			"1"	[$WIN32]
+			"1"
 			{
 				"name"		"Courier New"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"400"
-				"outline"	"1"
-			}
-			"1"	[$X360]
-			{
-				"name"		"Tahoma"
-				"tall"		"18"
-				"weight"	"200"
 				"outline"	"1"
 			}
 		}
@@ -556,17 +477,6 @@ Scheme
 				"italic"	"1"
 			}
 		}
-		"CloseCaption_Small"
-		{
-			"1"
-			{
-				"name"		"Tahoma"
-				"tall"		"16"
-				"tall_hidef"	"24"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-			}
-		}
 		// this is the symbol font
 		"Marlett"
 		{
@@ -603,11 +513,11 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"HalfLife2"
-				"tall"		"32"
-				"weight"	"0"
-				"additive"	"0"
-				"antialias"	"1"
+				"name"  "HL2EP1"
+				"tall"  "32"
+				"weight" "0"
+				"additive" "0"
+				"antialias" "1"
 			}
 		}
 		CreditsLogo
@@ -679,80 +589,7 @@ Scheme
 				"additive"	"1"
 			}
 		}
-		"AchievementNotification"
-		{
-			"1"
-			{
-				"name"		"Trebuchet MS"
-				"tall"		"14"
-				"weight"	"900"
-				"antialias" "1"
-			}
-		}
-		"CommentaryDefault"
-		{
-			"1"
-			{
-				"name"		"Verdana"
-				"tall"		"12"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"480 599"
-			}
-			"2"
-			{
-				"name"		"Verdana"
-				"tall"		"13"	[$WIN32]
-				"tall"		"20"	[$X360]
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"600 767"
-			}
-			"3"
-			{
-				"name"		"Verdana"
-				"tall"		"14"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"768 1023"
-				"antialias"	"1"
-			}
-			"4"
-			{
-				"name"		"Verdana"
-				"tall"		"20"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"1024 1199"
-				"antialias"	"1"
-			}
-			"5"
-			{
-				"name"		"Verdana"
-				"tall"		"24"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"1200 6000"
-				"antialias"	"1"
-			}
-			"6"
-			{
-				"name"		"Verdana"
-				"tall"		"12"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"900"
-			}
-			"7"
-			{
-				"name"		"Arial"
-				"tall"		"12"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"800"
-			}
-			
-		}
 	}
-
 
 	
 	//////////////////////// CUSTOM FONT FILES /////////////////////////////

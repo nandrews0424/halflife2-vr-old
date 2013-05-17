@@ -50,21 +50,18 @@ Scheme
 		"Caution"			"255 48 0 16"
 
 		// Top-left corner of the "Half-Life 2" on the main screen
-		"Main.Title1.X"				"236"
-		"Main.Title1.Y"				"200"
-		"Main.Title1.Y_hidef"		"150"
+		"Main.Title1.X"		"240"
+		"Main.Title1.Y"		"190"
 		"Main.Title1.Color"	"255 255 255 255"
 
 		// Top-left corner of secondary title e.g. "DEMO" on the main screen
-		"Main.Title2.X"				"236"
-		"Main.Title2.Y"				"240"
-		"Main.Title2.Y_hidef"		"200"
+		"Main.Title2.X"		"216"
+		"Main.Title2.Y"		"200"
 		"Main.Title2.Color"	"255 255 255 200"
 
 		// Top-left corner of the menu on the main screen
-		"Main.Menu.X"			"365"
-		"Main.Menu.X_hidef"		"365"
-		"Main.Menu.Y"			"250"
+		"Main.Menu.X"		"350"
+		"Main.Menu.Y"		"240"
 
 		// Blank space to leave beneath the menu on the main screen
 		"Main.BottomBorder"	"32"
@@ -93,9 +90,9 @@ Scheme
 			"1"
 			{
 				"name"		"Courier New"
-				"tall"		"15"
+				"tall"		"14"
 				"weight"	"400"
-				"antialias" "0"
+				"antialias" "1"
 			}
 		}
 		// fonts are used in order that they are listed
@@ -104,9 +101,9 @@ Scheme
 			"1"
 			{
 				"name"		"Courier New"
-				"tall"		"15"
+				"tall"		"14"
 				"weight"	"400"
-				"antialias" "0"
+				"antialias" "1"
 			}
 		}
 		// fonts listed later in the order will only be used if they fulfill a range not already filled
@@ -123,25 +120,25 @@ Scheme
 			"1"	[$WIN32]
 			{
 				"name"		"Verdana"
-				"tall"		"14"
+				"tall"		"9"
 				"weight"	"700"
-				"antialias" "0"
+				"antialias" "1"
 				"yres"	"1 599"
 			}
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"12"
 				"weight"	"700"
-				"antialias" "0"
+				"antialias" "1"
 				"yres"	"600 767"
 			}
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"17"
+				"tall"		"14"
 				"weight"	"900"
-				"antialias" "0"
+				"antialias" "1"
 				"yres"	"768 1023"
 			}
 			"4"
@@ -167,7 +164,7 @@ Scheme
 			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"14"
+				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"480 599"
@@ -175,7 +172,7 @@ Scheme
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"13"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"600 767"
@@ -183,7 +180,7 @@ Scheme
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
 				"yres"	"768 1023"
@@ -220,7 +217,7 @@ Scheme
 			"1"
 			{
 				"name"		"Verdana"
-				"tall"		"13"
+				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"480 599"
@@ -228,7 +225,7 @@ Scheme
 			"2"
 			{
 				"name"		"Verdana"
-				"tall"		"15"
+				"tall"		"13"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"600 767"
@@ -236,7 +233,7 @@ Scheme
 			"3"
 			{
 				"name"		"Verdana"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 				"yres"	"768 1023"
@@ -520,7 +517,7 @@ Scheme
 			"1"	[$WIN32]
 			{
 				"name"		"Courier New"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"400"
 				"outline"	"1"
 			}
