@@ -392,7 +392,7 @@ void CBaseViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePos
 			Vector scale = pWeapon->GetWpnData().viewModelAngleScale;
 			Vector offsets = pWeapon->GetWpnData().viewModelAngleOffset;
 			
-			Msg("Scaling %.1f %.1f by %.2f %.2f\n", dX, dY, scale.x, scale.y);
+			// Msg("Scaling %.1f %.1f by %.2f %.2f\n", dX, dY, scale.x, scale.y);
 
 			vmangles.x = eyeAngles.x + (dX*scale.x) - offsets.x;  
 			vmangles.y = eyeAngles.y + (dY*scale.y) - offsets.y;

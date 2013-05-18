@@ -1050,12 +1050,22 @@ void C_BasePlayer::UpdateFlashlight()
 		Vector vecForward, vecRight, vecUp, flashlightPos;
 		
 		// VR - if available use independently tracked weapon for flashlight direction....
-		if (VR_Controller()->initialized() && VR_Controller()->hasWeaponTracking()) {
+
+		if (VR_Controller()->hasLeftHandTracking())
+		{
+			AngleVectors(VR_Controller()->leftHandOrientation(), &vecForward, &vecRight, &vecUp);
+			Vector offset;
+			VR_Controller()->getLeftHandOffset(offset);
+			flashlightPos = EyePosition() + offset;
+		}
+		else if (VR_Controller()->hasWeaponTracking()) 
+		{
 			AngleVectors(VR_Controller()->weaponOrientation(), &vecForward, &vecRight, &vecUp);
 			Vector weapOffset;
 			VR_Controller()->getWeaponOffset(weapOffset);
 			flashlightPos = EyePosition() + weapOffset;
-		} else 
+		} 
+		else 
 		{
 			EyeVectors( &vecForward, &vecRight, &vecUp );
 			flashlightPos = EyePosition();
