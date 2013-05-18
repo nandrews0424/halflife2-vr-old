@@ -1,7 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\SMG1"
 
 // forward/back left/right down/up
-$origin -14 11 -14
+$origin -16 5 -5.5
 
 $modelname "weapons/v_smg1.mdl"
 $model "studio" "Smg1_reference.smd"
