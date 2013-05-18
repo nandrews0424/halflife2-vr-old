@@ -1,7 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\357"
 
 // right/left forward/back down/up
-$origin -9 -18 -5.5
+$origin -5 -18 -4.5
 
 $modelname "weapons/v_357.mdl"
 $model "studio" "Python_357_reference.smd"
