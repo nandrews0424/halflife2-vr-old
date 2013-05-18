@@ -335,7 +335,14 @@ void CWeaponPistol::ItemPostFrame( void )
 		DryFire();
 	}
 
-	p_laserSight->UpdateLaserPosition(this);
+	if ( HasPrimaryAmmo() )
+	{
+		p_laserSight->UpdateLaserPosition(this);
+	} 
+	else
+	{
+		p_laserSight->TurnOff();
+	}
 }
 
 

@@ -177,7 +177,14 @@ void CWeaponSMG1::ItemPostFrame( void )
 	if ( m_bInReload )
 		return;
 	
-	p_laserSight->UpdateLaserPosition(this);
+	if ( HasPrimaryAmmo() )
+	{
+		p_laserSight->UpdateLaserPosition(this);
+	} 
+	else
+	{
+		p_laserSight->TurnOff();
+	}
 }
 
 //-----------------------------------------------------------------------------

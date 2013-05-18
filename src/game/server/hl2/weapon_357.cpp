@@ -100,7 +100,17 @@ void CWeapon357::ItemPostFrame( void )
 	if ( m_bInReload )
 		return;
 	
-	p_laserSight->UpdateLaserPosition(this);
+	if ( !p_laserSight )
+		return;
+	
+	if ( HasPrimaryAmmo() )
+	{
+		p_laserSight->UpdateLaserPosition(this);
+	} 
+	else
+	{
+		p_laserSight->TurnOff();
+	}
 }
 
 bool CWeapon357::Reload( void )

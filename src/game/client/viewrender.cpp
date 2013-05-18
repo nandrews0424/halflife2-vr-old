@@ -2104,7 +2104,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		CDebugViewRender::GenerateOverdrawForTesting();
 	}
 
-	if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 && vr_vireio.GetBool())
+	if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 && !vr_vireio.GetBool())
 	{
 		DrawScope( view );
 	}
