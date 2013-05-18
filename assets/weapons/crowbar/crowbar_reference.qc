@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\Crowbar"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\Crowbar"
 
 // forward/back left/right down/up
 $origin -31 11 -20

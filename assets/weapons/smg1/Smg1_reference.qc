@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\SMG"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\SMG"
 
 // forward/back left/right down/up
 $origin -12 11 -12

@@ -60,4 +60,3 @@ $sequence holster "holster" ACT_VM_HOLSTER 1 rotate 90 fps 30.00 node 0
 $sequence holsterempty "holsterempty" ACT_VM_HOLSTER 1 rotate 90 fps 30.00 node 0
 $sequence idletolow "idletolow" ACT_VM_LOWERED_TO_IDLE 1 rotate 90 fps 30.00 transition 0 1
 $sequence lowtoidle "lowtoidle" ACT_VM_IDLE_TO_LOWERED 1 rotate 90 fps 30.00 transition 1 0
-$sequence lowidle "lowidle" loop ACT_VM_IDLE_LO

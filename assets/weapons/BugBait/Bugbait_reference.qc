@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\BugBait"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\BugBait"
 
 // right/left forward/back down/up
 $origin -6 -23 -12

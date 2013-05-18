@@ -1,3 +1,4 @@
+#!/bin/bash
 STEAM_DIR=/C/Program\ Files\ \(x86\)/Steam/steamapps
 ASSET_DIR=D:/dev/hl2-vr-bkp/assets
 

@@ -1,4 +1,4 @@
-$cd "E:\Work\Rift Hydra Mods\HL2\StunBaton"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\StunBaton"
 
 $modelname "Weapons/V_Stunbaton.mdl"
 $model "studio" "Stunbaton_reference.smd"

@@ -2109,7 +2109,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 	render->PopView( GetFrustum() );
 	g_WorldListCache.Flush();
 }
-
+  
 //-----------------------------------------------------------------------------
 // Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack
 //-----------------------------------------------------------------------------

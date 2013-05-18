@@ -1,4 +1,4 @@
-$cd "D:\valve-toolkit\weapons\357"
+$cd "D:\dev\hl2-vr-bkp\assets\weapons\357"
 
 // right/left forward/back down/up
 $origin -9 -18 -5.5

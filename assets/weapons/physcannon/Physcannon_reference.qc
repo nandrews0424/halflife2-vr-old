@@ -1,7 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\physcannon"
 
 // right/left forward/back down/up
-$origin -15 -25 -20
+$origin -12 -35.5 58
 
 $modelname "weapons/v_physcannon.mdl"
 $model "studio" "Physcannon_reference.smd"
@@ -47,10 +47,9 @@ $sequence altfire "altfire" ACT_VM_SECONDARYATTACK 1 fps 30.00
 $animation ProngsShut "ProngsShut" fps 30.000000
 $animation ProngsOpen "ProngsOpen" fps 30.000000
 
-//$sequence prong_blend "ProngsShut" fps 30.00 {
-//  ProngsShut ProngsOpen
-//  blendwidth 2
-//  blend active 0.000000 1.000000
-//  blend active 0.000000 1.000000
-//  autoplay
-//}
+$sequence prong_blend "ProngsShut" fps 30.00 {
+  blendwidth 2
+  blend active 0.000000 1.000000
+  autoplay
+ ProngsOpen
+}
