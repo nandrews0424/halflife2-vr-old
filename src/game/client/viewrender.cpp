@@ -84,6 +84,9 @@ static ConCommand test_freezeframe( "test_freezeframe", testfreezeframe_f, "Test
 //-----------------------------------------------------------------------------
 
 static ConVar r_visocclusion( "r_visocclusion", "0", FCVAR_CHEAT );
+static ConVar vr_vireio("vr_vireio", "0", FCVAR_ARCHIVE, "If active, shuts off effects incompatible with vireio");
+
+
 extern ConVar r_flashlightdepthtexture;
 extern ConVar vcollide_wireframe;
 extern ConVar mat_motion_blur_enabled;
@@ -2101,10 +2104,10 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		CDebugViewRender::GenerateOverdrawForTesting();
 	}
 
-	/*if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 )
+	if(g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 70 && vr_vireio.GetBool())
 	{
 		DrawScope( view );
-	}*/
+	}
 
 	render->PopView( GetFrustum() );
 	g_WorldListCache.Flush();
