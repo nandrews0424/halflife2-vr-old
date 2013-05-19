@@ -1,6 +1,7 @@
 $cd "D:\dev\hl2-vr-bkp\assets\weapons\Grenade"
 
-$origin 24 -7 -8
+// right/left forward/back down/up
+$origin -4.5 -26 -7
 
 $modelname "weapons/v_Grenade.mdl"
 $model "studio" "Grenade_reference.smd"

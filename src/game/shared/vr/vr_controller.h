@@ -11,7 +11,7 @@
 	VR Controller - Handles coordination of all the raw sensor data, syncing across them and turning them into usable game inputs
 	=================== */
 
-#define SENSOR_COUNT 4
+#define SENSOR_COUNT 8
 
 struct HydraControllerData
 {
@@ -51,6 +51,7 @@ public:
  
 	QAngle  headOrientation( void );
 	QAngle  weaponOrientation( void );
+	QAngle  leftHandOrientation( void );
 	QAngle  bodyOrientation( void );
 	void	update( float originalYaw );
 	void	calibrate( void );
@@ -65,11 +66,14 @@ public:
 	bool	initialized( void );
 	bool	hasHeadTracking( void );
 	bool	hasWeaponTracking( void );
+	bool	hasLeftHandTracking( void );
+	bool	hasAnalogInputs( void );
 	
 	void	shutDown( void );
 
 	void	getHeadOffset(Vector &headOffset, bool calibrated=true);
 	void	getWeaponOffset(Vector &offset, bool calibrated=true);
+	void	getLeftHandOffset(Vector &offset, bool calibrated=true);
 				
 protected:
 	float _totalAccumulatedYaw[SENSOR_COUNT];
@@ -83,11 +87,14 @@ protected:
 	QAngle _headAngle;
 	QAngle _headCalibration;
 	QAngle _weaponAngle;
+	QAngle _leftHandAngle;
 	QAngle _weaponCalibration;
+	QAngle _leftHandCalibration;
 	QAngle _bodyCalibration;
 	QAngle _bodyAngle;
 	Vector _weaponOffsetCalibration;
-	
+	Vector _leftHandOffsetCalibration;
+
 	unsigned int _updateCounter;
 };
 
